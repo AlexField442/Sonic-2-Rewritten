@@ -599,7 +599,6 @@ Vint_Title:
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;VintSub6
 Vint_Unused6:
-	bsr.w	Do_ControllerPal
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;VintSub10
@@ -924,9 +923,6 @@ loc_BD6:
 ; ===========================================================================
 ;VintSubE
 Vint_UnusedE:
-	bsr.w	Do_ControllerPal
-	addq.b	#1,(VIntSubE_RunCount).w
-	move.b	#VintID_UnusedE,(Vint_routine).w
 	rts
 ; ===========================================================================
 ;VintSub12
@@ -1268,7 +1264,6 @@ VDP_ClrCRAM:
 	dbf	d7,VDP_ClrCRAM	; clear	the CRAM
 
 	clr.l	(Vscroll_Factor).w
-	clr.l	(unk_F61A).w
 	move.l	d1,-(sp)
 
 	dmaFillVRAM 0,$0000,$10000	; fill entire VRAM with 0
@@ -1317,7 +1312,6 @@ ClearScreen:
 	dmaFillVRAM 0,VRAM_Plane_A_Name_Table_2P,VRAM_Plane_Table_Size
 +
 	clr.l	(Vscroll_Factor).w
-	clr.l	(unk_F61A).w
 
 	; These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM Sprite_Table,Sprite_Table_End+4
@@ -4077,7 +4071,6 @@ TitleScreen:
 	move.b	#0,(Last_star_pole_hit_2P).w
 	move.w	#0,(Debug_placement_mode).w
 	move.w	#0,(Demo_mode_flag).w
-	move.w	#0,(unk_FFDA).w
 	move.w	#0,(PalCycle_Timer).w
 	move.w	#0,(Two_player_mode).w
 	move.b	#0,(Level_started_flag).w
@@ -6316,7 +6309,6 @@ SpecialStage:
 	dmaFillVRAM 0,VRAM_SS_Horiz_Scroll_Table,VRAM_SS_Horiz_Scroll_Table_Size  ; clear Horizontal scroll table
 
 	clr.l	(Vscroll_Factor).w
-	clr.l	(unk_F61A).w
 	clr.b	(SpecialStage_Started).w
 
 ; /------------------------------------------------------------------------\
@@ -12776,7 +12768,6 @@ EndingSequence:
 	stopZ80
 	dmaFillVRAM 0,VRAM_Plane_A_Name_Table,VRAM_Plane_Table_Size ; clear Plane A pattern name table
 	clr.l	(Vscroll_Factor).w
-	clr.l	(unk_F61A).w
 	startZ80
 
 	lea	(VDP_control_port).l,a6
@@ -14493,13 +14484,10 @@ LevelSizeLoad:
 	lea	LevelSize(pc,d0.w),a0
 	move.l	(a0)+,d0
 	move.l	d0,(Camera_Min_X_pos).w
-	move.l	d0,(unk_EEC0).w	; unused besides this one write...
 	move.l	d0,(Tails_Min_X_pos).w
 	move.l	(a0)+,d0
 	move.l	d0,(Camera_Min_Y_pos).w
-	; Warning: unk_EEC4 is only a word long, this line also writes to Camera_Max_Y_pos
-	; If you remove this instruction, the camera will scroll up until it kills Sonic
-	move.l	d0,(unk_EEC4).w	; unused besides this one write...
+	move.w	d0,(Camera_Max_Y_pos).w
 	move.l	d0,(Tails_Min_Y_pos).w
 	move.w	#$1010,(Horiz_block_crossed_flag).w
 	move.w	#(224/2)-16,(Camera_Y_pos_bias).w
@@ -31635,7 +31623,6 @@ SpecialCNZBumpers_Init:
 	bhi.s	-
 	move.l	a1,(CNZ_Visible_bumpers_end).w
 	move.l	a1,(CNZ_Visible_bumpers_end_P2).w
-	move.b	#1,(CNZ_Bumper_UnkFlag).w
 	rts
 ; ===========================================================================
 ; loc_17422:
@@ -31880,19 +31867,15 @@ loc_175EA:
 	move.w	x_vel(a0),d1
 	move.w	y_vel(a0),d2
 	jsr	(CalcAngle).l
-	move.b	d0,(unk_FFDC).w
 	sub.w	d3,d0
 	mvabs.w	d0,d1
 	neg.w	d0
 	add.w	d3,d0
-	move.b	d0,(unk_FFDD).w
-	move.b	d1,(unk_FFDF).w
 	cmpi.b	#$38,d1
 	blo.s	loc_17618
 	move.w	d3,d0
 
 loc_17618:
-	move.b	d0,(unk_FFDE).w
 	jsr	(CalcSine).l
 	muls.w	#-$A00,d1
 	asr.l	#8,d1
@@ -32103,12 +32086,7 @@ loc_177FA:
 	jmp	(PlaySound).l
 ; ===========================================================================
 SpecialCNZBumpers_Act1:
-    if fixBugs
-	; Sonic Team forgot to start this file with a boundary marker,
-	; meaning the game could potentially read past the start of the file
-	; and load random bumpers.
 	dc.w	$0000, $0000, $0000
-    endif
 	BINCLUDE	"level/objects/CNZ 1 bumpers.bin"	; byte_1781A
 
 SpecialCNZBumpers_Act2:
@@ -32991,17 +32969,10 @@ ObjectLayoutBoundary macro
 	dc.w	$FFFF, $0000, $0000
     endm
 
-    if fixBugs
-	; Sonic Team forgot to put a boundary marker here, meaning the game
-	; could potentially read past the start of the file and load random
-	; objects.
 	ObjectLayoutBoundary
-    endif
-
 ; byte_1802A;
 Objects_CNZ1_2P:	BINCLUDE	"level/objects/CNZ_1_2P.bin"
 	ObjectLayoutBoundary
-
 ; byte_18492:
 Objects_CNZ2_2P:	BINCLUDE	"level/objects/CNZ_2_2P.bin"
 	ObjectLayoutBoundary

@@ -1194,8 +1194,7 @@ Screen_Shaking_Flag_HTZ:	ds.b	1	; activates screen shaking code in HTZ's layer d
 Screen_Shaking_Flag:		ds.b	1	; activates screen shaking code (if existent) in layer deformation routine
 Scroll_lock:			ds.b	1	; set to 1 to stop all scrolling for P1
 Scroll_lock_P2:			ds.b	1	; set to 1 to stop all scrolling for P2
-unk_EEC0:			ds.l	1	; unused, except on write in LevelSizeLoad...
-unk_EEC4:			ds.w	1	; same as above. The write being a long also overwrites the address below
+				ds.b	6	; $FFFFEEC0-$FFFFEEC5 ; unused
 Camera_Max_Y_pos:		ds.w	1
 
 Camera_Boundaries:
@@ -1279,7 +1278,7 @@ Demo_Time_left:			ds.w	1	; 2 bytes
 Vscroll_Factor:
 Vscroll_Factor_FG:		ds.w	1
 Vscroll_Factor_BG:		ds.w	1
-unk_F61A:			ds.l	1	; Only ever cleared, never used
+				ds.l	1	; $FFFFF61A-$FFFFF61D ; unused
 Vscroll_Factor_P2:
 Vscroll_Factor_P2_FG:		ds.w	1
 Vscroll_Factor_P2_BG:		ds.w	1
@@ -1291,8 +1290,7 @@ Palette_fade_start:		ds.b	1	; Offset from the start of the palette to tell what 
 Palette_fade_length:		ds.b	1	; Number of entries to change in the palette fading routines
 
 MiscLevelVariables:
-VIntSubE_RunCount:		ds.b	1
-				ds.b	1	; $FFFFF629 ; seems unused
+				ds.w	1	; $FFFFF628-$FFFFF629 ; seems unused
 Vint_routine:			ds.b	1	; was "Delay_Time" ; routine counter for V-int
 				ds.b	1	; $FFFFF62B ; seems unused
 Sprite_count:			ds.b	1	; the number of sprites drawn in the current frame
@@ -1389,7 +1387,7 @@ Ring_end_addr_P2:		ds.w	1
 Ring_Manager_Addresses_P2_End:
 
 CNZ_Bumper_routine:		ds.b	1
-CNZ_Bumper_UnkFlag:		ds.b	1	; Set only, never used again
+				ds.b	1	; $FFFFF71E? ; unused
 
 Bumper_Manager_Addresses:
 CNZ_Visible_bumpers_start:	ds.l	1
@@ -1746,11 +1744,7 @@ Correct_cheat_entries:		ds.w	1
 Correct_cheat_entries_2:	ds.w	1	; for 14 continues or 7 emeralds codes
 
 Two_player_mode:		ds.w	1	; flag (0 for main game)
-unk_FFDA:			ds.w	1	; Written to once at title screen, never read from
-unk_FFDC:			ds.b	1	; Written to near loc_175EA, never read from
-unk_FFDD:			ds.b	1	; Written to near loc_175EA, never read from
-unk_FFDE:			ds.b	1	; Written to near loc_175EA, never read from
-unk_FFDF:			ds.b	1	; Written to near loc_175EA, never read from
+				ds.b	6	; $FFFFFFDA-$FFFFFFDF ; unused
 
 ; Values in these variables are passed to the sound driver during V-INT.
 ; They use a playlist index, not a sound test index.
