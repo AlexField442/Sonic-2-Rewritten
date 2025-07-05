@@ -17,12 +17,6 @@
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
 ;
-    ifndef gameRevision
-gameRevision = 2
-    endif
-;	| If 0, a REV00 ROM is built
-;	| If 1, a REV01 ROM is built, which contains some fixes
-;	| If 2, a (probable) REV02 ROM is built, which contains even more fixes
 padToPowerOfTwo = 1
 ;	| If 1, pads the end of the ROM to the next power of two bytes (for real hardware)
 ;
@@ -38,13 +32,13 @@ skipChecksumCheck = 0
 zeroOffsetOptimization = 0|allOptimizations
 ;	| If 1, makes a handful of zero-offset instructions smaller
 ;
-removeJmpTos = 0|(gameRevision=2)|allOptimizations
+removeJmpTos = 0|allOptimizations
 ;	| If 1, many unnecessary JmpTos are removed, improving performance
 ;
-addsubOptimize = 0|(gameRevision=2)|allOptimizations
+addsubOptimize = 0|allOptimizations
 ;	| If 1, some add/sub instructions are optimized to addq/subq
 ;
-relativeLea = 0|(gameRevision<>2)|allOptimizations
+relativeLea = 0|allOptimizations
 ;	| If 1, makes some instructions use pc-relative addressing, instead of absolute long
 ;
 useFullWaterTables = 0
@@ -142,13 +136,7 @@ Header:
 	dc.b "(C)SEGA 1992.SEP" ; Copyright holder and release date (generally year)
 	dc.b "SONIC THE             HEDGEHOG 2                " ; Domestic name
 	dc.b "SONIC THE             HEDGEHOG 2                " ; International name
-    if gameRevision=0
-	dc.b "GM 00001051-00"   ; Version (REV00)
-    elseif gameRevision=1
-	dc.b "GM 00001051-01"   ; Version (REV01)
-    elseif gameRevision=2
-	dc.b "GM 00001051-02"   ; Version (REV02)
-    endif
+	dc.b "GM 00001051-02"   ; Version
 ; word_18E
 Checksum:
 	dc.w $D951		; Checksum (patched later if incorrect)
@@ -346,11 +334,9 @@ GameProgram:
 	tst.w	(VDP_control_port).l
 ; loc_306:
 CheckSumCheck:
-    if gameRevision>0
 	move.w	(VDP_control_port).l,d1
 	btst	#1,d1
 	bne.s	CheckSumCheck	; wait until DMA is completed
-    endif
 	btst	#6,(HW_Expansion_Control).l
 	beq.s	ChecksumTest
 	cmpi.l	#'init',(Checksum_fourcc).w ; has checksum routine already run?
@@ -2459,9 +2445,6 @@ Kos_Done:
 
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
 
 
 
@@ -3725,10 +3708,6 @@ Pal_SS3_2p:palette Special Stage 3 2p.bin ; Special Stage 3 2p palette
 Pal_Result:palette Special Stage Results Screen.bin ; Special Stage Results Screen palette
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
 
 
 
@@ -3869,9 +3848,6 @@ Angle_Data:	BINCLUDE	"misc/angles.bin"
 
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
 
 
 
@@ -4012,10 +3988,6 @@ PlaneMapToVRAM_H80_Sega:
 ; End of function PlaneMapToVRAM_H80_Sega
 
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 ; sub_3990:
@@ -6286,10 +6258,6 @@ LoadZoneTiles:
 ; End of function LoadZoneTiles
 
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo_loadZoneBlockMaps ; JmpTo
@@ -10113,10 +10081,6 @@ SpecialStage_ResultsLetters:
 
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
@@ -11457,33 +11421,19 @@ dword_8732:
 
 	; Menu text
 Text2P_EmeraldHill:	menutxt	"EMERALD HILL"	; byte_874A:
-	rev02even
 Text2P_MysticCave:	menutxt	" MYSTIC CAVE"	; byte_8757:
-	rev02even
 Text2P_CasinoNight:	menutxt	"CASINO NIGHT"	; byte_8764:
-	rev02even
 Text2P_SpecialStage:	menutxt	"SPECIAL STAGE"	; byte_8771:
-	rev02even
 Text2P_Special:		menutxt	"   SPECIAL  "	; byte_877F:
-	rev02even
 Text2P_Zone:		menutxt	"ZONE "		; byte_878C:
-	rev02even
 Text2P_Stage:		menutxt	"STAGE"		; byte_8792:
-	rev02even
 Text2P_GameOver:	menutxt	"GAME OVER"	; byte_8798:
-	rev02even
 Text2P_TimeOver:	menutxt	"TIME OVER"
-	rev02even
 Text2P_NoGame:		menutxt	"NO GAME"	; byte_87AC:
-	rev02even
 Text2P_Tied:		menutxt	"TIED"		; byte_87B4:
-	rev02even
 Text2P_1P:		menutxt	" 1P"		; byte_87B9:
-	rev02even
 Text2P_2P:		menutxt	" 2P"		; byte_87BD:
-	rev02even
 Text2P_Blank:		menutxt	"    "		; byte_87C1:
-	rev02even
 
 	charset ; reset character set
 
@@ -12738,24 +12688,20 @@ level_select_cheat:
 	; 17th September 1965, the birthdate of one of Sonic 2's developers,
 	; Yuji Naka.
 	dc.b $19, $65,   9, $17,   0
-	rev02even
 ; byte_97B7
 continues_cheat:
 	; November 24th, which was Sonic 2's release date in the EU and US.
 	dc.b   1,   1,   2,   4,   0
-	rev02even
 debug_cheat:
 	; 24th November 1992 (also known as "Sonic 2sday"), which was
 	; Sonic 2's release date in the EU and US.
 	dc.b   1,   9,   9,   2,   1,   1,   2,   4,   0
-	rev02even
 ; byte_97C5
 super_sonic_cheat:
 	; Book of Genesis, 41:26, which makes frequent reference to the
 	; number 7. 7 happens to be the number of Chaos Emeralds.
 	; The Mega Drive is known as the Genesis in the US.
 	dc.b   4,   1,   2,   6,   0
-	rev02even
 
 	; set the character set for menu text
 	charset '@',"\27\30\31\32\33\34\35\36\37\38\39\40\41\42\43\44\45\46\47\48\49\50\51\52\53\54\55"
@@ -14360,7 +14306,6 @@ l := lowstring("char")
 	endcase
 	endm
 	dc.b -1
-	rev02even
     endm
 
 ; credits text data (palette index followed by a string)
@@ -14423,11 +14368,7 @@ byte_BA81:	creditText 0,"YOUICHI  TAKAHASHI"
 byte_BAA2:	creditText 1,"SUPPORTERS"
 byte_BAB8:	creditText 0,"DAIZABUROU  SAKURAI"
 byte_BADC:	creditText 0,"HISASHI  SUZUKI"
-    if gameRevision=0
-byte_BAF7:	creditText 0,"TOHMAS  KALINSKE"	; typo
-    else
 byte_BAF7:	creditText 0,"THOMAS  KALINSKE"
-    endif
 byte_BB16:	creditText 0,"FUJIO  MINEGISHI"
 byte_BB32:	creditText 0,"TAKAHARU UTSUNOMIYA"
 byte_BB58:	creditText 1,"SPECIAL  THANKS"
@@ -14550,12 +14491,10 @@ LevelSizeLoad:
 	clr.b	(Scroll_lock_P2).w
 	moveq	#0,d0
 	move.b	d0,(Dynamic_Resize_Routine).w ; load level boundaries
-    if gameRevision=2
 	move.w	d0,(WFZ_LevEvent_Subrout).w
 	move.w	d0,(WFZ_BG_Y_Speed).w
 	move.w	d0,(Camera_BG_X_offset).w
 	move.w	d0,(Camera_BG_Y_offset).w
-    endif
 	move.w	(Current_ZoneAndAct).w,d0
 	ror.b	#1,d0
 	lsr.w	#4,d0
@@ -14772,20 +14711,16 @@ InitCam_EHZ:
 ; ===========================================================================
 ; wtf:
 InitCam_Null0:
-    if gameRevision=0
 	rts
-    endif
 ; ===========================================================================
 ; Wood_Zone_BG:
 InitCam_WZ:
-    if gameRevision=0
 	asr.w	#2,d0
 	addi.w	#$400,d0
 	move.w	d0,(Camera_BG_Y_pos).w
 	asr.w	#3,d1
 	move.w	d1,(Camera_BG_X_pos).w
 	rts
-    endif
 ; ===========================================================================
 ;loc_C2E4:
 InitCam_Std:
@@ -14817,29 +14752,10 @@ InitCam_HTZ:
 ; ===========================================================================
 ; Hidden_Palace_Zone_BG:
 InitCam_HPZ:
-    if gameRevision=0
 	asr.w	#1,d0
 	move.w	d0,(Camera_BG_Y_pos).w
 	clr.l	(Camera_BG_X_pos).w
 	rts
-    endif
-; ===========================================================================
-; Leftover Spring Yard Zone code from Sonic 1
-
-; Unknown_Zone_BG:
-;InitCam_SYZ:
-    if gameRevision=0
-	asl.l	#4,d0
-	move.l	d0,d2
-	asl.l	#1,d0
-	add.l	d2,d0
-	asr.l	#8,d0
-	addq.w	#1,d0
-	move.w	d0,(Camera_BG_Y_pos).w
-	clr.l	(Camera_BG_X_pos).w
-	rts
-    endif
-
 ; ===========================================================================
 ;return_C320:
 InitCam_Null2:
@@ -15395,7 +15311,6 @@ SwScrl_EHZ_2P:
 ; unused...
 ; loc_C7BA:
 SwScrl_Lev2:
-    if gameRevision<2
 	; Just a duplicate of 'SwScrl_Minimal'.
 
 	; Set the flags to dynamically load the background as it moves.
@@ -15422,7 +15337,6 @@ SwScrl_Lev2:
 
 -	move.l	d0,(a1)+
 	dbf	d1,-
-    endif
 
 	rts
 ; ===========================================================================
@@ -20052,10 +19966,6 @@ ConvertHalfOf256x256ChunkToTwo128x128Chunks:
 
 ; ===========================================================================
 
-    if gameRevision=0
-	nop
-    endif
-
     if ~~removeJmpTos
 ; JmpTo_PalLoad2
 JmpTo_PalLoad_Now ; JmpTo
@@ -21651,10 +21561,6 @@ LoadPLC_AnimalExplosion:
 	rts
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo_SingleObjLoad ; JmpTo
 	jmp	(SingleObjLoad).l
@@ -22719,10 +22625,6 @@ word_102E4:	dc.w 2
 
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo_PlatformObject2 ; JmpTo
 	jmp	(PlatformObject2).l
@@ -22877,10 +22779,6 @@ Obj17_Display:
 ; -----------------------------------------------------------------------------
 Obj17_MapUnc_10452:	BINCLUDE "mappings/sprite/obj17.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
 
 
@@ -23264,10 +23162,6 @@ Obj18_MapUnc_107F6:	BINCLUDE "mappings/sprite/obj18_a.bin"
 Obj18_MapUnc_1084E:	BINCLUDE "mappings/sprite/obj18_b.bin"
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo3_CalcSine ; JmpTo
 	jmp	(CalcSine).l
@@ -23574,37 +23468,30 @@ Obj1A_CreateFragments:
 Obj1A_DelayData:
 	dc.b $1C,$18,$14,$10,$1A,$16,$12, $E, $A,  6,$18,$14,$10, $C,  8,  4
 	dc.b $16,$12, $E, $A,  6,  2,$14,$10, $C; 16
-	rev02even
 ; Delay data for obj1A in HPZ:
 ;byte_10C0B:
 Obj1A_HPZ_DelayData:
 	dc.b $18,$1C,$20,$1E,$1A,$16,  6, $E,$14,$12, $A,  2
-	rev02even
 ; Delay data for obj1F even subtypes in all levels without more specific data:
 ;byte_10C17:
 Obj1F_DelayData_EvenSubtype:
 	dc.b $1E,$16, $E,  6,$1A,$12, $A,  2
-	rev02even
 ; Delay data for obj1F odd subtypes in all levels without more specific data:
 ;byte_10C1F:
 Obj1F_DelayData_OddSubtype:
 	dc.b $16,$1E,$1A,$12,  6, $E, $A,  2
-	rev02even
 ; Delay data for obj1F in OOZ:
 ;byte_10C27:
 Obj1F_OOZ_DelayData:
 	dc.b $1A,$12, $A,  2,$16, $E,  6
-	rev02even
 ; Delay data for obj1F in MCZ:
 ;byte_10C2E:
 Obj1F_MCZ_DelayData:
 	dc.b $1A,$16,$12, $E, $A,  2
-	rev02even
 ; Delay data for obj1F in ARZ:
 ;byte_10C34:
 Obj1F_ARZ_DelayData:
 	dc.b $16,$1A,$18,$12,  6, $E, $A,  2
-	rev02even
 ; S1 remnant: Height data for GHZ collapsing platform (unused):
 ;byte_10C3C:
 Obj1A_GHZ_SlopeData:
@@ -23648,10 +23535,6 @@ Obj1F_MapUnc_11106:	BINCLUDE "mappings/sprite/obj1F_c.bin"
 ; -------------------------------------------------------------------------------
 Obj1F_MapUnc_1115E:	BINCLUDE "mappings/sprite/obj1F_d.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo_SlopedPlatform ; JmpTo
@@ -23824,11 +23707,8 @@ Ani_obj71:	offsetTable
 		offsetTableEntry.w byte_11389	; 2
 		offsetTableEntry.w byte_11392	; 3
 byte_11372:	dc.b   8,  3,  3,  4,  5,  5,  4,$FF
-	rev02even
 byte_1137A:	dc.b   5,  0,  0,  0,  1,  2,  3,  3,  2,  1,  2,  3,  3,  1,$FF
-	rev02even
 byte_11389:	dc.b  $B,  0,  1,  2,  3,  4,  5,$FD,  3
-	rev02even
 byte_11392:	dc.b $7F,  6,$FD,  2
 	even
 
@@ -23861,10 +23741,6 @@ Obj1C_MapUnc_11552:	BINCLUDE "mappings/sprite/obj1C_e.bin"
 ; ----------------------------------------------------------------------------
 Obj71_MapUnc_11576:	BINCLUDE "mappings/sprite/obj71_b.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
 
 
@@ -24074,10 +23950,6 @@ return_11820:
 ; -------------------------------------------------------------------------------
 Obj2D_MapUnc_11822:	BINCLUDE "mappings/sprite/obj2D.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo2_SolidObject ; JmpTo
@@ -24694,22 +24566,11 @@ CollectRing_Sonic:
 	addq.w	#1,(Rings_Collected).w	; add 1 to the number of collected rings
 
 CollectRing_1P:
-
-    if gameRevision=0
-	cmpi.w	#999,(Ring_count).w	; does the player 1 have 999 or more rings?
-	bhs.s	+			; if yes, skip the increment
-	addq.w	#1,(Ring_count).w	; add 1 to the ring count
-+
-	ori.b	#1,(Update_HUD_rings).w	; set flag to update the ring counter in the HUD
-	move.w	#SndID_Ring,d0		; prepare to play the ring sound
-    else
 	move.w	#SndID_Ring,d0		; prepare to play the ring sound
 	cmpi.w	#999,(Ring_count).w	; does the player 1 have 999 or more rings?
 	bhs.s	JmpTo_PlaySound2	; if yes, play the ring sound
 	addq.w	#1,(Ring_count).w	; add 1 to the ring count
 	ori.b	#1,(Update_HUD_rings).w	; set flag to update the ring counter in the HUD
-    endif
-
 	cmpi.w	#100,(Ring_count).w	; does the player 1 have less than 100 rings?
 	blo.s	JmpTo_PlaySound2	; if yes, play the ring sound
 	bset	#1,(Extra_life_flags).w	; test and set the flag for the first extra life
@@ -25133,10 +24994,6 @@ Ani_objDC:	offsetTable
 	even
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo4_CalcSine ; JmpTo
 	jmp	(CalcSine).l
@@ -25489,19 +25346,6 @@ tails_1up:
 ; ---------------------------------------------------------------------------
 super_ring:
 	addq.w	#1,(a2)
-
-    if gameRevision=0
-	lea	(Ring_count).w,a2
-	lea	(Update_HUD_rings).w,a3
-	lea	(Extra_life_flags).w,a4
-	cmpa.w	#MainCharacter,a1
-	beq.s	+
-	lea	(Ring_count_2P).w,a2
-	lea	(Update_HUD_rings_2P).w,a3
-	lea	(Extra_life_flags_2P).w,a4
-+	; give player 10 rings
-	addi.w	#10,(a2)
-    else
 	lea	(Ring_count).w,a2
 	lea	(Update_HUD_rings).w,a3
 	lea	(Extra_life_flags).w,a4
@@ -25523,8 +25367,6 @@ super_ring:
 	cmpi.w	#999,(a2)
 	blo.s	+
 	move.w	#999,(a2)
-    endif
-
 +
 	ori.b	#1,(a3)
 	cmpi.w	#100,(a2)
@@ -25658,10 +25500,8 @@ process_swap_table:
 
 	move.b	#AniIDSonAni_Run,(MainCharacter+prev_anim).w	; force Sonic's animation to restart
 	move.b	#AniIDSonAni_Run,(Sidekick+prev_anim).w	; force Tails' animation to restart
-    if gameRevision>0
 	move.b	#0,(MainCharacter+mapping_frame).w
 	move.b	#0,(Sidekick+mapping_frame).w
-    endif
 	move.b	#-1,(Sonic_LastLoadedDPLC).w
 	move.b	#-1,(Tails_LastLoadedDPLC).w
 	move.b	#-1,(TailsTails_LastLoadedDPLC).w
@@ -25889,11 +25729,6 @@ Ani_obj26_Broken:
 ; MapUnc_12D36: MapUnc_obj26:
 Obj26_MapUnc_12D36:	BINCLUDE "mappings/sprite/obj26.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
-
 
 
 
@@ -28731,10 +28566,6 @@ TitleCardLetters_DEZ:
 
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo2_NemDec ; JmpTo
 	jmp	(NemDec).l
@@ -29963,25 +29794,6 @@ BuildSprites_LevelLoop:
 ; loc_16630:
 BuildSprites_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
-
-	; These is a sanity check, to detect invalid objects which should not
-	; have been queued for display. S3K gets rids of this, since it
-	; should not be needed and it just slows this code down.
-	; These are sanity checks, to detect invalid objects which should not
-	; have been queued for display. S3K gets rids of them compeletely,
-	; since they should not be needed and they just slow this code down.
-	; In REV00, it appears that these checks were used for debugging, as
-	; they deliberately crash the console if they detect an invalid object.
-    if gameRevision=0
-	tst.b	id(a0)			; is this object slot occupied?
-	beq.w	BuildSprites_Crash	; if not, branch
-	tst.l	mappings(a0)		; does this object have any mappings?
-	beq.w	BuildSprites_Crash	; if not, branch
-    else
-	tst.b	id(a0)			; is this object slot occupied?
-	beq.w	BuildSprites_NextObj	; if not, check next one
-    endif
-
 	andi.b	#$7F,render_flags(a0)	; clear on-screen flag
 	move.b	render_flags(a0),d0
 	move.b	d0,d4
@@ -30074,17 +29886,6 @@ BuildSprites_NextLevel:
 	move.b	#0,-5(a2)	; set link field to 0
 	rts
 ; ===========================================================================
-    if gameRevision=0
-; BuildSprites_Unknown:
-BuildSprites_Crash:
-	; In the Simon Wai prototype, this line wasn't here.
-	; This may have possibly been a debugging feature, for helping the
-	; devs detect when an object tried to display with a blank ID or
-	; mappings pointer. The latter was actually an issue that plagued
-	; Sonic 1, but is (almost) completely absent in this game.
-	move.w	(1).w,d0	; causes a crash because of the word operation at an odd address
-	bra.s	BuildSprites_NextObj
-    endif
 ; loc_1671C:
 BuildSprites_MultiDraw:
 	move.l	a4,-(sp)
@@ -31163,10 +30964,6 @@ ChkPartiallyVisible:
 	moveq	#1,d0
 	rts
 ; ===========================================================================
-
-    if gameRevision=1
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo_BuildHUD ; JmpTo
@@ -32326,10 +32123,6 @@ SpecialCNZBumpers_Act2:
 	BINCLUDE	"level/objects/CNZ 2 bumpers.bin"	; byte_1795E
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
 
 
 
@@ -33214,25 +33007,11 @@ ObjectLayoutBoundary macro
     endif
 
 ; byte_1802A;
-    if gameRevision=0
-Objects_CNZ1_2P:	BINCLUDE	"level/objects/CNZ_1_2P (REV00).bin"
-    else
-    ; a Crawl badnik was moved slightly further away from a ledge
-    ; 2 flippers were moved closer to a wall
 Objects_CNZ1_2P:	BINCLUDE	"level/objects/CNZ_1_2P.bin"
-    endif
-
 	ObjectLayoutBoundary
 
 ; byte_18492:
-    if gameRevision=0
-Objects_CNZ2_2P:	BINCLUDE	"level/objects/CNZ_2_2P (REV00).bin"
-    else
-    ; 4 Crawl badniks were slightly moved, placing them closer/farther away from ledges
-    ; 2 flippers were moved away from a wall to keep players from getting stuck behind them
 Objects_CNZ2_2P:	BINCLUDE	"level/objects/CNZ_2_2P.bin"
-    endif
-
 	ObjectLayoutBoundary
 
 ; ===========================================================================
@@ -33862,7 +33641,6 @@ byte_18FEE:
 	dc.b  $F
 	dc.b   0	; 1
 	dc.b $FF	; 2
-	rev02even
 byte_18FF1:
 	dc.b   0
 	dc.b   1	; 1
@@ -33876,12 +33654,10 @@ byte_18FF1:
 	dc.b   2	; 9
 	dc.b $FD	; 10
 	dc.b   0	; 11
-	rev02even
 byte_18FFD:
 	dc.b  $F
 	dc.b   3	; 1
 	dc.b $FF	; 2
-	rev02even
 byte_19000:
 	dc.b   0
 	dc.b   4	; 1
@@ -33895,12 +33671,10 @@ byte_19000:
 	dc.b   5	; 9
 	dc.b $FD	; 10
 	dc.b   2	; 11
-	rev02even
 byte_1900C:
 	dc.b  $F
 	dc.b   7	; 1
 	dc.b $FF	; 2
-	rev02even
 byte_1900F:
 	dc.b   0
 	dc.b   8	; 1
@@ -34020,10 +33794,6 @@ word_19194:
 	dc.w $F505,$100C,$1006,$FFF6; 8
 	dc.w $F005,$101C,$100E,$FFF0; 12
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
 
 
@@ -34382,13 +34152,9 @@ Ani_obj0D:	offsetTable
 		offsetTableEntry.w byte_195B7	; 3
 		offsetTableEntry.w byte_195BA	; 4
 byte_19598:	dc.b	$0F, $02, $FF
-	rev02even
 byte_1959B:	dc.b	$01, $02, $03, $04, $05, $01, $03, $04, $05, $00, $03, $04, $05, $FF
-	rev02even
 byte_195A9:	dc.b	$01, $02, $03, $04, $05, $01, $03, $04, $05, $00, $03, $04, $05, $FF
-	rev02even
 byte_195B7:	dc.b	$0F, $00, $FF
-	rev02even
 byte_195BA:	dc.b	$0F, $01, $FF
 	even
 ; -------------------------------------------------------------------------------
@@ -34406,10 +34172,6 @@ Obj0D_MapUnc_19656:	BINCLUDE "mappings/sprite/obj0D_b.bin"
 ; -------------------------------------------------------------------------------
 Obj0D_MapRUnc_196EE:	BINCLUDE "mappings/spriteDPLC/obj0D.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
 
 
@@ -36745,11 +36507,8 @@ Sonic_CheckGoSuper:
 	bne.s	return_1ABA4		; if not, branch
 	cmpi.w	#50,(Ring_count).w	; does Sonic have at least 50 rings?
 	blo.s	return_1ABA4		; if not, branch
-    if gameRevision=2
-	; fixes a bug where the player can get stuck if transforming at the end of a level
 	tst.b	(Update_HUD_timer).w	; has Sonic reached the end of the act?
 	beq.s	return_1ABA4		; if yes, branch
-    endif
 
     if fixBugs
 	; If Sonic was executing a roll-jump when he turned Super, then this
@@ -37911,15 +37670,10 @@ SonAni_Lying_ptr:		offsetTableEntry.w SonAni_Lying		; 32 ; $20
 SonAni_LieDown_ptr:		offsetTableEntry.w SonAni_LieDown	; 33 ; $21
 
 SonAni_Walk:	dc.b $FF, $F,$10,$11,$12,$13,$14, $D, $E,$FF
-	rev02even
 SonAni_Run:	dc.b $FF,$2D,$2E,$2F,$30,$FF,$FF,$FF,$FF,$FF
-	rev02even
 SonAni_Roll:	dc.b $FE,$3D,$41,$3E,$41,$3F,$41,$40,$41,$FF
-	rev02even
 SonAni_Roll2:	dc.b $FE,$3D,$41,$3E,$41,$3F,$41,$40,$41,$FF
-	rev02even
 SonAni_Push:	dc.b $FD,$48,$49,$4A,$4B,$FF,$FF,$FF,$FF,$FF
-	rev02even
 SonAni_Wait:
 	dc.b   5,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1
 	dc.b   1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  2
@@ -37933,57 +37687,31 @@ SonAni_Wait:
 	dc.b   5,  4,  4,  4,  5,  5,  5,  4,  4,  4,  5,  5,  5,  4,  4,  4
 	dc.b   5,  5,  5,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  7,  8,  8
 	dc.b   8,  9,  9,  9,$FE,  6
-	rev02even
 SonAni_Balance:	dc.b   9,$CC,$CD,$CE,$CD,$FF
-	rev02even
 SonAni_LookUp:	dc.b   5, $B, $C,$FE,  1
-	rev02even
 SonAni_Duck:	dc.b   5,$4C,$4D,$FE,  1
-	rev02even
 SonAni_Spindash:dc.b   0,$42,$43,$42,$44,$42,$45,$42,$46,$42,$47,$FF
-	rev02even
 SonAni_Blink:	dc.b   1,  2,$FD,  0
-	rev02even
 SonAni_GetUp:	dc.b   3, $A,$FD,  0
-	rev02even
 SonAni_Balance2:dc.b   3,$C8,$C9,$CA,$CB,$FF
-	rev02even
 SonAni_Stop:	dc.b   5,$D2,$D3,$D4,$D5,$FD,  0 ; halt/skidding animation
-	rev02even
 SonAni_Float:	dc.b   7,$54,$59,$FF
-	rev02even
 SonAni_Float2:	dc.b   7,$54,$55,$56,$57,$58,$FF
-	rev02even
 SonAni_Spring:	dc.b $2F,$5B,$FD,  0
-	rev02even
 SonAni_Hang:	dc.b   1,$50,$51,$FF
-	rev02even
 SonAni_Dash2:	dc.b  $F,$43,$43,$43,$FE,  1
-	rev02even
 SonAni_Dash3:	dc.b  $F,$43,$44,$FE,  1
-	rev02even
 SonAni_Hang2:	dc.b $13,$6B,$6C,$FF
-	rev02even
 SonAni_Bubble:	dc.b  $B,$5A,$5A,$11,$12,$FD,  0 ; breathe
-	rev02even
 SonAni_DeathBW:	dc.b $20,$5E,$FF
-	rev02even
 SonAni_Drown:	dc.b $20,$5D,$FF
-	rev02even
 SonAni_Death:	dc.b $20,$5C,$FF
-	rev02even
 SonAni_Hurt:	dc.b $40,$4E,$FF
-	rev02even
 SonAni_Slide:	dc.b   9,$4E,$4F,$FF
-	rev02even
 SonAni_Blank:	dc.b $77,  0,$FD,  0
-	rev02even
 SonAni_Balance3:dc.b $13,$D0,$D1,$FF
-	rev02even
 SonAni_Balance4:dc.b   3,$CF,$C8,$C9,$CA,$CB,$FE,  4
-	rev02even
 SonAni_Lying:	dc.b   9,  8,  9,$FF
-	rev02even
 SonAni_LieDown:	dc.b   3,  7,$FD,  0
 	even
 
@@ -38026,17 +37754,11 @@ SuperSonicAniData: offsetTable
 	offsetTableEntry.w SupSonAni_Transform	; 31 ; $1F
 
 SupSonAni_Walk:		dc.b $FF,$77,$78,$79,$7A,$7B,$7C,$75,$76,$FF
-	rev02even
 SupSonAni_Run:		dc.b $FF,$B5,$B9,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-	rev02even
 SupSonAni_Push:		dc.b $FD,$BD,$BE,$BF,$C0,$FF,$FF,$FF,$FF,$FF
-	rev02even
 SupSonAni_Stand:	dc.b   7,$72,$73,$74,$73,$FF
-	rev02even
 SupSonAni_Balance:	dc.b   9,$C2,$C3,$C4,$C3,$C5,$C6,$C7,$C6,$FF
-	rev02even
 SupSonAni_Duck:		dc.b   5,$C1,$FF
-	rev02even
 SupSonAni_Transform:	dc.b   2,$6D,$6D,$6E,$6E,$6F,$70,$71,$70,$71,$70,$71,$70,$71,$FD,  0
 	even
 
@@ -40319,10 +40041,6 @@ Obj02_Finished:
 ; loc_1CCEC:
 Obj02_ResetLevel:
 	tst.b	(Time_Over_flag).w
-
-    if gameRevision=0
-	bne.s	Obj02_ResetLevel_Part3
-    else
 	beq.s	Obj02_ResetLevel_Part2
 	tst.b	(Time_Over_flag_2P).w
 	beq.s	Obj02_ResetLevel_Part3
@@ -40331,8 +40049,6 @@ Obj02_ResetLevel:
 	clr.b	(Update_HUD_timer_2P).w
 	move.b	#8,routine(a0)
 	rts
-    endif
-
 ; ---------------------------------------------------------------------------
 Obj02_ResetLevel_Part2:
 	tst.b	(Time_Over_flag_2P).w
@@ -40696,74 +40412,42 @@ TailsAni_HaulAss_ptr:	offsetTableEntry.w TailsAni_HaulAss	; 31 ; $1F
 TailsAni_Fly_ptr:	offsetTableEntry.w TailsAni_Fly		; 32 ; $20
 
 TailsAni_Walk:	dc.b $FF,$10,$11,$12,$13,$14,$15, $E, $F,$FF
-	rev02even
 TailsAni_Run:	dc.b $FF,$2E,$2F,$30,$31,$FF,$FF,$FF,$FF,$FF
-	rev02even
 TailsAni_Roll:	dc.b   1,$48,$47,$46,$FF
-	rev02even
 TailsAni_Roll2:	dc.b   1,$48,$47,$46,$FF
-	rev02even
 TailsAni_Push:	dc.b $FD,$63,$64,$65,$66,$FF,$FF,$FF,$FF,$FF
-	rev02even
 TailsAni_Wait:	dc.b   7,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3,  2,  1,  1,  1
 		dc.b   1,  1,  1,  1,  1,  3,  2,  1,  1,  1,  1,  1,  1,  1,  1,  1
 		dc.b   5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5
 		dc.b   6,  7,  8,  7,  8,  7,  8,  7,  8,  7,  8,  6,$FE,$1C
-	rev02even
 TailsAni_Balance:	dc.b   9,$69,$69,$6A,$6A,$69,$69,$6A,$6A,$69,$69,$6A,$6A,$69,$69,$6A
 			dc.b $6A,$69,$69,$6A,$6A,$69,$6A,$FF
-	rev02even
 TailsAni_LookUp:	dc.b $3F,  4,$FF
-	rev02even
 TailsAni_Duck:		dc.b $3F,$5B,$FF
-	rev02even
 TailsAni_Spindash:	dc.b   0,$60,$61,$62,$FF
-	rev02even
 TailsAni_Dummy1:	dc.b $3F,$82,$FF
-	rev02even
 TailsAni_Dummy2:	dc.b   7,  8,  8,  9,$FD,  5
-	rev02even
 TailsAni_Dummy3:	dc.b   7,  9,$FD,  5
-	rev02even
 TailsAni_Stop:		dc.b   7,$67,$68,$67,$68,$FD,  0
-	rev02even
 TailsAni_Float:		dc.b   9,$6E,$73,$FF
-	rev02even
 TailsAni_Float2:	dc.b   9,$6E,$6F,$70,$71,$72,$FF
-	rev02even
 TailsAni_Spring:	dc.b   3,$59,$5A,$59,$5A,$59,$5A,$59,$5A,$59,$5A,$59,$5A,$FD,  0
-	rev02even
 TailsAni_Hang:		dc.b   5,$6C,$6D,$FF
-	rev02even
 TailsAni_Blink:		dc.b  $F,  1,  2,  3,$FE,  1
-	rev02even
 TailsAni_Blink2:	dc.b  $F,  1,  2,$FE,  1
-	rev02even
 TailsAni_Hang2:		dc.b $13,$85,$86,$FF
-	rev02even
 TailsAni_Bubble:	dc.b  $B,$74,$74,$12,$13,$FD,  0
-	rev02even
 TailsAni_DeathBW:	dc.b $20,$5D,$FF
-	rev02even
 TailsAni_Drown:		dc.b $2F,$5D,$FF
-	rev02even
 TailsAni_Death:		dc.b   3,$5D,$FF
-	rev02even
 TailsAni_Hurt:		dc.b   3,$5D,$FF
-	rev02even
 TailsAni_Hurt2:		dc.b   3,$5C,$FF
-	rev02even
 TailsAni_Slide:		dc.b   9,$6B,$5C,$FF
-	rev02even
 TailsAni_Blank:		dc.b $77,  0,$FD,  0
-	rev02even
 TailsAni_Dummy4:	dc.b   3,  1,  2,  3,  4,  5,  6,  7,  8,$FF
-	rev02even
 TailsAni_Dummy5:	dc.b   3,  1,  2,  3,  4,  5,  6,  7,  8,$FF
-	rev02even
 TailsAni_HaulAss:	dc.b $FF,$32,$33,$FF
 			dc.b $FF,$FF,$FF,$FF,$FF,$FF
-	rev02even
 TailsAni_Fly:		dc.b   1,$5E,$5F,$FF
 	even
 
@@ -40953,25 +40637,15 @@ Obj05AniData:	offsetTable
 		offsetTableEntry.w Obj05Ani_Hanging	; $A
 
 Obj05Ani_Blank:		dc.b $20,  0,$FF
-	rev02even
 Obj05Ani_Swish:		dc.b   7,  9, $A, $B, $C, $D,$FF
-	rev02even
 Obj05Ani_Flick:		dc.b   3,  9, $A, $B, $C, $D,$FD,  1
-	rev02even
 Obj05Ani_Directional:	dc.b $FC,$49,$4A,$4B,$4C,$FF ; Tails is moving right
-	rev02even
 Obj05Ani_DownLeft:	dc.b   3,$4D,$4E,$4F,$50,$FF ; Tails is moving up-right
-	rev02even
 Obj05Ani_Down:		dc.b   3,$51,$52,$53,$54,$FF ; Tails is moving up
-	rev02even
 Obj05Ani_DownRight:	dc.b   3,$55,$56,$57,$58,$FF ; Tails is moving up-left
-	rev02even
 Obj05Ani_Spindash:	dc.b   2,$81,$82,$83,$84,$FF
-	rev02even
 Obj05Ani_Skidding:	dc.b   2,$87,$88,$89,$8A,$FF
-	rev02even
 Obj05Ani_Pushing:	dc.b   9,$87,$88,$89,$8A,$FF
-	rev02even
 Obj05Ani_Hanging:	dc.b   9,$81,$82,$83,$84,$FF
 	even
 
@@ -41482,33 +41156,19 @@ Ani_obj0A:	offsetTable
 		offsetTableEntry.w byte_1D8E9	; $D
 		offsetTableEntry.w byte_1D8EB	; $E
 byte_1D87E:	dc.b   5,  0,  1,  2,  3,  4,  8,  8,$FC
-	rev02even
 byte_1D887:	dc.b   5,  0,  1,  2,  3,  4,  9,  9,$FC
-	rev02even
 byte_1D890:	dc.b   5,  0,  1,  2,  3,  4, $A, $A,$FC
-	rev02even
 byte_1D899:	dc.b   5,  0,  1,  2,  3,  4, $B, $B,$FC
-	rev02even
 byte_1D8A2:	dc.b   5,  0,  1,  2,  3,  4, $C, $C,$FC
-	rev02even
 byte_1D8AB:	dc.b   5,  0,  1,  2,  3,  4, $D, $D,$FC
-	rev02even
 byte_1D8B4:	dc.b  $E,  0,  1,  2,$FC
-	rev02even
 byte_1D8B9:	dc.b   7,$10,  8,$10,  8,$10,  8,$FC
-	rev02even
 byte_1D8C1:	dc.b   7,$10,  9,$10,  9,$10,  9,$FC
-	rev02even
 byte_1D8C9:	dc.b   7,$10, $A,$10, $A,$10, $A,$FC
-	rev02even
 byte_1D8D1:	dc.b   7,$10, $B,$10, $B,$10, $B,$FC
-	rev02even
 byte_1D8D9:	dc.b   7,$10, $C,$10, $C,$10, $C,$FC
-	rev02even
 byte_1D8E1:	dc.b   7,$10, $D,$10, $D,$10, $D,$FC
-	rev02even
 byte_1D8E9:	dc.b  $E,$FC
-	rev02even
 byte_1D8EB:	dc.b  $E,  1,  2,  3,  4,$FC
 	even
 
@@ -41759,13 +41419,10 @@ byte_1DB42:	dc.w   $F00,  $F03,  $E06,  $D08,  $B0B,  $80D,  $60E,  $30F
 		dc.w   -$10,  $3F0,  $6F1,  $8F2,  $BF4,  $DF7,  $EF9,  $FFC
 
 byte_1DB82:	dc.b   8,  5,  7,  6,  6,  7,  5,  8,  6,  7,  7,  6,$FF
-	rev02even
 byte_1DB8F:	dc.b   8,  7,  6,  5,  4,  3,  4,  5,  6,  7,$FF
 		dc.b   3,  4,  5,  6,  7,  8,  7,  6,  5,  4
-	rev02even
 byte_1DBA4:	dc.b   8,  7,  6,  5,  4,  3,  2,  3,  4,  5,  6,  7,$FF
 		dc.b   2,  3,  4,  5,  6,  7,  8,  7,  6,  5,  4,  3
-	rev02even
 byte_1DBBD:	dc.b   7,  6,  5,  4,  3,  2,  1,  2,  3,  4,  5,  6,$FF
 		dc.b   1,  2,  3,  4,  5,  6,  7,  6,  5,  4,  3,  2
 	even
@@ -41985,11 +41642,8 @@ Ani_obj08:	offsetTable
 		offsetTableEntry.w Obj08Ani_Dash	; 2
 		offsetTableEntry.w Obj08Ani_Skid	; 3
 Obj08Ani_Null:	dc.b $1F,  0,$FF
-	rev02even
 Obj08Ani_Splash:dc.b   3,  1,  2,  3,  4,  5,  6,  7,  8,  9,$FD,  0
-	rev02even
 Obj08Ani_Dash:	dc.b   1, $A, $B, $C, $D, $E, $F,$10,$FF
-	rev02even
 Obj08Ani_Skid:	dc.b   3,$11,$12,$13,$14,$FC
 	even
 ; -------------------------------------------------------------------------------
@@ -42083,10 +41737,6 @@ JmpTo8_DeleteObject ; JmpTo
 ; -------------------------------------------------------------------------------
 Obj7E_MapUnc_1E1BE:	BINCLUDE "mappings/sprite/obj7E.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
 
 
@@ -43022,10 +42672,6 @@ ConvertCollisionArray:
 
 ; End of function ConvertCollisionArray
 
-    if gameRevision<2
-	nop
-    endif
-
 
 
 
@@ -43917,10 +43563,8 @@ Ani_obj79:	offsetTable
 		offsetTableEntry.w byte_1F420	; 2
 byte_1F41A:
 	dc.b  $F,  0,$FF
-	rev02even
 byte_1F41D:
 	dc.b  $F,  1,$FF
-	rev02even
 byte_1F420:
 	dc.b   3,  0,  4,$FF
 	even
@@ -44057,10 +43701,6 @@ JmpTo10_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo_MarkObjGone ; JmpTo
 	jmp	(MarkObjGone).l
@@ -44166,10 +43806,6 @@ JmpTo12_DeleteObject ; JmpTo
 ; -------------------------------------------------------------------------------
 Obj7D_MapUnc_1F6FE:	BINCLUDE "mappings/sprite/obj7D.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo4_Adjust2PArtPointer ; JmpTo
@@ -44282,7 +43918,6 @@ Ani_obj44:	offsetTable
 		offsetTableEntry.w byte_1F850	; 0
 		offsetTableEntry.w byte_1F853	; 1
 byte_1F850:	dc.b  $F,  0,$FF
-		rev02even
 byte_1F853:	dc.b   3,  1,  0,  1,$FD,  0
 		even
 ; -------------------------------------------------------------------------------
@@ -44290,10 +43925,6 @@ byte_1F853:	dc.b   3,  1,  0,  1,$FD,  0
 ; -------------------------------------------------------------------------------
 Obj44_MapUnc_1F85A:	BINCLUDE "mappings/sprite/obj44.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo2_MarkObjGone ; JmpTo
@@ -44613,15 +44244,10 @@ Ani_obj24:	offsetTable
 		offsetTableEntry.w byte_1FBEE	; 5
 		offsetTableEntry.w byte_1FBF2	; 6
 byte_1FBDA:	dc.b  $E,  0,  1,  2,$FC
-		rev02even
 byte_1FBDF:	dc.b  $E,  1,  2,  3,  4,$FC
-		rev02even
 byte_1FBE5:	dc.b  $E,  2,  3,  4,  5,  6,$FC
-		rev02even
 byte_1FBEC:	dc.b   4,$FC
-		rev02even
 byte_1FBEE:	dc.b   4,  6,  7,$FC
-		rev02even
 byte_1FBF2:	dc.b  $F, $E, $F,$FF
 		even
 ; -------------------------------------------------------------------------------
@@ -44706,10 +44332,6 @@ word_1FCB8:
 	dc.w	1
 	dc.w	$F406, $1F31, $1B98, $FFF8
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo7_DisplaySprite ; JmpTo
@@ -45201,10 +44823,6 @@ loc_202E6:
 Obj0C_MapUnc_202FA:	BINCLUDE "mappings/sprite/obj0C.bin"
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo4_MarkObjGone ; JmpTo
 	jmp	(MarkObjGone).l
@@ -45263,10 +44881,6 @@ Obj12_Main:
 ; -------------------------------------------------------------------------------
 Obj12_MapUnc_20382:	BINCLUDE "mappings/sprite/obj12.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo8_DisplaySprite ; JmpTo
@@ -45761,13 +45375,10 @@ Obj74_Main:
 	sub.w	(Camera_X_pos_coarse).w,d0
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo18_DeleteObject
-    if gameRevision=0
-    ; this object was visible with debug mode in REV00
 +
 	tst.w	(Debug_placement_mode).w
 	beq.s	+	; rts
 	jmp	(DisplaySprite).l
-    endif
 +
 	rts
 ; ===========================================================================
@@ -46214,10 +45825,6 @@ loc_2146C:
 +	move.b	#0,(WFZ_SCZ_Fire_Toggle).w
 	rts
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 ; loc_214AC:
@@ -46935,8 +46542,6 @@ byte_21C8E:
 	dc.b  $D, $C, $B, $A,  9,  8,  7,  6,  5,  4,  3,  2,  1,  0,$FF,$FE; 16
 	dc.b $FD,$FC,$FB,$FA,$F9,$F8,$F7,$F6,$F5,$F4,$F3,$F2,$F2,$F2,$F2,$F2; 32
 	dc.b $F2	; 48
-
-	rev02even
 byte_21CBF:
 	dc.b   5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5
 	dc.b   5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5; 16
@@ -47364,10 +46969,6 @@ Obj19_MoveRoutine8:
 Obj19_MapUnc_2222A:	BINCLUDE "mappings/sprite/obj19.bin"
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo11_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
@@ -47656,10 +47257,6 @@ BranchTo3_JmpTo7_MarkObjGone
 ; -------------------------------------------------------------------------------
 Obj1D_MapUnc_22576:	BINCLUDE "mappings/sprite/obj1D.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo7_MarkObjGone ; JmpTo
@@ -48096,10 +47693,6 @@ __LABEL__ label *
 	include	"misc/obj1E_b.asm"
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo_MarkObjGone3 ; JmpTo
 	jmp	(MarkObjGone3).l
@@ -48308,9 +47901,7 @@ Ani_obj20:	offsetTable
 		offsetTableEntry.w byte_23243	; 1
 		offsetTableEntry.w byte_23246	; 2
 byte_2323C:	dc.b  $B,  2,  3,$FC,  4,$FD,  1
-	rev02even
 byte_23243:	dc.b $7F,  5,$FF
-	rev02even
 byte_23246:	dc.b   5,  4,  5,  2,  3,  0,  1,  0,  1,  2,  3,  4,  5,$FC
 	even
 
@@ -48759,10 +48350,6 @@ Obj32_MapUnc_23852:	BINCLUDE "mappings/sprite/obj32_a.bin"
 ; ----------------------------------------------------------------------------
 Obj32_MapUnc_23886:	BINCLUDE "mappings/sprite/obj32_b.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo12_DisplaySprite ; JmpTo
@@ -49523,10 +49110,6 @@ Obj07_End:
 	rts
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo3_KillCharacter ; JmpTo
 	jmp	(KillCharacter).l
@@ -50165,10 +49748,6 @@ loc_24C32:
 Obj46_MapUnc_24C52:	BINCLUDE "mappings/sprite/obj46.bin"
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo25_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
@@ -50263,10 +49842,6 @@ BranchTo_JmpTo12_MarkObjGone ; BranchTo
 ; ----------------------------------------------------------------------------
 Obj47_MapUnc_24D96:	BINCLUDE "mappings/sprite/obj47.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo12_MarkObjGone ; JmpTo
@@ -50556,10 +50131,6 @@ word_2507A:
 ; ----------------------------------------------------------------------------
 Obj3D_MapUnc_250BA:	BINCLUDE "mappings/sprite/obj3D.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo14_DisplaySprite ; JmpTo
@@ -50866,10 +50437,6 @@ loc_254F2:
 Obj48_MapUnc_254FE:	BINCLUDE "mappings/sprite/obj48.bin"
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo15_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
@@ -51015,9 +50582,7 @@ Ani_obj22:	offsetTable
 		offsetTableEntry.w byte_257F7	; 1
 		offsetTableEntry.w byte_257FB	; 2
 byte_257F4:	dc.b $1F,  1,$FF
-	rev02even
 byte_257F7:	dc.b   3,  1,  2,$FF
-	rev02even
 byte_257FB:	dc.b   7,  3,  4,$FC,  4,  3,  1,$FD,  0
 	even
 ; ----------------------------------------------------------------------------
@@ -51400,10 +50965,6 @@ loc_25C64:
 Obj2B_MapUnc_25C6E:	BINCLUDE "mappings/sprite/obj2B.bin"
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo16_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
@@ -51643,10 +51204,6 @@ JmpTo29_DeleteObject ; JmpTo
 Obj2C_MapUnc_2631E:	BINCLUDE "mappings/sprite/obj2C.bin"
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo17_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
@@ -51870,7 +51427,6 @@ Ani_obj40:	offsetTable
 		offsetTableEntry.w byte_265EC	; 0
 		offsetTableEntry.w byte_265EF	; 1
 byte_265EC:	dc.b  $F,  0,$FF
-	rev02even
 byte_265EF:	dc.b   3,  1,  0,$FD,  0
 	even
 ; ----------------------------------------------------------------------------
@@ -52774,13 +52330,10 @@ loc_2702C:
 	sub.w	(Camera_X_pos_coarse).w,d0
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo33_DeleteObject
-    if gameRevision=0
-       ; this object was visible with debug mode in REV00
 	tst.w	(Debug_placement_mode).w
 	beq.s	+	; rts
-	jsrto	DisplaySprite, JmpTo47_DisplaySprite
+	jsr	(DisplaySprite).l
 +
-    endif
 	rts
 
     if removeJmpTos
@@ -52788,13 +52341,11 @@ JmpTo33_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
 ; ===========================================================================
+
 loc_27042:
-    if gameRevision>0
-	; REV00 didn't prevent the player from bouncing if they were hurt or dead
 	cmpi.b	#4,routine(a1)
 	blo.s	loc_2704C
 	rts
-    endif
 ; ===========================================================================
 
 loc_2704C:
@@ -52863,11 +52414,6 @@ Obj66_MapUnc_27120:	BINCLUDE "mappings/sprite/obj66.bin"
 ; ===========================================================================
 
     if ~~removeJmpTos
-
-     if gameRevision=0
-JmpTo47_DisplaySprite ; JmpTo
-	jmp	(DisplaySprite).l
-     endif
 
 JmpTo33_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
@@ -53147,7 +52693,6 @@ Ani_obj67:	offsetTable
 		offsetTableEntry.w byte_27535	; 1
 byte_27532:
 	dc.b $1F,  0,$FF
-	rev02even
 byte_27535:
 	dc.b   1,  1,  0,  0,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0,  1,  0,$FE,  2
 	even
@@ -53622,10 +53167,6 @@ loc_279FC:
 ; ----------------------------------------------------------------------------
 Obj69_MapUnc_27A26:	BINCLUDE "mappings/sprite/obj69.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo21_MarkObjGone ; JmpTo
@@ -54168,10 +53709,6 @@ loc_27FF8:
 Obj6B_MapUnc_2800E:	BINCLUDE "mappings/sprite/obj6B.bin"
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo34_Adjust2PArtPointer ; JmpTo
 	jmp	(Adjust2PArtPointer).l
@@ -54445,10 +53982,6 @@ byte_28340:
 ; ----------------------------------------------------------------------------
 Obj6C_MapUnc_28372:	BINCLUDE "mappings/sprite/obj6C.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo20_DisplaySprite ; JmpTo
@@ -54814,10 +54347,6 @@ Obj70_Positions:
 ; ----------------------------------------------------------------------------
 Obj70_MapUnc_28786:	BINCLUDE "mappings/sprite/obj70.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo14_SingleObjLoad2 ; JmpTo
@@ -55267,10 +54796,6 @@ loc_28D6C:
 Obj75_MapUnc_28D8A:	BINCLUDE "mappings/sprite/obj75.bin"
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo_DisplaySprite3 ; JmpTo
 	jmp	(DisplaySprite3).l
@@ -55427,10 +54952,6 @@ Obj76_SlideOut:
 ; ----------------------------------------------------------------------------
 Obj76_MapUnc_28F3A:	BINCLUDE "mappings/sprite/obj76.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo_Touch_ChkHurt2 ; JmpTo
@@ -56157,9 +55678,7 @@ Ani_obj7B:	offsetTable
 		offsetTableEntry.w byte_29777	; 2
 		offsetTableEntry.w byte_29777	; 3
 byte_29770:	dc.b  $F,  0,$FF
-		rev02even
 byte_29773:	dc.b   0,  3,$FD,  0
-		rev02even
 byte_29777:	dc.b   5,  1,  2,  2,  2,  4,$FD,  0
 		even
 ; ----------------------------------------------------------------------------
@@ -56167,10 +55686,6 @@ byte_29777:	dc.b   5,  1,  2,  2,  2,  4,$FD,  0
 ; ----------------------------------------------------------------------------
 Obj7B_MapUnc_29780:	BINCLUDE "mappings/sprite/obj7B.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo25_DisplaySprite ; JmpTo
@@ -56809,10 +56324,6 @@ return_2A24C:
 Obj81_MapUnc_2A24E:	BINCLUDE "mappings/sprite/obj81.bin"
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo2_DisplaySprite3 ; JmpTo
 	jmp	(DisplaySprite3).l
@@ -57064,10 +56575,6 @@ return_2A474:
 ; ----------------------------------------------------------------------------
 Obj82_MapUnc_2A476:	BINCLUDE "mappings/sprite/obj82.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo2_ObjCheckFloorDist ; JmpTo
@@ -57338,10 +56845,6 @@ Obj83_PlatformSubObject:
 	jmpto	MarkObjGone2, JmpTo8_MarkObjGone2
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo3_DisplaySprite3 ; JmpTo
 	jmp	(DisplaySprite3).l
@@ -57598,10 +57101,6 @@ Obj3F_MapUnc_2AA12:	BINCLUDE "mappings/sprite/obj3F_a.bin"
 Obj3F_MapUnc_2AAC4:	BINCLUDE "mappings/sprite/obj3F_b.bin"
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo26_MarkObjGone ; JmpTo
 	jmp	(MarkObjGone).l
@@ -57781,10 +57280,8 @@ return_2AD78:
 ; ===========================================================================
 
 loc_2AD7A:
-    if gameRevision>0
 	cmpi.b	#4,routine(a1)
 	bhs.s	return_2AD78
-    endif
 	subq.b	#1,d0
 	bne.w	loc_2AE0C
 	tst.b	render_flags(a1)
@@ -57948,10 +57445,8 @@ return_2AF78:
 ; ===========================================================================
 
 loc_2AF7A:
-    if gameRevision>0
 	cmpi.b	#4,routine(a1)
 	bhs.s	return_2AF78
-    endif
 	subq.b	#1,d0
 	bne.w	loc_2B018
 	tst.b	render_flags(a1)
@@ -58304,13 +57799,9 @@ Ani_obj86:	offsetTable
 		offsetTableEntry.w byte_2B448	; 3
 		offsetTableEntry.w byte_2B451	; 4
 byte_2B43C:	dc.b  $F,  0,$FF
-	rev02even
 byte_2B43F:	dc.b   3,  1,  2,  1,$FD,  0
-	rev02even
 byte_2B445:	dc.b  $F,  4,$FF
-	rev02even
 byte_2B448:	dc.b   0,  5,  4,  3,  3,  3,  3,$FD,  2
-	rev02even
 byte_2B451:	dc.b   0,  3,  4,  5,  5,  5,  5,$FD,  2
 	even
 ; ----------------------------------------------------------------------------
@@ -58318,10 +57809,6 @@ byte_2B451:	dc.b   0,  3,  4,  5,  5,  5,  5,$FD,  2
 ; ----------------------------------------------------------------------------
 Obj86_MapUnc_2B45A:	BINCLUDE "mappings/sprite/obj86.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo27_MarkObjGone ; JmpTo
@@ -58465,10 +57952,6 @@ byte_2B654:
 ; ----------------------------------------------------------------------------
 ObjD2_MapUnc_2B694:	BINCLUDE "mappings/sprite/objD2.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo6_MarkObjGone3 ; JmpTo
@@ -58652,10 +58135,6 @@ ObjD4_Vertical:
 ; ----------------------------------------------------------------------------
 ObjD4_MapUnc_2B9CA:	BINCLUDE "mappings/sprite/objD4.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo52_Adjust2PArtPointer ; JmpTo
@@ -59080,7 +58559,6 @@ Ani_objD6:	offsetTable
 		offsetTableEntry.w byte_2BEB4	; 0
 		offsetTableEntry.w byte_2BEB7	; 1
 byte_2BEB4:	dc.b  $F,  0,$FF
-	rev02even
 byte_2BEB7:	dc.b   1,  1,  0,$FF
 	even
 ; ------------------------------------------------------------------------------
@@ -59622,21 +59100,14 @@ SlotRingRewards:	dc.w   30,  25,  -1, 150,  10,  20
 ;byte_2C3EC
 SlotTargetValues:	dc.b   8, 3,$33,  $12, 0,$00,  $12, 1,$11  ,$24, 2,$22
 			dc.b $1E, 4,$44,  $1E, 5,$55,  $FF,$F,$FF
-	rev02even
 ;byte_2C401
 SlotSequence1:	dc.b   3,  0,  1,  4,  2,  5,  4,  1
-	rev02even
 ;byte_2C409
 SlotSequence2:	dc.b   3,  0,  1,  4,  2,  5,  0,  2
-	rev02even
 ;byte_2C411
 SlotSequence3:	dc.b   3,  0,  1,  4,  2,  5,  4,  1
 	even
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo10_SingleObjLoad ; JmpTo
@@ -59835,9 +59306,7 @@ Ani_objD7:	offsetTable
 		offsetTableEntry.w byte_2C619	; 1
 		offsetTableEntry.w byte_2C61F	; 2
 byte_2C616:	dc.b  $F,  0,$FF
-	rev02even
 byte_2C619:	dc.b   3,  1,  0,  1,$FD,  0
-	rev02even
 byte_2C61F:	dc.b   3,  2,  0,  2,$FD,  0
 	even
 ; ----------------------------------------------------------------------------
@@ -59845,10 +59314,6 @@ byte_2C61F:	dc.b   3,  2,  0,  2,$FD,  0
 ; ----------------------------------------------------------------------------
 ObjD7_MapUnc_2C626:	BINCLUDE "mappings/sprite/objD7.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo30_DisplaySprite ; JmpTo
@@ -60073,15 +59538,10 @@ Ani_objD8:	offsetTable
 		offsetTableEntry.w byte_2C8B7	; 4
 		offsetTableEntry.w byte_2C8BD	; 5
 byte_2C8A8:	dc.b  $F,  0,$FF
-	rev02even
 byte_2C8AB:	dc.b  $F,  1,$FF
-	rev02even
 byte_2C8AE:	dc.b  $F,  2,$FF
-	rev02even
 byte_2C8B1:	dc.b   3,  3,  0,  3,$FD,  0
-	rev02even
 byte_2C8B7:	dc.b   3,  4,  1,  4,$FD,  1
-	rev02even
 byte_2C8BD:	dc.b   3,  5,  2,  5,$FD,  2
 	even
 ; ----------------------------------------------------------------------------
@@ -60191,10 +59651,6 @@ loc_2C9A0:
 ObjD9_CheckCharacter_End:
 	rts
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo7_MarkObjGone3 ; JmpTo
@@ -60389,9 +59845,7 @@ Ani_obj4A:	offsetTable
 		offsetTableEntry.w byte_2CBF4	; 3
 		offsetTableEntry.w byte_2CBF8	; 4
 byte_2CBE6:	dc.b  $F,  1,  0,$FF
-	rev02even
 byte_2CBEA:	dc.b   3,  1,  2,  3,$FF
-	rev02even
 byte_2CBEF:	dc.b   2,  5,  6,$FF
 	even
 byte_2CBF4:	dc.b  $F,  4,$FF
@@ -60691,15 +60145,10 @@ Ani_obj50:	offsetTable
 		offsetTableEntry.w byte_2CF8D		; 4
 		offsetTableEntry.w byte_2CF90		; 5
 Ani_obj50_Normal:	dc.b  $E,  0,$FF			; byte_2CF78
-	rev02even
 byte_2CF7B:		dc.b   5,  3,  4,  3,  4,  3,  4,$FF
-	rev02even
 Ani_obj50_Bullet:	dc.b   3,  5,  6,  7,  6,$FF		; byte_2CF83
-	rev02even
 Ani_obj50_Wing:		dc.b   3,  1,  2,$FF			; byte_2CF89
-	rev02even
 byte_2CF8D:		dc.b   1,  5,$FF
-	rev02even
 byte_2CF90:		dc.b  $E,  8,$FF
 	even
 ; ----------------------------------------------------------------------------
@@ -60975,11 +60424,8 @@ Ani_obj4B:	offsetTable
 		offsetTableEntry.w byte_2D2DD	; 2
 		offsetTableEntry.w byte_2D2E1	; 3
 byte_2D2D6:	dc.b	$0F, $00, $FF
-	rev02even
 byte_2D2D9:	dc.b	$02, $03, $04, $FF
-	rev02even
 byte_2D2DD:	dc.b	$03, $05, $06, $FF
-	rev02even
 byte_2D2E1:	dc.b	$09, $01, $01, $01, $01, $01, $FD, $00
 	even
 ; ----------------------------------------------------------------------------
@@ -63005,57 +62451,31 @@ Ani_Obj5D_Dripper:	offsetTable
 		offsetTableEntry.w byte_2EAD5	; $19
 		offsetTableEntry.w byte_2EAD9	; $1A
 byte_2EA72:	dc.b  $F,  0,$FF
-	rev02even
 byte_2EA75:	dc.b  $F,  1,$FF
-	rev02even
 byte_2EA78:	dc.b   5,  2,  3,  2,$FF
-	rev02even
 byte_2EA7D:	dc.b   5,  2,  3,$FF
-	rev02even
 byte_2EA81:	dc.b   2,  4,  5,  6,  7,  8,$FF
-	rev02even
 byte_2EA88:	dc.b   3,  9,$FF
-	rev02even
 byte_2EA8B:	dc.b  $F, $A,$FF
-	rev02even
 byte_2EA8E:	dc.b  $F,$1C,$FF
-	rev02even
 byte_2EA91:	dc.b  $F,$1E,$FF
-	rev02even
 byte_2EA94:	dc.b  $F, $B,$FF
-	rev02even
 byte_2EA97:	dc.b   3, $C, $C, $D, $D, $D, $D, $D, $C, $C,$FD,  9
-	rev02even
 byte_2EAA3:	dc.b   3, $E, $E, $F, $F, $F, $F, $F, $E, $E,$FF
-	rev02even
 byte_2EAAE:	dc.b  $F,$10,$FF
-	rev02even
 byte_2EAB1:	dc.b  $F,$11,$FF
-	rev02even
 byte_2EAB4:	dc.b  $F,$12,$FF
-	rev02even
 byte_2EAB7:	dc.b  $F,$13,$FF
-	rev02even
 byte_2EABA:	dc.b  $F,$14,$FF
-	rev02even
 byte_2EABD:	dc.b  $F,$15,$FF
-	rev02even
 byte_2EAC0:	dc.b  $F,$16,$FF
-	rev02even
 byte_2EAC3:	dc.b  $F,$17,$FF
-	rev02even
 byte_2EAC6:	dc.b  $F,$18,$FF
-	rev02even
 byte_2EAC9:	dc.b  $F,$19,$FF
-	rev02even
 byte_2EACC:	dc.b  $F,$1A,$FF
-	rev02even
 byte_2EACF:	dc.b  $F,$1B,$FF
-	rev02even
 byte_2EAD2:	dc.b  $F,$1C,$FF
-	rev02even
 byte_2EAD5:	dc.b   1,$1D,$1F,$FF
-	rev02even
 byte_2EAD9:	dc.b  $F,$1E,$FF
 	even
 ; ----------------------------------------------------------------------------
@@ -63072,13 +62492,9 @@ Ani_obj5D_b:	offsetTable
 		offsetTableEntry.w byte_2ED76	; 3
 		offsetTableEntry.w byte_2ED7F	; 4
 byte_2ED66:	dc.b  $F,  0,$FF
-	rev02even
 byte_2ED69:	dc.b   7,  1,  2,$FF
-	rev02even
 byte_2ED6D:	dc.b   7,  5,  5,  5,  5,  5,  5,$FD,  1
-	rev02even
 byte_2ED76:	dc.b   7,  3,  4,  3,  4,  3,  4,$FD,  1
-	rev02even
 byte_2ED7F:	dc.b  $F,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,$FD,  1
 	even
 
@@ -63979,10 +63395,8 @@ Ani_obj56_b:	offsetTable
 		offsetTableEntry.w byte_2FA53	; 2
 byte_2FA4A:
 	dc.b   5,  1,  2,  3,$FF	; spike
-	rev02even
 byte_2FA4F:
 	dc.b   1,  4,  5,$FF	; foreground wheel
-	rev02even
 byte_2FA53:
 	dc.b   1,  6,  7,$FF	; background wheel
 	even
@@ -64006,13 +63420,9 @@ Ani_obj56_c:	offsetTable
 		offsetTableEntry.w byte_2FAE2	; 3
 		offsetTableEntry.w byte_2FAEB	; 4
 byte_2FAD2:	dc.b  $F,  0,$FF	; bottom
-	rev02even
 byte_2FAD5:	dc.b   7,  1,  2,$FF	; top, normal
-	rev02even
 byte_2FAD9:	dc.b   7,  5,  5,  5,  5,  5,  5,$FD,  1	;	top, when hit
-	rev02even
 byte_2FAE2:	dc.b   7,  3,  4,  3,  4,  3,  4,$FD,  1	; top, laughter (when hurting Sonic)
-	rev02even
 byte_2FAEB:	dc.b  $F,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,$FD,  1	; top, when flying off
 	even	; for top part, after end of special animations always return to normal one ($FD->1)
 
@@ -64643,19 +64053,12 @@ Ani_obj52:	offsetTable
 		offsetTableEntry.w byte_302B4	; 6
 		offsetTableEntry.w byte_302B7	; 7
 byte_30298:	dc.b   1,  2,  3,$FD,  1
-	rev02even
 byte_3029D:	dc.b   2,  4,  5,$FD,  2
-	rev02even
 byte_302A2:	dc.b   3,  6,  7,$FD,  3
-	rev02even
 byte_302A7:	dc.b   4,  8,  9,$FD,  4
-	rev02even
 byte_302AC:	dc.b   5, $A, $B,$FE
-	rev02even
 byte_302B0:	dc.b   3, $C, $D,$FF
-	rev02even
 byte_302B4:	dc.b  $F,  1,$FF
-	rev02even
 byte_302B7:	dc.b   3, $E, $F,$FF
 	even
 ; ----------------------------------------------------------------------------
@@ -65618,7 +65021,6 @@ Ani_obj89_a:	offsetTable
 		offsetTableEntry.w byte_30D47	; 1
 byte_30D30:	dc.b   1,  4,  6,  5,  4,  6,  4,  5,  4,  6,  4,  4,  6,  5,  4,  6
 		dc.b   4,  5,  4,  6,  4,$FD,  1; 16
-	rev02even
 
 byte_30D47:	dc.b  $F,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4
 		dc.b   4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,$F9; 16
@@ -65639,15 +65041,10 @@ Ani_obj89_b:	offsetTable
 		offsetTableEntry.w byte_30E00	; $A
 byte_30DD4:	dc.b   7,  0,  1,$FF,  2,  3,  2,  3,  2,  3,  2,  3,$FF,  4,  4,  4
 		dc.b   4,  4,  4,  4,  4,$FF; 16
-	rev02even
 byte_30DEA:	dc.b   1,  6,  7,$FF
-	rev02even
 byte_30DEE:	dc.b  $F,  9,$FF
-	rev02even
 byte_30DF1:	dc.b   2, $A, $A, $B, $B, $B, $B, $B, $A, $A,$FD,  2
-	rev02even
 byte_30DFD:	dc.b  $F,  8,$FF
-	rev02even
 byte_30E00:	dc.b   7,  5,$FF
 	even
 ; ----------------------------------------------------------------------------
@@ -66294,36 +65691,22 @@ Ani_obj57:	offsetTable
 		offsetTableEntry.w byte_316E8 ; E - center vehicle, Robotnik's face when hit
 byte_31628:	dc.b  $F,  1,$FF	; light off
 		dc.b	   0,$FC,  2	; light on; (3) subanimation
-	rev02even
 byte_3162E:	dc.b   5,  8,$FF
-	rev02even
 byte_31631:	dc.b   1,  5,  6,$FF	; fire on
 		dc.b	   7,$FC,  3	; fire off; (4) subanimation
-	rev02even
 byte_31638:	dc.b   1,  2,  2,  2,  2,  2,  3,  3,  3,  3,  3,  4,  4,  4,  4,$FD,  4
-	rev02even
 byte_31649:	dc.b   1,  2,  2,  2,  2,  3,  3,  3,  4,  4,  4,  2,  2,  3,  3,$FD,  5
-	rev02even
 byte_3165A:	dc.b   1,  4,  2,  3,  4,$FC,  1
-	rev02even
 byte_31661:	dc.b   1,  2,  3,  4,  4,  2,  2,  3,  3,  3,  4,  4,  4,  2,  2,  2,$FD,  7
-	rev02even
 byte_31673:	dc.b   1,  2,  3,  3,  3,  3,  4,  4,  4,  4,  4,  2,  8,  8,  8,$FD,  8
-	rev02even
 byte_31684:	dc.b   1,  9,  9,  9,  9,  9, $A, $A, $A, $A, $A, $B, $B, $B, $B,$FD,  9
-	rev02even
 byte_31695:	dc.b   1,  9,  9,  9,  9, $A, $A, $A, $B, $B, $B,  9,  9, $A, $A,$FD, $A
-	rev02even
 byte_316A6:	dc.b   1, $B,  9, $A, $B,$FC,  1
-	rev02even
 byte_316AD:	dc.b   1,  9, $A, $B, $B,  9,  9, $A, $A, $A, $B, $B, $B,  9,  9,  9,$FD, $C
-	rev02even
 byte_316BF:	dc.b   1,  9, $A, $A, $A, $A, $B, $B, $B, $B, $B,  9,  8,  8,  8,  8,$FD,  3
-	rev02even
 byte_316D1:	dc.b   7, $E, $F,$FF
 		dc.b	 $10,$11,$10,$11,$10,$11,$10,$11,$FF		; (4) subanimation (grin after hurting Sonic)
 		dc.b	 $12,$12,$12,$12,$12,$12,$12,$12,$12,$FF	; (D) subanimation (grin when hit)
-	rev02even
 byte_316E8:	dc.b   7,$12,$FF
 	even
 ; ----------------------------------------------------------------------------
@@ -67061,23 +66444,14 @@ Ani_obj51:	offsetTable
 		offsetTableEntry.w byte_320E1	; 8
 		offsetTableEntry.w byte_320E4	; 9
 byte_320B0:	dc.b  $F,  1,$FF
-	rev02even
 byte_320B3:	dc.b  $F,  4,$FF,  5,$FC,  2
-	rev02even
 byte_320B9:	dc.b  $F,  2,$FF,  3,$FC,  2
-	rev02even
 byte_320BF:	dc.b   7,  6,  7,$FF
-	rev02even
 byte_320C3:	dc.b   1, $C, $D, $E,$FF
-	rev02even
 byte_320C8:	dc.b   7,  8,  9,  8,  9,  8,  9,  8,  9,$FD,  3
-	rev02even
 byte_320D3:	dc.b   7, $A, $A, $A, $A, $A, $A, $A,$FD,  3
-	rev02even
 byte_320DD:	dc.b   3,$13,$14,$FF
-	rev02even
 byte_320E1:	dc.b   1,  0,$FF
-	rev02even
 byte_320E4:	dc.b   1, $F,$10,$11,$FF
 	even
 ; ----------------------------------------------------------------------------
@@ -67763,7 +67137,6 @@ byte_329CC:
 	dc.b $48	; 4
 	dc.b $90	; 5
 	dc.b $D8	; 6
-	rev02even
 byte_329D3:
 	dc.b   0
 	dc.b   1	; 1
@@ -68099,20 +67472,13 @@ Ani_obj53:	offsetTable
 		offsetTableEntry.w byte_32DC0	; 6
 		offsetTableEntry.w byte_32DC3	; 7
 byte_32D8A:	dc.b  $F,  2,$FF
-	rev02even
 byte_32D8D:	dc.b   1,  0,  1,$FF
-	rev02even
 byte_32D91:	dc.b   3,  5,  5,  5,  5,  5,  5,  5,  5,  6,  7,  6,  7,  6,  7,  8
 		dc.b   9, $A, $B,$FE,  1; 16
-	rev02even
 byte_32DA6:	dc.b   7, $C, $D,$FF
-	rev02even
 byte_32DAA:	dc.b   7, $E, $F, $E, $F, $E, $F, $E, $F,$FD,  3
-	rev02even
 byte_32DB5:	dc.b   7,$10,$10,$10,$10,$10,$10,$10,$10,$FD,  3
-	rev02even
 byte_32DC0:	dc.b   1,$14,$FC
-	rev02even
 byte_32DC3:	dc.b   7,$11,$FF
 	even
 ; ----------------------------------------------------------------------------
@@ -68930,20 +68296,15 @@ Ani_obj55:	offsetTable
 byte_3371E:
 	dc.b   9,  8,  8,  8,  8,  9,  9,  9,  9,  8,  8,  8,  8,  9,  9,  9
 	dc.b   9,  8,  8,  8,  8,  9,  9,  9,  9,$FF; 16
-	rev02even
 byte_33738:
 	dc.b  $F,  1,$FF
-	rev02even
 byte_3373B:
 	dc.b   1, $D,$11, $E,$12, $F,$13,$10,$14,$14,$10,$13, $F,$12, $E,$11
 	dc.b  $D,$FA	; 16
-	rev02even
 byte_3374D:
 	dc.b  $F, $A,$FF
-	rev02even
 byte_33750:
 	dc.b  $F, $B,$FF
-	rev02even
 byte_33753:
 	dc.b  $F,  8,$FF
 	even
@@ -70196,9 +69557,7 @@ Ani_obj88:	offsetTable
 		offsetTableEntry.w byte_34D95	; 1
 		offsetTableEntry.w byte_34D9E	; 2
 byte_34D8C:	dc.b   3,  0,  1,  2,  3,  4,  5,  6,$FF
-	rev02even
 byte_34D95:	dc.b   3,  7,  8,  9, $A, $B, $C, $D,$FF
-	rev02even
 byte_34D9E:	dc.b   3, $E, $F,$10,$11,$12,$13,$14,$FF
 	even
 ; ----------------------------------------------------------------------------
@@ -71652,39 +71011,22 @@ SSMessage_TextFrames:	offsetTable
 		offsetTableEntry.w byte_35CD9	;$20
 		offsetTableEntry.w byte_35CDB	;$22
 byte_35C86:	specialText "GET"
-	rev02even
 byte_35C8A:	specialText "RINGS"
-	rev02even
 byte_35C90:	specialText "COOL!"
-	rev02even
 byte_35C96:	specialText "NOT"
-	rev02even
 byte_35C9A:	specialText "ENOUGH"
-	rev02even
 byte_35CA1:	specialText "PLAYER"
-	rev02even
 byte_35CA8:	specialText "MOST"
-	rev02even
 byte_35CAD:	specialText "WINS!"
-	rev02even
 byte_35CB3:	specialText "SONIC"
-	rev02even
 byte_35CB9:	specialText "MILES"
-	rev02even
 byte_35CBF:	specialText "TIE!"
-	rev02even
 byte_35CC4:	specialText "WIN"
-	rev02even
 byte_35CC8:	specialText "TWICE"
-	rev02even
 byte_35CCE:	specialText "ALL!"
-	rev02even
 byte_35CD3:	specialText "!"
-	rev02even
 byte_35CD5:	specialText "..."
-	rev02even
 byte_35CD9:	dc.b $13,$FF						; VS
-	rev02even
 byte_35CDB:	specialText "TAILS"
 	even
 
@@ -72118,31 +71460,22 @@ off_36228:	offsetTable
 		offsetTableEntry.w byte_36257	; 9
 byte_3623C:
 	dc.b  $B,  0,$FF
-	rev02even
 byte_3623F:
 	dc.b  $B,  1,$FF
-	rev02even
 byte_36242:
 	dc.b  $B,  2,$FF
-	rev02even
 byte_36245:
 	dc.b  $B,  3,$FF
-	rev02even
 byte_36248:
 	dc.b  $B,  4,$FF
-	rev02even
 byte_3624B:
 	dc.b  $B,  5,$FF
-	rev02even
 byte_3624E:
 	dc.b  $B,  6,$FF
-	rev02even
 byte_36251:
 	dc.b  $B,  7,$FF
-	rev02even
 byte_36254:
 	dc.b  $B,  8,$FF
-	rev02even
 byte_36257:
 	dc.b  $B,  9,$FF
 	even
@@ -72166,25 +71499,15 @@ Ani_obj5B_obj60:offsetTable
 		offsetTableEntry.w byte_3631E	;  9
 		offsetTableEntry.w byte_36324	; $A
 byte_362E8: dc.b   5,  0, $A,$14, $A,$FF
-	rev02even
 byte_362EE: dc.b   5,  1, $B,$15, $B,$FF
-	rev02even
 byte_362F4: dc.b   5,  2, $C,$16, $C,$FF
-	rev02even
 byte_362FA: dc.b   5,  3, $D,$17, $D,$FF
-	rev02even
 byte_36300: dc.b   5,  4, $E,$18, $E,$FF
-	rev02even
 byte_36306: dc.b   5,  5, $F,$19, $F,$FF
-	rev02even
 byte_3630C: dc.b   5,  6,$10,$1A,$10,$FF
-	rev02even
 byte_36312: dc.b   5,  7,$11,$1B,$11,$FF
-	rev02even
 byte_36318: dc.b   5,  8,$12,$1C,$12,$FF
-	rev02even
 byte_3631E: dc.b   5,  9,$13,$1D,$13,$FF
-	rev02even
 byte_36324: dc.b   1,$1E,$1F,$20,$FF
 	even
 ; ----------------------------------------------------------------------------
@@ -72207,25 +71530,15 @@ Ani_obj61:	offsetTable
 		offsetTableEntry.w byte_364FF	;  9
 		offsetTableEntry.w byte_36502	; $A
 byte_364E4: dc.b  $B,  0,$FF
-	rev02even
 byte_364E7: dc.b  $B,  1,$FF
-	rev02even
 byte_364EA: dc.b  $B,  2,$FF
-	rev02even
 byte_364ED: dc.b  $B,  3,$FF
-	rev02even
 byte_364F0: dc.b  $B,  4,$FF
-	rev02even
 byte_364F3: dc.b  $B,  5,$FF
-	rev02even
 byte_364F6: dc.b  $B,  6,$FF
-	rev02even
 byte_364F9: dc.b  $B,  7,$FF
-	rev02even
 byte_364FC: dc.b  $B,  8,$FF
-	rev02even
 byte_364FF: dc.b  $B,  9,$FF
-	rev02even
 byte_36502: dc.b   2, $A, $B, $C,$FF
 	even
 ; ----------------------------------------------------------------------------
@@ -73915,16 +73228,9 @@ byte_3744E:
 
 ; loc_37454:
 Obj97_InitialWait:
-    if gameRevision<2
-	bsr.w	Obj97_CheckHeadIsAlive
-	subq.b	#1,objoff_2A(a0)
-	bmi.s	Obj97_StartRaise
-    else
-	; fixes an occational crash when defeated
 	subq.b	#1,objoff_2A(a0)
 	bmi.s	Obj97_StartRaise
 	bsr.w	Obj97_CheckHeadIsAlive
-    endif
 	jmpto	MarkObjGone, JmpTo39_MarkObjGone
 ; ===========================================================================
 
@@ -73943,20 +73249,11 @@ Obj97_StartRaise:
 
 ; loc_37488:
 Obj97_RaiseHead:
-    if gameRevision<2
-	bsr.w	Obj97_CheckHeadIsAlive
-	moveq	#$10,d0
-	add.w	d0,x_vel(a0)
-	subq.b	#1,objoff_2A(a0)
-	bmi.s	Obj97_StartNormalState
-    else
-	; fixes an occational crash when defeated
 	moveq	#$10,d0
 	add.w	d0,x_vel(a0)
 	subq.b	#1,objoff_2A(a0)
 	bmi.s	Obj97_StartNormalState
 	bsr.w	Obj97_CheckHeadIsAlive
-    endif
 	jsrto	ObjectMove, JmpTo26_ObjectMove
 	jmpto	MarkObjGone, JmpTo39_MarkObjGone
 ; ===========================================================================
@@ -84381,10 +83678,6 @@ Obj8A_Display:
 Obj8A_MapUnc_3EB4E:	BINCLUDE "mappings/sprite/obj8A.bin"
 ; ===========================================================================
 
-    if gameRevision<2
-	nop
-    endif
-
     if ~~removeJmpTos
 JmpTo65_Adjust2PArtPointer ; JmpTo
 	jmp	(Adjust2PArtPointer).l
@@ -84614,7 +83907,6 @@ Ani_obj3E:	offsetTable
 		offsetTableEntry.w byte_3F42C	; 0
 		offsetTableEntry.w byte_3F42F	; 1
 byte_3F42C:	dc.b  $F,  0,$FF
-		rev02even
 byte_3F42F:	dc.b   3,  0,  1,  2,  3,$FE,  1
 		even
 ; ----------------------------------------------------------------------------
@@ -84625,10 +83917,6 @@ byte_3F42F:	dc.b   3,  0,  1,  2,  3,$FE,  1
 ; ----------------------------------------------------------------------------
 Obj3E_MapUnc_3F436:	BINCLUDE "mappings/sprite/obj3E.bin"
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo66_DeleteObject ; JmpTo
@@ -85583,10 +84871,6 @@ loc_3FCA4:
 	neg.w	y_vel(a0)
 	rts
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo_Sonic_ResetOnFloor_Part2 ; JmpTo
@@ -86585,112 +85869,59 @@ APM_HPZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$4,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$5,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$6,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$7,0,0,2,0)
 
-    if gameRevision<2
-	; In REV02, for some reason these blank tiles' palette line was changed to lines 3 and 4.
-	; This is consistent with MTZ's blank tiles.
-	; Notably, the new palette lines' first entry always happens to match the current VDP background colour.
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$0,0,0,3,0)
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$2,0,0,3,0)
-    else
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$0,0,0,3,0)
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$2,0,0,3,0)
-    endif
 
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$1,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$4,0,0,3,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$3,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$6,0,0,3,0)
 
-    if gameRevision<2
-	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$5,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$7,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$0,0,0,3,0)
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$2,0,0,3,0)
-    else
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$5,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,3,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$7,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,3,0)
 
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$0,0,0,3,0)
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$2,0,0,3,0)
-    endif
 
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$1,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$4,0,0,3,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$3,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$6,0,0,3,0)
 
-    if gameRevision<2
-	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$5,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$7,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$0,0,0,3,0)
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$2,0,0,3,0)
-    else
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$5,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,3,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$7,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,3,0)
 
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$0,0,0,3,0)
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$2,0,0,3,0)
-    endif
 
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$1,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$4,0,0,3,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$3,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$6,0,0,3,0)
 
-    if gameRevision<2
-	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$5,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$7,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$0,0,0,2,0)
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$2,0,0,2,0)
-    else
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$5,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,3,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$7,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,3,0)
 
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$0,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$2,0,0,2,0)
-    endif
 
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$1,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$4,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$3,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$6,0,0,2,0)
 
-    if gameRevision<2
-	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$5,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$7,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$0,0,0,2,0)
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$2,0,0,2,0)
-    else
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$5,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$7,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0)
 
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$0,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$2,0,0,2,0)
-    endif
 
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$1,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$4,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$3,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$6,0,0,2,0)
 
-    if gameRevision<2
-	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$5,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$7,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$0,0,0,2,0)
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$2,0,0,2,0)
-    else
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$5,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$7,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0)
 
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$0,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$2,0,0,2,0)
-    endif
 
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$1,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$4,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$3,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$6,0,0,2,0)
 
-    if gameRevision<2
-	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$5,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$7,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-    else
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$5,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$7,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0)
-    endif
 APM_HPZ_End:
 
 
@@ -86703,19 +85934,11 @@ APM_OOZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_OOZSquareBall1+$0,0,0,3,1),make_block_tile(ArtTile_ArtUnc_OOZSquareBall1+$1,0,0,3,1)
 	dc.w make_block_tile(ArtTile_ArtUnc_OOZSquareBall1+$2,0,0,3,1),make_block_tile(ArtTile_ArtUnc_OOZSquareBall1+$3,0,0,3,1)
 
-    if gameRevision<2
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_OOZSquareBall2+$0,0,0,3,0)
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_OOZSquareBall2+$2,0,0,3,0)
-
-	dc.w make_block_tile(ArtTile_ArtUnc_OOZSquareBall2+$1,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-	dc.w make_block_tile(ArtTile_ArtUnc_OOZSquareBall2+$3,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-    else
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_OOZSquareBall2+$0,0,0,3,0)
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_OOZSquareBall2+$2,0,0,3,0)
 
 	dc.w make_block_tile(ArtTile_ArtUnc_OOZSquareBall2+$1,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_OOZSquareBall2+$3,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,2,0)
-    endif
 
 	dc.w make_block_tile(ArtTile_ArtUnc_Oil1+$0,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Oil1+$1,0,0,2,1)
 	dc.w make_block_tile(ArtTile_ArtUnc_Oil1+$8,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Oil1+$9,0,0,2,1)
@@ -86966,10 +86189,6 @@ loc_407E4:
 	dbf	d4,loc_407DA
 	rts
 ; ===========================================================================
-
-    if gameRevision<2
-	nop
-    endif
 
     if ~~removeJmpTos
 JmpTo2_NemDecToRAM ; JmpTo
@@ -89520,311 +88739,6 @@ PlrList_ResultsTails: plrlistheader
 	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_ResultsTails_End
 
-
-
-
-;---------------------------------------------------------------------------------------
-; Weird revision-specific duplicates of portions of the PLR lists (unused)
-;---------------------------------------------------------------------------------------
-    if gameRevision=0
-	; half of PlrList_ResultsTails
-	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniTails
-	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
-PlrList_ResultsTails_Dup_End
-	dc.l	0
-    elseif gameRevision=2
-	; half of the second ARZ PLR list
-	plreq ArtTile_ArtNem_Grounder, ArtNem_Grounder
-	plreq ArtTile_ArtNem_BigBubbles, ArtNem_BigBubbles
-	plreq ArtTile_ArtNem_Spikes, ArtNem_Spikes
-	plreq ArtTile_ArtNem_LeverSpring, ArtNem_LeverSpring
-	plreq ArtTile_ArtNem_VrtclSprng, ArtNem_VrtclSprng
-	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
-PlrList_Arz2_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; SCZ Primary
-;---------------------------------------------------------------------------------------
-PlrList_Scz1_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Tornado, ArtNem_Tornado
-PlrList_Scz1_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; SCZ Secondary
-;---------------------------------------------------------------------------------------
-PlrList_Scz2_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Clouds, ArtNem_Clouds
-	plreq ArtTile_ArtNem_WfzVrtclPrpllr, ArtNem_WfzVrtclPrpllr
-	plreq ArtTile_ArtNem_WfzHrzntlPrpllr, ArtNem_WfzHrzntlPrpllr
-	plreq ArtTile_ArtNem_Balkrie, ArtNem_Balkrie
-	plreq ArtTile_ArtNem_Turtloid, ArtNem_Turtloid
-	plreq ArtTile_ArtNem_Nebula, ArtNem_Nebula
-PlrList_Scz2_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; Sonic end of level results screen
-;---------------------------------------------------------------------------------------
-PlrList_Results_Dup: plrlistheader
-	plreq ArtTile_ArtNem_TitleCard, ArtNem_TitleCard
-	plreq ArtTile_ArtNem_ResultsText, ArtNem_ResultsText
-	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniSonic
-	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
-PlrList_Results_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; End of level signpost
-;---------------------------------------------------------------------------------------
-PlrList_Signpost_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Signpost, ArtNem_Signpost
-PlrList_Signpost_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; CPZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_CpzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_3, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_CPZBoss, ArtNem_CPZBoss
-	plreq ArtTile_ArtNem_EggpodJets_1, ArtNem_EggpodJets
-	plreq ArtTile_ArtNem_BossSmoke_1, ArtNem_BossSmoke
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_CpzBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; EHZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_EhzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_1, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_EHZBoss, ArtNem_EHZBoss
-	plreq ArtTile_ArtNem_EggChoppers, ArtNem_EggChoppers
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_EhzBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; HTZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_HtzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_2, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_HTZBoss, ArtNem_HTZBoss
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-	plreq ArtTile_ArtNem_BossSmoke_2, ArtNem_BossSmoke
-PlrList_HtzBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; ARZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_ArzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_4, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_ARZBoss, ArtNem_ARZBoss
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_ArzBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; MCZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_MczBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_4, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_MCZBoss, ArtNem_MCZBoss
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_MczBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; CNZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_CnzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_4, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_CNZBoss, ArtNem_CNZBoss
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_CnzBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; MTZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_MtzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_4, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_MTZBoss, ArtNem_MTZBoss
-	plreq ArtTile_ArtNem_EggpodJets_2, ArtNem_EggpodJets
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_MtzBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; OOZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_OozBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_OOZBoss, ArtNem_OOZBoss
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_OozBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; Fiery Explosion
-;---------------------------------------------------------------------------------------
-PlrList_FieryExplosion_Dup: plrlistheader
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_FieryExplosion_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; Death Egg
-;---------------------------------------------------------------------------------------
-PlrList_DezBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_DEZBoss, ArtNem_DEZBoss
-PlrList_DezBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; EHZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_EhzAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Squirrel
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Bird
-PlrList_EhzAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; MCZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_MczAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Mouse
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
-PlrList_MczAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; HTZ/MTZ/WFZ animals
-;---------------------------------------------------------------------------------------
-PlrList_HtzAnimals_Dup:
-PlrList_MtzAnimals_Dup:
-PlrList_WfzAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Beaver
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Eagle
-PlrList_HtzAnimals_Dup_End
-PlrList_MtzAnimals_Dup_End
-PlrList_WfzAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; DEZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_DezAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Pig
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
-PlrList_DezAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; HPZ animals
-;---------------------------------------------------------------------------------------
-PlrList_HpzAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Mouse
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Seal
-PlrList_HpzAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; OOZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_OozAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Penguin
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Seal
-PlrList_OozAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; SCZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_SczAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Turtle
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
-PlrList_SczAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; CNZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_CnzAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Bear
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Bird
-PlrList_CnzAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; CPZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_CpzAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Rabbit
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Eagle
-PlrList_CpzAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; ARZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_ArzAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Penguin
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Bird
-PlrList_ArzAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; Special Stage
-;---------------------------------------------------------------------------------------
-PlrList_SpecialStage_Dup: plrlistheader
-	plreq ArtTile_ArtNem_SpecialEmerald, ArtNem_SpecialEmerald
-	plreq ArtTile_ArtNem_SpecialMessages, ArtNem_SpecialMessages
-	plreq ArtTile_ArtNem_SpecialHUD, ArtNem_SpecialHUD
-	plreq ArtTile_ArtNem_SpecialFlatShadow, ArtNem_SpecialFlatShadow
-	plreq ArtTile_ArtNem_SpecialDiagShadow, ArtNem_SpecialDiagShadow
-	plreq ArtTile_ArtNem_SpecialSideShadow, ArtNem_SpecialSideShadow
-	plreq ArtTile_ArtNem_SpecialExplosion, ArtNem_SpecialExplosion
-	plreq ArtTile_ArtNem_SpecialRings, ArtNem_SpecialRings
-	plreq ArtTile_ArtNem_SpecialStart, ArtNem_SpecialStart
-	plreq ArtTile_ArtNem_SpecialPlayerVSPlayer, ArtNem_SpecialPlayerVSPlayer
-	plreq ArtTile_ArtNem_SpecialBack, ArtNem_SpecialBack
-	plreq ArtTile_ArtNem_SpecialStars, ArtNem_SpecialStars
-	plreq ArtTile_ArtNem_SpecialTailsText, ArtNem_SpecialTailsText
-PlrList_SpecialStage_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; Special Stage Bombs
-;---------------------------------------------------------------------------------------
-PlrList_SpecStageBombs_Dup: plrlistheader
-	plreq ArtTile_ArtNem_SpecialBomb, ArtNem_SpecialBomb
-PlrList_SpecStageBombs_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; WFZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_WfzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_WFZBoss, ArtNem_WFZBoss
-	plreq ArtTile_ArtNem_RobotnikRunning, ArtNem_RobotnikRunning
-	plreq ArtTile_ArtNem_RobotnikUpper, ArtNem_RobotnikUpper
-	plreq ArtTile_ArtNem_RobotnikLower, ArtNem_RobotnikLower
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_WfzBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; Tornado
-;---------------------------------------------------------------------------------------
-PlrList_Tornado_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Tornado, ArtNem_Tornado
-	plreq ArtTile_ArtNem_TornadoThruster, ArtNem_TornadoThruster
-	plreq ArtTile_ArtNem_Clouds, ArtNem_Clouds
-PlrList_Tornado_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; Capsule/Egg Prison
-;---------------------------------------------------------------------------------------
-PlrList_Capsule_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Capsule, ArtNem_Capsule
-PlrList_Capsule_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; Normal explosion
-;---------------------------------------------------------------------------------------
-PlrList_Explosion_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Explosion, ArtNem_Explosion
-PlrList_Explosion_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; Tails end of level results screen
-;---------------------------------------------------------------------------------------
-PlrList_ResultsTails_Dup: plrlistheader
-	plreq ArtTile_ArtNem_TitleCard, ArtNem_TitleCard
-	plreq ArtTile_ArtNem_ResultsText, ArtNem_ResultsText
-	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniTails
-	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
-PlrList_ResultsTails_Dup_End
-    endif
-
-
-
 ;---------------------------------------------------------------------------------------
 ; Curve and resistance mapping
 ;---------------------------------------------------------------------------------------
@@ -91667,14 +90581,7 @@ Off_Objects: zoneOrderedOffsetTable 2,2
 	ObjectLayoutBoundary
 Objects_EHZ_1:	BINCLUDE	"level/objects/EHZ_1.bin"
 	ObjectLayoutBoundary
-
-    if gameRevision=0
-; A collision switcher was improperly placed
-Objects_EHZ_2:	BINCLUDE	"level/objects/EHZ_2 (REV00).bin"
-    else
 Objects_EHZ_2:	BINCLUDE	"level/objects/EHZ_2.bin"
-    endif
-
 	ObjectLayoutBoundary
 Objects_MTZ_1:	BINCLUDE	"level/objects/MTZ_1.bin"
 	ObjectLayoutBoundary
@@ -91682,14 +90589,7 @@ Objects_MTZ_2:	BINCLUDE	"level/objects/MTZ_2.bin"
 	ObjectLayoutBoundary
 Objects_MTZ_3:	BINCLUDE	"level/objects/MTZ_3.bin"
 	ObjectLayoutBoundary
-
-    if gameRevision=0
-; The lampposts were bugged: their 'remember state' flags weren't set
-Objects_WFZ_1:	BINCLUDE	"level/objects/WFZ_1 (REV00).bin"
-    else
 Objects_WFZ_1:	BINCLUDE	"level/objects/WFZ_1.bin"
-    endif
-
 	ObjectLayoutBoundary
 Objects_WFZ_2:	BINCLUDE	"level/objects/WFZ_2.bin"
 	ObjectLayoutBoundary
@@ -91711,18 +90611,9 @@ Objects_MCZ_1:	BINCLUDE	"level/objects/MCZ_1.bin"
 	ObjectLayoutBoundary
 Objects_MCZ_2:	BINCLUDE	"level/objects/MCZ_2.bin"
 	ObjectLayoutBoundary
-
-    if gameRevision=0
-; The signposts are too low, causing them to poke out the bottom of the ground
-Objects_CNZ_1:	BINCLUDE	"level/objects/CNZ_1 (REV00).bin"
-	ObjectLayoutBoundary
-Objects_CNZ_2:	BINCLUDE	"level/objects/CNZ_2 (REV00).bin"
-    else
 Objects_CNZ_1:	BINCLUDE	"level/objects/CNZ_1.bin"
 	ObjectLayoutBoundary
 Objects_CNZ_2:	BINCLUDE	"level/objects/CNZ_2.bin"
-    endif
-
 	ObjectLayoutBoundary
 Objects_CPZ_1:	BINCLUDE	"level/objects/CPZ_1.bin"
 	ObjectLayoutBoundary
