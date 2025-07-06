@@ -4487,8 +4487,8 @@ MusicList2: zoneOrderedTable 1,1
 	zoneTableEntry.b MusID_SCZ	; 16
     zoneTableEnd
 	even
-; ===========================================================================
 
+; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Level
 ; DEMO AND ZONE LOOP (MLS values $08, $0C; bit 7 set indicates that load routine is running)
