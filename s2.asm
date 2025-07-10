@@ -69744,6 +69744,7 @@ loc_35150:
 	moveq	#$1E,d0
 
 loc_35164:
+	move.b	anim(a0),$23(a0)
 	move.b	byte_35180(pc,d0.w),anim(a0)
 
 return_3516A:
@@ -69996,8 +69997,14 @@ BranchTo_JmpTo63_DeleteObject ; BranchTo
 ; ===========================================================================
 
 loc_3539E:
+	move.b	$23(a0),d0
+	cmp.b	anim(a0),d0
+	bne.s	.skip
 	subq.b	#1,anim_frame_duration(a0)
 	bpl.s	return_353E8
+
+.skip:
+	move.b	anim(a0),$23(a0)
 	moveq	#0,d0
 	move.b	anim(a0),d0
 	add.w	d0,d0
