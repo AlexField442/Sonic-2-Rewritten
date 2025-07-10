@@ -60575,11 +60575,18 @@ Boss_Defeat:
 
 ;loc_2D5DE:
 Boss_MoveObject:
-	movem.w	(Boss_X_vel).w,d0/d2
+	move.l	(Boss_X_pos).w,d2
+	move.l	(Boss_Y_pos).w,d3
+	move.w	(Boss_X_vel).w,d0
+	ext.l	d0
 	asl.l	#8,d0
-	add.l	d0,(Boss_X_pos).w
-	asl.l	#8,d2
-	add.l	d2,(Boss_Y_pos).w
+	add.l	d0,d2
+	move.w	(Boss_Y_vel).w,d0
+	ext.l	d0
+	asl.l	#8,d0
+	add.l	d0,d3
+	move.l	d2,(Boss_X_pos).w
+	move.l	d3,(Boss_Y_pos).w
 	rts
 ; ===========================================================================
 ; a1 = animation script pointer
