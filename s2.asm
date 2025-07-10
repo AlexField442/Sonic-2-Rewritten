@@ -60579,7 +60579,7 @@ Boss_MoveObject:
 	asl.l	#8,d0
 	add.l	d0,(Boss_X_pos).w
 	asl.l	#8,d2
-	move.l	d2,(Boss_Y_pos).w
+	add.l	d2,(Boss_Y_pos).w
 	rts
 ; ===========================================================================
 ; a1 = animation script pointer
