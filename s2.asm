@@ -23069,7 +23069,7 @@ loc_10730:
 	move.l	objoff_2C(a0),d3
 	move.w	y_vel(a0),d0
 	ext.l	d0
-	asl.l	#8,d3
+	asl.l	#8,d0
 	add.l	d0,d3
 	move.l	d3,objoff_2C(a0)
 	addi.w	#$38,y_vel(a0)
@@ -51055,10 +51055,7 @@ loc_261EC:
 	move.b	#8,width_pixels(a1)
 	move.b	#1,priority(a1)
 	move.b	#4,objoff_38(a1)
-	; This line makes no sense: d1 is never set to anything, the object
-	; being written to is the parent, not the child, and angle isn't used
-	; by the parent at all.
-	move.b	d1,angle(a0)		; ???
+	move.b	d1,angle(a1)
 
 loc_26278:
 	dbf	d6,loc_261EC
