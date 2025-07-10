@@ -24620,11 +24620,21 @@ Obj37_Index:	offsetTable
 		offsetTableEntry.w Obj37_Collect	; 4
 		offsetTableEntry.w Obj37_Sparkle	; 6
 		offsetTableEntry.w Obj37_Delete		; 8
+
+Obj37_VelocityTable:
+	dc.w   -$C4,  -$3EC,    $C4,  -$3EC,  -$238,  -$350,   $238,  -$350
+	dc.w  -$350,  -$238,   $350,  -$238,  -$3EC,   -$C4,   $3EC,   -$C4
+	dc.w  -$3EC,    $C4,   $3EC,    $C4,  -$350,   $238,   $350,   $238
+	dc.w  -$238,   $350,   $238,   $350,   -$C4,   $3EC,    $C4,   $3EC
+	dc.w   -$62,  -$1F6,    $62,  -$1F6,  -$11C,  -$1A8,   $11C,  -$1A8
+	dc.w  -$1A8,  -$11C,   $1A8,  -$11C,  -$1F6,   -$62,   $1F6,   -$62
+	dc.w  -$1F6,    $62,   $1F6,    $62,  -$1A8,   $11C,   $1A8,   $11C
+	dc.w  -$11C,   $1A8,   $11C,   $1A8,   -$62,   $1F6,    $62,   $1F6
 ; ===========================================================================
 ; Obj_37_sub_0:
 Obj37_Init:
 	movea.l	a0,a1
-	moveq	#0,d5
+	lea	Obj37_VelocityTable(pc),a2
 	move.w	(Ring_count).w,d5
 	tst.b	parent+1(a0)
 	beq.s	+
@@ -24636,7 +24646,6 @@ Obj37_Init:
 	move.w	d0,d5
 +
 	subq.w	#1,d5
-	move.w	#$288,d4
 	bra.s	+
 ; ===========================================================================
 
@@ -24645,8 +24654,7 @@ Obj37_Init:
 +
 	move.b	#ObjID_LostRings,id(a1) ; load obj37
 	addq.b	#2,routine(a1)
-	move.b	#8,y_radius(a1)
-	move.b	#8,x_radius(a1)
+	move.w	#$808,y_radius(a1)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	move.l	#Obj25_MapUnc_12382,mappings(a1)
@@ -24657,26 +24665,8 @@ Obj37_Init:
 	move.b	#$47,collision_flags(a1)
 	move.b	#8,width_pixels(a1)
 	move.b	#-1,(Ring_spill_anim_counter).w
-	tst.w	d4
-	bmi.s	+
-	move.w	d4,d0
-	jsrto	CalcSine, JmpTo4_CalcSine
-	move.w	d4,d2
-	lsr.w	#8,d2
-	asl.w	d2,d0
-	asl.w	d2,d1
-	move.w	d0,d2
-	move.w	d1,d3
-	addi.b	#$10,d4
-	bcc.s	+
-	subi.w	#$80,d4
-	bcc.s	+
-	move.w	#$288,d4
-+
-	move.w	d2,x_vel(a1)
-	move.w	d3,y_vel(a1)
-	neg.w	d2
-	neg.w	d4
+	move.w	(a2)+,x_vel(a1)
+	move.w	(a2)+,y_vel(a1)
 	dbf	d5,-
 +
 	move.w	#SndID_RingSpill,d0
@@ -24714,13 +24704,12 @@ Obj37_Main:
 	neg.w	y_vel(a0)
 
 loc_121B8:
-
 	tst.b	(Ring_spill_anim_counter).w
-	beq.s	Obj37_Delete
+	beq.w	DeleteObject
 	move.w	(Camera_Max_Y_pos_now).w,d0
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0
-	blo.s	Obj37_Delete
+	blo.w	DeleteObject
 	bra.w	DisplaySprite
 ; ===========================================================================
 
@@ -24762,21 +24751,16 @@ BigRing_States:	offsetTable
 ; ===========================================================================
 ; loc_12216:
 BigRing_Init:
+	cmpi.b	#7,(Emerald_count).w
+	beq.w	DeleteObject
+	cmpi.w	#50,(Ring_count).w
+	bcs.w	DeleteObject
+	addq.b	#2,routine(a0)
 	move.l	#Obj37_MapUnc_123E6,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_BigRing,1,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	ori.b	#4,render_flags(a0)
 	move.b	#$40,width_pixels(a0)
-	tst.b	render_flags(a0)
-	bpl.s	BigRing_Main
-	cmpi.b	#6,(Got_Emerald).w
-	beq.w	BigRing_Delete
-	cmpi.w	#50,(Ring_count).w
-	bhs.s	+
-	rts
-; ===========================================================================
-+
-	addq.b	#2,routine(a0)
 	move.b	#2,priority(a0)
 	move.b	#$52,collision_flags(a0)
 	move.w	#$C40,(BigRingGraphics).w
