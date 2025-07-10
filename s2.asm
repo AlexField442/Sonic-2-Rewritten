@@ -12167,6 +12167,7 @@ MenuScreen_LevelSelect:
 	; Draw sound test number
 	moveq	#palette_line_0,d3
 	bsr.w	LevelSelect_DrawSoundNumber
+	bsr.w	LevelSelect_DrawCharNumber
 
 	; Load zone icon
 	lea	(Chunk_Table+$8C0).l,a1
@@ -12338,6 +12339,7 @@ LevelSelect_StartZone:
 ; loc_94DC:
 LevSelControls:
 	move.b	(Ctrl_1_Press).w,d1
+	bsr.w	LevelSelect_ChangeCharacter
 	andi.b	#button_up_mask|button_down_mask,d1
 	bne.s	+	; up/down pressed
 	subq.w	#1,(LevSel_HoldTimer).w
@@ -12365,6 +12367,19 @@ LevSelControls:
 
 +
 	move.w	d0,(Level_select_zone).w
+	rts
+; ===========================================================================
+
+LevelSelect_ChangeCharacter
+	move.w	(Player_option).w,d0
+	btst	#button_C,d1
+	beq.s	+
+	addq.b	#1,d0
+	cmpi.b	#3,d0
+	blo.s	+
+	moveq	#0,d0
++
+	move.w	d0,(Player_option).w
 	rts
 ; ===========================================================================
 ; loc_9522:
@@ -12504,6 +12519,7 @@ LevelSelect_MarkFields:
 	move.w	d0,(a6)
 
 +
+	bsr.w	LevelSelect_DrawCharNumber
 	cmpi.w	#$15,(Level_select_zone).w
 	bne.s	+	; rts
 	bsr.w	LevelSelect_DrawSoundNumber
@@ -12519,6 +12535,26 @@ LevelSelect_DrawSoundNumber:
 	bsr.s	+
 	move.b	d2,d0
 
++
+	andi.w	#$F,d0
+	cmpi.b	#$A,d0
+	blo.s	+
+	addi.b	#4,d0
+
++
+	addi.b	#$10,d0
+	add.w	d3,d0
+	move.w	d0,(a6)
+	rts
+; ===========================================================================
+
+LevelSelect_DrawCharNumber:
+	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLocH40(1,1),VRAM,WRITE),(VDP_control_port).l
+	move.w	(Player_option).w,d0
+	move.b	d0,d2
+	lsr.b	#4,d0
+	bsr.s	+
+	move.b	d2,d0
 +
 	andi.w	#$F,d0
 	cmpi.b	#$A,d0
