@@ -50947,14 +50947,7 @@ Obj2C_Init:
 	move.b	Obj2C_CollisionFlags(pc,d0.w),collision_flags(a0)
 	move.l	#Obj31_MapUnc_20E74,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Powerups,0,1),art_tile(a0)
-    if fixBugs
 	move.b	#4,render_flags(a0)
-    else
-	; The high bit of 'render_flags' should not be set here: this causes
-	; this object to become visible when the player dies, because of how
-	; 'RunObjectsWhenPlayerIsDead' works.
-	move.b	#$84,render_flags(a0)
-    endif
 	move.b	#$80,width_pixels(a0)
 	move.b	#4,priority(a0)
 	move.b	subtype(a0),mapping_frame(a0)
@@ -50965,13 +50958,10 @@ Obj2C_Main:
 	sub.w	(Camera_X_pos_coarse).w,d0
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo29_DeleteObject
-    if fixBugs
-	; This object never actually displays itself, even in Debug Mode.
 	tst.w	(Debug_placement_mode).w
 	beq.s	+
 	jsr	(DisplaySprite).l
 +
-    endif
 	move.b	collision_property(a0),d0
 	beq.s	loc_261C2
 	move.w	objoff_2E(a0),d0
