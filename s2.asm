@@ -44408,12 +44408,10 @@ Obj03_MainX:
 +
 	btst	#0,render_flags(a0)
 	bne.s	+
-	move.b	#$C,top_solid_bit(a1)
-	move.b	#$D,lrb_solid_bit(a1)
+	move.w	#$C0D,top_solid_bit(a1)
 	btst	#3,d0
 	beq.s	+
-	move.b	#$E,top_solid_bit(a1)
-	move.b	#$F,lrb_solid_bit(a1)
+	move.w	#$E0F,top_solid_bit(a1)
 +
 	andi.w	#drawing_mask,art_tile(a1)
 	btst	#5,d0
@@ -44443,12 +44441,10 @@ Obj03_MainX_Alt:
 +
 	btst	#0,render_flags(a0)
 	bne.s	+
-	move.b	#$C,top_solid_bit(a1)
-	move.b	#$D,lrb_solid_bit(a1)
+	move.w	#$C0D,top_solid_bit(a1)
 	btst	#4,d0
 	beq.s	+
-	move.b	#$E,top_solid_bit(a1)
-	move.b	#$F,lrb_solid_bit(a1)
+	move.w	#$E0F,top_solid_bit(a1)
 +
 	andi.w	#drawing_mask,art_tile(a1)
 	btst	#6,d0
@@ -44490,12 +44486,10 @@ Obj03_MainY:
 +
 	btst	#0,render_flags(a0)
 	bne.s	+
-	move.b	#$C,top_solid_bit(a1)
-	move.b	#$D,lrb_solid_bit(a1)
+	move.w	#$C0D,top_solid_bit(a1)
 	btst	#3,d0
 	beq.s	+
-	move.b	#$E,top_solid_bit(a1)
-	move.b	#$F,lrb_solid_bit(a1)
+	move.w	#$E0F,top_solid_bit(a1)
 +
 	andi.w	#drawing_mask,art_tile(a1)
 	btst	#5,d0
@@ -44525,12 +44519,10 @@ Obj03_MainY_Alt:
 +
 	btst	#0,render_flags(a0)
 	bne.s	+
-	move.b	#$C,top_solid_bit(a1)
-	move.b	#$D,lrb_solid_bit(a1)
+	move.w	#$C0D,top_solid_bit(a1)
 	btst	#4,d0
 	beq.s	+
-	move.b	#$E,top_solid_bit(a1)
-	move.b	#$F,lrb_solid_bit(a1)
+	move.w	#$E0F,top_solid_bit(a1)
 +
 	andi.w	#drawing_mask,art_tile(a1)
 	btst	#6,d0
