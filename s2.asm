@@ -55463,7 +55463,7 @@ Obj7F_Init:
 	jsrto	Adjust2PArtPointer, JmpTo43_Adjust2PArtPointer
 	move.b	#4,render_flags(a0)
 	move.b	#8,width_pixels(a0)
-	move.w	#$200,priority(a0)
+	move.w	#$80,priority(a0)
 ; loc_2981E:
 Obj7F_Main:
 	lea	objoff_30(a0),a2
@@ -55588,7 +55588,7 @@ Obj80_Init:
 	addq.b	#2,routine(a0)
 	move.b	#4,render_flags(a0)
 	move.b	#$10,width_pixels(a0)
-	move.w	#$200,priority(a0)
+	move.w	#$80,priority(a0)
 	move.b	#$80,y_radius(a0)
 	bset	#4,render_flags(a0)
 	move.w	y_pos(a0),objoff_3C(a0)
