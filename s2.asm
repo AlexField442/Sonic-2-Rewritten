@@ -12841,6 +12841,10 @@ EndingSequence:
 	jsr	(RandomNumber).l
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
+	andi.b	#button_start_mask,(Ctrl_1_Press).w
+	beq.s	+
+	move.b	#1,(Credits_Trigger).w
++
 	tst.b	(Ending_PalCycle_flag).w
 	beq.s	+
 	jsrto	PalCycle_Load, JmpTo_PalCycle_Load
