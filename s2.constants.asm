@@ -134,7 +134,7 @@ objoff_28 =		$28 ; overlaps subtype, but a few objects use it for other things a
 ; ---------------------------------------------------------------------------
 ; Special Stage object properties:
 ss_inertia = objoff_14
-ss_dplc_timer = $23
+ss_dplc_timer = objoff_28
 ss_x_pos = objoff_2A
 ss_x_sub = objoff_2C
 ss_y_pos = objoff_2E
