@@ -14069,7 +14069,7 @@ word_AD6E:
 
 ; off_AD72:
 Obj28_SubObjData:
-	subObjData Obj28_MapUnc_11E1C,make_art_tile(ArtTile_ArtNem_Animal_2,0,0),4,2,8,0
+	subObjData Obj28_MapUnc_11E1C,make_art_tile(ArtTile_ArtNem_Animal_2,0,0),4,1,8,0
 
 ; animation script
 ; byte_AD7C
@@ -25960,13 +25960,7 @@ Obj0E_Tails_Index: offsetTable
 
 Obj0E_Tails_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Tails_Move
-    if fixBugs
-	; Tails' priority is never set, even though it is set in
-	; 'TitleScreen_SetFinalState', suggesting that it was meant to be.
-	; This causes Tails to be layered behind Sonic instead of in front of
-	; him.
 	move.w	#$180,priority(a0)
-    endif
 	move.w	#128+88,x_pixel(a0)
 	move.w	#128+88,y_pixel(a0)
 	move.b	#1,anim(a0)
@@ -26150,13 +26144,7 @@ Obj0E_SonicHand_Index: offsetTable
 Obj0E_SonicHand_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_SonicHand_Move
 	move.b	#9,mapping_frame(a0)
-    if fixBugs
-	; This matches 'TitleScreen_SetFinalState'.
 	move.w	#$100,priority(a0)
-    else
-	; This is inconsistent with 'TitleScreen_SetFinalState'.
-	move.w	#$180,priority(a0)
-    endif
 	move.w	#128+197,x_pixel(a0)
 	move.w	#128+63,y_pixel(a0)
 
@@ -26193,14 +26181,7 @@ Obj0E_TailsHand_Index: offsetTable
 Obj0E_TailsHand_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_TailsHand_Move
 	move.b	#$13,mapping_frame(a0)
-    if fixBugs
-	; This matches 'TitleScreen_SetFinalState'.
 	move.w	#$100,priority(a0)
-    else
-	; This is inconsistent with 'TitleScreen_SetFinalState', and causes
-	; the hand to be layered behind Tails is his priority is fixed.
-	move.w	#$180,priority(a0)
-    endif
 	move.w	#128+143,x_pixel(a0)
 	move.w	#128+85,y_pixel(a0)
 
@@ -26599,13 +26580,6 @@ Ani_obj0E_Sonic:
 	dc.b   5
 	dc.b   6
 	dc.b   7
-    if ~~fixBugs
-	; This appears to be a leftover prototype frame: it's a duplicate of
-	; frame $12, except Sonic is missing his right arm. The old frame
-	; being here in this animation script causes Sonic to appear with
-	; both of his arms missing for a single frame.
-	dc.b   8
-    endif
 	dc.b $FA
 	even
 ; byte_13694:
