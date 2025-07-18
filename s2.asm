@@ -44345,10 +44345,8 @@ Obj03_Init_CheckX:
 +
 	lea	(Sidekick).w,a1 ; a1=character
 	cmp.w	x_pos(a1),d1
-	bhs.s	+
+	bhs.s	Obj03_MainX
 	move.b	#1,objoff_35(a0)
-+
-
 ; loc_1FDA4:
 Obj03_MainX:
 	tst.w	(Debug_placement_mode).w
