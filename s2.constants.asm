@@ -20,8 +20,8 @@ x_pos =			  8 ; and 9 ... some objects use $A and $B as well when extra precisio
 x_sub =			 $A ; and $B
 y_pos =			 $C ; and $D ... some objects use $E and $F as well when extra precision is required ... screen-space objects use y_pixel instead
 y_sub =			 $E ; and $F
+width_pixels =		$14
 priority =		$18 ; 0 = front
-width_pixels =		$19
 mapping_frame =		$1A
 ; ---------------------------------------------------------------------------
 ; conventions followed by most objects:
@@ -45,8 +45,8 @@ respawn_index =		$23
 subtype =		$28
 ; ---------------------------------------------------------------------------
 ; conventions specific to Sonic/Tails (Obj01, Obj02, and ObjDB):
-; note: $1F, $20, and $21 are unused and available
-inertia =		$14 ; and $15 ; directionless representation of speed... not updated in the air
+; note: $1F is unused and available
+inertia =		$20 ; and $21 ; directionless representation of speed... not updated in the air
 flip_angle =		$27 ; angle about the x axis (360 degrees = 256) (twist/tumble)
 air_left =		$28
 flip_turned =		$29 ; 0 for normal, 1 to invert flipping (it's a 180 degree rotation about the axis of Sonic's spine, so he stays in the same position but looks turned around)
@@ -133,6 +133,7 @@ objoff_28 =		$28 ; overlaps subtype, but a few objects use it for other things a
  enum objoff_38=$38,objoff_39=$39,objoff_3A=$3A,objoff_3B=$3B,objoff_3C=$3C,objoff_3D=$3D,objoff_3E=$3E,objoff_3F=$3F
 ; ---------------------------------------------------------------------------
 ; Special Stage object properties:
+ss_inertia = objoff_14
 ss_dplc_timer = $23
 ss_x_pos = objoff_2A
 ss_x_sub = objoff_2C

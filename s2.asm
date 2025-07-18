@@ -21,6 +21,8 @@ padToPowerOfTwo = 1
 ;	| If 1, pads the end of the ROM to the next power of two bytes (for real hardware)
 ;
 
+easyDebug = 1
+
 fixBugs = 0
 ;	| If 1, enables all bug-fixes
 ;	| See also the 'FixDriverBugs' flag in 's2.sounddriver.asm'
@@ -4147,13 +4149,17 @@ TitleScreen:
 	move.w	#0,(Correct_cheat_entries_2).w
 
 	; I do not know why these are here.
+  if easyDebug=0
 	nop
 	nop
 	nop
 	nop
 	nop
 	nop
-
+  else
+	move.w	#$101,(Level_select_flag).w
+	move.w	#$101,(Debug_mode_flag).w
+  endif
 	; Reset Sonic's position record buffer.
 	move.w	#4,(Sonic_Pos_Record_Index).w
 	move.w	#0,(Sonic_Pos_Record_Buf).w
@@ -68646,7 +68652,7 @@ SSPlayer_DoLevelCollision:
 	moveq	#0,d0
 	move.w	d0,x_vel(a0)
 	move.w	d0,y_vel(a0)
-	move.w	d0,inertia(a0)		; This makes player stop on ground
+	move.w	d0,ss_inertia(a0)		; This makes player stop on ground
 	move.b	d0,ss_slide_timer(a0)
 	bset	#6,status(a0)
 	bsr.w	SSObjectMove
@@ -68661,7 +68667,7 @@ SSPlayer_Collision:
 	clr.b	collision_property(a0)
 	tst.b	ss_dplc_timer(a0)
 	bne.s	return_33E42
-	clr.b	inertia(a0)		; clears only high byte, leaving a bit of speed
+	clr.b	ss_inertia(a0)		; clears only high byte, leaving a bit of speed
 	cmpa.l	#MainCharacter,a0
 	bne.s	+
 	st.b	(SS_Swap_Positions_Flag).w
@@ -68819,7 +68825,7 @@ SSAnim_Delay:
 ; ===========================================================================
 
 SSPlayer_Move:
-	move.w	inertia(a0),d2
+	move.w	ss_inertia(a0),d2
 	move.b	(a2),d0
 	btst	#button_left,d0
 	bne.s	SSPlayer_MoveLeft
@@ -68844,7 +68850,7 @@ SSPlayer_Move:
 	asr.w	#3,d1
 	sub.w	d1,d2
 +
-	move.w	d2,inertia(a0)
+	move.w	d2,ss_inertia(a0)
 	move.b	ss_slide_timer(a0),d0
 	beq.s	+
 	subq.b	#1,d0
@@ -68867,7 +68873,7 @@ SSPlayer_MoveRight:
 	bge.s	+
 	move.w	#-$600,d2
 +
-	move.w	d2,inertia(a0)
+	move.w	d2,ss_inertia(a0)
 	bclr	#6,status(a0)
 	clr.b	ss_slide_timer(a0)
 	rts
@@ -68880,14 +68886,14 @@ SSPlayer_Traction:
 	jsr	(CalcSine).l
 	muls.w	#$50,d1
 	asr.l	#8,d1
-	add.w	d1,inertia(a0)
+	add.w	d1,ss_inertia(a0)
 +
 	move.b	angle(a0),d0
 	bpl.s	return_34048
 	addq.b	#4,d0
 	cmpi.b	#-$78,d0
 	blo.s	return_34048
-	mvabs.w	inertia(a0),d0
+	mvabs.w	ss_inertia(a0),d0
 	cmpi.w	#$100,d0
 	bhs.s	return_34048
 	move.b	#8,routine(a0)
@@ -68899,7 +68905,7 @@ return_34048:
 SSObjectMove:
 	moveq	#0,d0
 	moveq	#0,d1
-	move.w	inertia(a0),d2
+	move.w	ss_inertia(a0),d2
 	bpl.s	+
 	neg.w	d2
 	lsr.w	#8,d2
