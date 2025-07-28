@@ -1973,10 +1973,10 @@ RunPLC_RAM:
 ProcessDPLC:
 	tst.w	(Plc_Buffer_Reg18).w
 	beq.w	+	; rts
-	move.w	#6,(Plc_Buffer_Reg1A).w
+	move.w	#9,(Plc_Buffer_Reg1A).w
 	moveq	#0,d0
 	move.w	(Plc_Buffer+4).w,d0
-	addi.w	#$C0,(Plc_Buffer+4).w
+	addi.w	#$120,(Plc_Buffer+4).w
 	bra.s	ProcessDPLC_Main
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -24588,8 +24588,7 @@ Obj37_Init:
 	move.b	#$47,collision_flags(a1)
 	move.b	#8,width_pixels(a1)
 	move.b	#-1,(Ring_spill_anim_counter).w
-	move.w	(a2)+,x_vel(a1)
-	move.w	(a2)+,y_vel(a1)
+	move.l	(a2)+,x_vel(a1)
 	dbf	d5,-
 +
 	move.w	#SndID_RingSpill,d0
