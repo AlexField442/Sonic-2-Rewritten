@@ -4,10 +4,11 @@ _Sonic 2 Optimized_ is an updated version of the _Sonic 2_ game engine. Based on
 Note that as of writing that **there is no stable release**, therefore there is no confirmation that the game will work correctly. Download and use at your own discretion.
 
 # Changes
-## Gemeral
+## General
 * Revision 02 is now the only version compiled, however any advantages that REV00/REV01 had (visible debug objects and less padding) have been backported over.
 * V-blank routines are now called directly using a word-based jump, rather than a table.
 * Ending sequence can now be skipped by pressing Start.
+* Restored the original PLC queue speed from _Sonic 1_ (slightly improves load times).
 
 ## Objects
 * Changed `priority` to now directly point to the sprite queue, rather than being calculated. This considerably simplifies DisplaySprite, but also requires all objects to explicitly declare their priority value.
@@ -32,3 +33,9 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Fixed Sonic overlapping the hangable vines in Mystic Cave.
 * Fixed the birds in the ending appearing in front of the Tornado, yet behind Sonic.
 * Fixed the Special Stage animations not working correctly, meaning they now appear much smoother.
+
+# Special Thanks
+* [Devon](https://github.com/Ralakimus) - _Sonic Jam_ object data
+* [Hivebrain](https://github.com/cvghivebrain/Sonic1sq) - optimizations and fixes ported from _Sonic 1 Squared_
+* RedhotSonic - ring loss optimization, Sonic 3K priority manager
+* [RetroKoH](https://github.com/RetroKoH/S1Fixed) - optimizations and fixes ported from _S1Fixed_
