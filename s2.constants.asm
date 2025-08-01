@@ -45,7 +45,7 @@ respawn_index =		$23
 subtype =		$28
 ; ---------------------------------------------------------------------------
 ; conventions specific to Sonic/Tails (Obj01, Obj02, and ObjDB):
-; note: $1F is unused and available
+jumping =		$1F
 inertia =		$20 ; and $21 ; directionless representation of speed... not updated in the air
 flip_angle =		$27 ; angle about the x axis (360 degrees = 256) (twist/tumble)
 air_left =		$28
@@ -65,8 +65,7 @@ spindash_flag =		$39 ; 0 for normal, 1 for charging a spindash or forced rolling
 pinball_mode =		spindash_flag
 spindash_counter =	$3A ; and $3B
 restart_countdown =	spindash_counter; and 1+spindash_counter
-jumping =		$3C
-interact =		$3D ; RAM address of the last object Sonic stood on, minus $FFFFB000 and divided by $40
+interact =		$3C ; and $3D ; RAM address of the last object Sonic stood on
 top_solid_bit = 	$3E ; the bit to check for top solidity (either $C or $E)
 lrb_solid_bit =		$3F ; the bit to check for left/right/bottom solidity (either $D or $F)
 ; ---------------------------------------------------------------------------

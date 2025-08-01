@@ -21748,6 +21748,8 @@ sub_F872:
 	movem.l	d1-d4,-(sp)
 	bsr.s	+
 	movem.l	(sp)+,d1-d4
+	tst.w	(Debug_placement_mode).w
+	bne.s	+++
 	lea	(MainCharacter).w,a1 ; a1=character
 	subq.b	#1,d6
 	moveq	#objoff_3F,d5
@@ -21762,11 +21764,12 @@ sub_F872:
 	add.w	d1,d0
 	bmi.s	+
 	cmp.w	d2,d0
-	blo.s	++
+	blo.s	+++
 +
 	bclr	#3,status(a1)
 	bclr	d6,status(a0)
 	moveq	#0,d4
++
 	rts
 ; ===========================================================================
 +
@@ -22402,31 +22405,13 @@ Obj15_State4:
 	neg.w	x_vel(a1)
 +
 	bset	#1,status(a1)
-	move.w	a0,d0
-	subi.w	#Object_RAM,d0
-    if object_size=$40
-	lsr.w	#6,d0
-    else
-	divu.w	#object_size,d0
-    endif
-	andi.w	#$7F,d0
-	move.w	a1,d1
-	subi.w	#Object_RAM,d1
-    if object_size=$40
-	lsr.w	#6,d1
-    else
-	divu.w	#object_size,d1
-    endif
-	andi.w	#$7F,d1
-	lea	(MainCharacter).w,a1 ; a1=character
-	cmp.b	interact(a1),d0
+	cmp.w	(MainCharacter+interact).w,a0
 	bne.s	+
-	move.b	d1,interact(a1)
+	move.w	a1,(MainCharacter+interact).w
 +
-	lea	(Sidekick).w,a1 ; a1=character
-	cmp.b	interact(a1),d0
+	cmp.w	(Sidekick+interact).w,a0
 	bne.s	loc_100E4
-	move.b	d1,interact(a1)
+	move.w	a1,(Sidekick+interact).w
 
 loc_100E4:
 	move.b	#3,mapping_frame(a0)
@@ -25458,17 +25443,9 @@ swap_loop_objects:
 	btst	#3,status(a1)	; is Sonic on an object?
 	beq.s	+		; if not, branch
 	moveq	#0,d0
-	move.b	interact(a1),d0
-    if object_size=$40
-	lsl.w	#6,d0
-    else
-	mulu.w	#object_size,d0
-    endif
-	addi.l	#Object_RAM,d0
-	movea.l	d0,a2	; a2=object
+	move.w	interact(a1),a2
 	bclr	#4,status(a2)
 	bset	#3,status(a2)
-
 +
 	lea	(Sidekick).w,a1 ; a1=character
 	move.b	#ObjID_Shield,(Tails_Shield+id).w ; load Obj38 (shield) at $FFFFD1C0
@@ -25479,22 +25456,13 @@ swap_loop_objects:
 	bne.s	+		; if yes, branch
 	move.b	#$F,y_radius(a1)	; set to standing height
 	move.b	#9,x_radius(a1)
-
 +
 	btst	#3,status(a1)	; is Tails on an object?
 	beq.s	+		; if not, branch
 	moveq	#0,d0
-	move.b	interact(a1),d0
-    if object_size=$40
-	lsl.w	#6,d0
-    else
-	mulu.w	#object_size,d0
-    endif
-	addi.l	#Object_RAM,d0
-	movea.l	d0,a2	; a2=object
+	move.w	interact(a1),a2
 	bclr	#3,status(a2)
 	bset	#4,status(a2)
-
 +
 	move.b	#$40,(Teleport_timer).w
 	move.b	#1,(Teleport_flag).w
@@ -34894,26 +34862,11 @@ RideObject_SetRide:
 	btst	#3,status(a1)
 	beq.s	loc_19E30
 	moveq	#0,d0
-	move.b	interact(a1),d0
-    if object_size=$40
-	lsl.w	#6,d0
-    else
-	mulu.w	#object_size,d0
-    endif
-	addi.l	#Object_RAM,d0
-	movea.l	d0,a3	; a3=object
+	move.w	interact(a1),a3
 	bclr	d6,status(a3)
 
 loc_19E30:
-	move.w	a0,d0
-	subi.w	#Object_RAM,d0
-    if object_size=$40
-	lsr.w	#6,d0
-    else
-	divu.w	#object_size,d0
-    endif
-	andi.w	#$7F,d0
-	move.b	d0,interact(a1)
+	move.w	a0,interact(a1)
 	move.b	#0,angle(a1)
 	move.w	#0,y_vel(a1)
 	move.w	x_vel(a1),inertia(a1)
@@ -35452,14 +35405,7 @@ Obj01_NotRight:
 	btst	#3,status(a0)
 	beq.w	Sonic_Balance
 	moveq	#0,d0
-	move.b	interact(a0),d0
-    if object_size=$40
-	lsl.w	#6,d0
-    else
-	mulu.w	#object_size,d0
-    endif
-	lea	(Object_RAM).w,a1 ; a1=character
-	lea	(a1,d0.w),a1 ; a1=object
+	move.w	interact(a0),a1 ; a1=object
 	tst.b	status(a1)
 	bmi.w	Sonic_Lookup
 	moveq	#0,d1
@@ -38165,14 +38111,7 @@ TailsCPU_CheckDespawn:
 	beq.s	TailsCPU_TickRespawnTimer
 
 	moveq	#0,d0
-	move.b	interact(a0),d0
-    if object_size=$40
-	lsl.w	#6,d0
-    else
-	mulu.w	#object_size,d0
-    endif
-	addi.l	#Object_RAM,d0
-	movea.l	d0,a3	; a3=object
+	move.w	interact(a0),a3	; a3=object
 	move.b	(Tails_interact_ID).w,d0
 	cmp.b	(a3),d0
 	bne.s	BranchTo_TailsCPU_Despawn
@@ -38192,14 +38131,7 @@ TailsCPU_ResetRespawnTimer:
 ; loc_1BEA2:
 TailsCPU_UpdateObjInteract:
 	moveq	#0,d0
-	move.b	interact(a0),d0
-    if object_size=$40
-	lsl.w	#6,d0
-    else
-	mulu.w	#object_size,d0
-    endif
-	addi.l	#Object_RAM,d0
-	movea.l	d0,a3	; a3=object
+	move.w	interact(a0),a3	; a3=object
 	move.b	(a3),(Tails_interact_ID).w
 	rts
 
@@ -38456,14 +38388,7 @@ Obj02_NotRight:
 	btst	#3,status(a0)
 	beq.s	Tails_Balance
 	moveq	#0,d0
-	move.b	interact(a0),d0
-    if object_size=$40
-	lsl.w	#6,d0
-    else
-	mulu.w	#object_size,d0
-    endif
-	lea	(Object_RAM).w,a1 ; a1=character
-	lea	(a1,d0.w),a1 ; a1=object
+	move.w	interact(a0),a1 ; a1=object
 	tst.b	status(a1)
 	bmi.s	Tails_Lookup
 	moveq	#0,d1
@@ -49848,15 +49773,7 @@ loc_25002:
 	bclr	#5,status(a1)
 	bset	#1,status(a1)
 	bset	#3,status(a1)
-	move.w	a0,d0
-	subi.w	#Object_RAM,d0
-    if object_size=$40
-	lsr.w	#6,d0
-    else
-	divu.w	#object_size,d0
-    endif
-	andi.w	#$7F,d0
-	move.b	d0,interact(a1)
+	move.w	a0,interact(a1)
 	move.w	#SndID_Roll,d0
 	jsr	(PlaySound).l
 
@@ -50049,25 +49966,10 @@ loc_252F0:
 	btst	#3,status(a1)
 	beq.s	+
 	moveq	#0,d0
-	move.b	interact(a1),d0
-    if object_size=$40
-	lsl.w	#6,d0
-    else
-	mulu.w	#object_size,d0
-    endif
-	addi.l	#Object_RAM,d0
-	movea.l	d0,a3	; a3=object
+	move.w	interact(a1),a3	; a3=object
 	move.b	#0,(a3,d2.w)
 +
-	move.w	a0,d0
-	subi.w	#Object_RAM,d0
-    if object_size=$40
-	lsr.w	#6,d0
-    else
-	divu.w	#object_size,d0
-    endif
-	andi.w	#$7F,d0
-	move.b	d0,interact(a1)
+	move.w	a0,interact(a1)
 	addq.b	#2,(a4)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
@@ -86775,12 +86677,20 @@ Debug_Init:
 	clr.b	(Scroll_lock).w
 	move.b	#0,mapping_frame(a0)
 	move.b	#AniIDSonAni_Walk,anim(a0)
+	btst	#3,status(a0)		; is Sonic standing on an object?
+	beq.s	.noObject		; if not, branch
+	bclr	#3,status(a0)		; clear Sonic's standing flag
+	move.w	interact(a0),a2		; get object ID
+	clr.w	interact(a0)		; clear object ID
+	bclr	#3,status(a2)		; clear object's standing flag
+
+.noObject:
     if fixBugs
 	; The 'in air' bit is left as whatever it was when Sonic entered
 	; Debug Mode. This affects the camera's vertical deadzone.
 	; Since 'Debug_ExitDebugMode' explicitly sets the 'in air' bit, it can
 	; be assumed that having it cleared here was intended.
-	bclr #1,(MainCharacter+status).w
+	bclr	#1,(MainCharacter+status).w
     endif
 	; S1 leftover
 	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w ; special stage mode? (you can't enter debug mode in S2's special stage)
