@@ -13,6 +13,7 @@ Note that as of writing that **there is no stable release**, therefore there is 
 
 ## Objects
 * Changed `priority` to now directly point to the sprite queue, rather than being calculated. This considerably simplifies DisplaySprite, but also requires all objects to explicitly declare their priority value.
+* Changed `interact` to now directly point to the object Sonic and Tails are interacting with, which slightly improves performance.
 * Optimized the lost ring object to use a velocity table, rather than calculating it for every ring.
 * Optimized the (unused) big ring object a little bit.
 * Optimized most object move routines to take advantage of a quirk with the `movea.w` instruction.
@@ -28,6 +29,7 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Fixed the title screen not having its priorities set correctly, causing various layering issues.
 * Fixed Sonic's left hand disappearing for a single frame on the title screen.
 * Fixed the GAME/TIME OVER text flickering for a single frame.
+* Fixed Sonic getting stuck on bridges if he enters debug mode while standing on them.
 * Fixed Sonic being able to clip into the first cave in Emerald Hill 2 (imported from _Sonic Jam_).
 * Fixed Sonic being able to get stuck in the last cave in Emerald Hill 2 (imported from _Sonic Jam_).
 * Fixed the leaf generators in Aquatic Ruin appearing when the player dies.
@@ -37,7 +39,9 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Fixed the Special Stage animations not working correctly, meaning they now appear much smoother.
 
 # Special Thanks
+* Aurora - optimizations ported from _AMPS in Sonic 2_; **do not attempt to contact this user**
 * [Devon](https://github.com/Ralakimus) - _Sonic Jam_ object data
 * [Hivebrain](https://github.com/cvghivebrain/Sonic1sq) - optimizations and fixes ported from _Sonic 1 Squared_
+* Mercury - bridge debug mode fix
 * RedhotSonic - ring loss optimization, Sonic 3K priority manager
 * [RetroKoH](https://github.com/RetroKoH/S1Fixed) - optimizations and fixes ported from _S1Fixed_
