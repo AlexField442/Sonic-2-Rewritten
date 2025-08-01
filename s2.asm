@@ -27005,7 +27005,7 @@ Obj39_SlideIn:
 Obj39_SetTimer:
 	move.w	#$2D0,anim_frame_duration(a0)
 	addq.b	#2,routine(a0)
-	rts
+	bra.w	DisplaySprite
 ; ===========================================================================
 ; loc_13FEE:
 Obj39_Wait:
