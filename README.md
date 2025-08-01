@@ -10,7 +10,7 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Ending sequence can now be skipped by pressing Start.
 
 ## Objects
-* Changed `priority` to now directly point to the sprite queue, rather than being calculated. This considerably simplifies DisplaySprite/2, but also requires all objects to explicitly declare their priority value.
+* Changed `priority` to now directly point to the sprite queue, rather than being calculated. This considerably simplifies DisplaySprite, but also requires all objects to explicitly declare their priority value.
 * Optimized the lost ring object to use a velocity table, rather than calculating it for every ring.
 * Optimized the (unused) big ring object a little bit.
 * Optimized most object move routines to take advantage of a quirk with the `movea.w` instruction.
