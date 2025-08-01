@@ -875,19 +875,19 @@ SndID__End =		id(SndPtr__End)			; F1
 ; Sound command IDs
 offset :=	zCommandIndex
 ptrsize :=	4
-idstart :=	$F8
+idstart :=	$FA
 
 CmdID__First = idstart
-MusID_StopSFX =		id(CmdPtr_StopSFX)	; F8
-MusID_FadeOut =		id(CmdPtr_FadeOut)	; F9
-SndID_SegaSound =	id(CmdPtr_SegaSound)	; FA
-MusID_SpeedUp =		id(CmdPtr_SpeedUp)	; FB
-MusID_SlowDown =	id(CmdPtr_SlowDown)	; FC
-MusID_Stop =		id(CmdPtr_Stop)		; FD
-CmdID__End =		id(CmdPtr__End)		; FE
+MusID_StopSFX =		id(CmdPtr_StopSFX)	; FA
+MusID_FadeOut =		id(CmdPtr_FadeOut)	; FB
+SndID_SegaSound =	id(CmdPtr_SegaSound)	; FC
+MusID_SpeedUp =		id(CmdPtr_SpeedUp)	; FD
+MusID_SlowDown =	id(CmdPtr_SlowDown)	; FE
+MusID_Stop =		id(CmdPtr_Stop)		; FF
+CmdID__End =		id(CmdPtr__End)		; 100
 
-MusID_Pause =		$7E+$80			; FE
-MusID_Unpause =		$7F+$80			; FF
+MusID_Pause =		$7F
+MusID_Unpause =		$80
 
 ; 2P VS results screens
 offset := TwoPlayerResultsPointers

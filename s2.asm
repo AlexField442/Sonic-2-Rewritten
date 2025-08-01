@@ -462,6 +462,7 @@ V_Int:
 	jsr	(a1)
 
 VintRet:
+	move.w	#$9193,(VDP_control_port).l	; !!
 	addq.l	#1,(Vint_runcount).w
 	movem.l	(sp)+,d0-a6
 	rte
@@ -476,10 +477,6 @@ Vint_Lag:
 	beq.s	loc_4C4
 	cmpi.b	#GameModeID_Level,(Game_Mode).w	; Zone play mode?
 	beq.s	loc_4C4
-
-	stopZ80			; stop the Z80
-	bsr.w	sndDriverInput	; give input to the sound driver
-	startZ80		; start the Z80
 
 	bra.s	VintRet
 ; ---------------------------------------------------------------------------
@@ -496,8 +493,6 @@ loc_4C4:
 +
 	move.w	#1,(Hint_flag).w
 
-	stopZ80
-
 	tst.b	(Water_fullscreen_flag).w
 	bne.s	loc_526
 
@@ -512,9 +507,6 @@ loc_526:
 loc_54A:
 	move.w	(Hint_counter_reserve).w,(a5)
 	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(VDP_control_port).l	; Set scroll A PNT base to $C000
-	bsr.w	sndDriverInput
-
-	startZ80
 
 	bra.w	VintRet
 ; ---------------------------------------------------------------------------
@@ -534,10 +526,7 @@ Vint0_noWater:
 	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(VDP_control_port).l	; Set scroll A PNT base to $C000
 	move.l	(Vscroll_Factor_P2).w,(Vscroll_Factor_P2_HInt).w
 
-	stopZ80
 	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
-	bsr.w	sndDriverInput
-	startZ80
 
 	bra.w	VintRet
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -562,9 +551,7 @@ Vint_PCM:
 	andi.w	#$F,d0
 	bne.s	+
 
-	stopZ80
 	bsr.w	ReadJoypads
-	startZ80
 +
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
 	beq.w	+	; if not, return
@@ -592,8 +579,6 @@ Vint_Pause:
 	beq.w	Vint_Pause_specialStage
 ;VintSub8
 Vint_Level:
-	stopZ80
-
 	bsr.w	ReadJoypads
 	tst.b	(Teleport_timer).w
 	beq.s	loc_6F8
@@ -649,9 +634,6 @@ loc_748:
 	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 
 	bsr.w	ProcessDMAQueue
-	bsr.w	sndDriverInput
-
-	startZ80
 
 	movem.l	(Camera_RAM).w,d0-d7
 	movem.l	d0-d7,(Camera_RAM_copy).w
@@ -686,10 +668,7 @@ Do_Updates:
 ; ---------------------------------------------------------------------------
 ;Vint10_specialStage
 Vint_Pause_specialStage:
-	stopZ80
-
 	bsr.w	ReadJoypads
-	jsr	(sndDriverInput).l
 	tst.b	(SS_Last_Alternate_HorizScroll_Buf).w
 	beq.s	loc_84A
 
@@ -700,13 +679,10 @@ loc_84A:
 	dma68kToVDP SS_Horiz_Scroll_Buf_1,VRAM_SS_Horiz_Scroll_Table,VRAM_SS_Horiz_Scroll_Table_Size,VRAM
 
 loc_86E:
-	startZ80
 	rts
 ; ========================================================================>>>
 ;VintSubA
 Vint_S2SS:
-	stopZ80
-
 	bsr.w	ReadJoypads
 	bsr.w	SSSet_VScroll
 
@@ -767,10 +743,6 @@ SS_PNTA_Transfer_Table:	offsetTable
 	eori.b	#1,(SS_Alternate_PNT).w			; Toggle flag
 +
 	bsr.w	ProcessDMAQueue
-	jsr	(sndDriverInput).l
-
-	startZ80
-
 	bsr.w	ProcessDPLC2
 	tst.w	(Demo_Time_left).w
 	beq.w	+	; rts
@@ -866,15 +838,10 @@ SSAnim_Base_Duration:
 ; ===========================================================================
 ;VintSub1A
 Vint_CtrlDMA:
-	stopZ80
-	jsr	(ProcessDMAQueue).l
-	startZ80
-	rts
+	jmp	(ProcessDMAQueue).l
 ; ===========================================================================
 ;VintSubC
 Vint_TitleCard:
-	stopZ80
-
 	bsr.w	ReadJoypads
 	tst.b	(Water_fullscreen_flag).w
 	bne.s	loc_BB2
@@ -894,9 +861,6 @@ loc_BD6:
 
 	bsr.w	ProcessDMAQueue
 	jsr	(DrawLevelTitleCard).l
-	jsr	(sndDriverInput).l
-
-	startZ80
 
 	movem.l	(Camera_RAM).w,d0-d7
 	movem.l	d0-d7,(Camera_RAM_copy).w
@@ -918,8 +882,6 @@ Vint_Fade:
 ; ===========================================================================
 ;VintSub18
 Vint_Ending:
-	stopZ80
-
 	bsr.w	ReadJoypads
 
 	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
@@ -927,14 +889,11 @@ Vint_Ending:
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 
 	bsr.w	ProcessDMAQueue
-	bsr.w	sndDriverInput
 	movem.l	(Camera_RAM).w,d0-d7
 	movem.l	d0-d7,(Camera_RAM_copy).w
 	movem.l	(Scroll_flags).w,d0-d3
 	movem.l	d0-d3,(Scroll_flags_copy).w
 	jsrto	LoadTilesAsYouMove, JmpTo_LoadTilesAsYouMove
-
-	startZ80
 
 	move.w	(Ending_VInt_Subrout).w,d0
 	beq.s	+	; rts
@@ -969,8 +928,6 @@ off_D3C:	offsetTable
 ; ===========================================================================
 ;VintSub16
 Vint_Menu:
-	stopZ80
-
 	bsr.w	ReadJoypads
 
 	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
@@ -978,9 +935,6 @@ Vint_Menu:
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 
 	bsr.w	ProcessDMAQueue
-	bsr.w	sndDriverInput
-
-	startZ80
 
 	bsr.w	ProcessDPLC
 	tst.w	(Demo_Time_left).w
@@ -993,8 +947,6 @@ Vint_Menu:
 
 ;sub_E98
 Do_ControllerPal:
-	stopZ80
-
 	bsr.w	ReadJoypads
 	tst.b	(Water_fullscreen_flag).w
 	bne.s	loc_EDA
@@ -1010,12 +962,9 @@ loc_EFE:
 	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 
-	bsr.w	sndDriverInput
-
-	startZ80
-
 	rts
 ; End of function sub_E98
+
 ; ||||||||||||||| E N D   O F   V - I N T |||||||||||||||||||||||||||||||||||
 
 ; ===========================================================================
@@ -1040,9 +989,7 @@ H_Int:
 	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
 	move.l	(Vscroll_Factor_P2_HInt).w,(VDP_data_port).l
 
-	stopZ80
 	dma68kToVDP Sprite_Table_2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
-	startZ80
 
 -	move.w	(VDP_control_port).l,d0
 	andi.w	#4,d0
@@ -1086,73 +1033,6 @@ loc_1072:
 	movem.l	(sp)+,d0-a6
 	rte
 
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-; Input our music/sound selection to the sound driver.
-
-sndDriverInput:
-	lea	(Sound_Queue&$00FFFFFF).l,a0
-	lea	(Z80_RAM+zAbsVar).l,a1 ; $A01B80
-
-	cmpi.b	#$80,zVar.QueueToPlay(a1)	; If this (zReadyFlag) isn't $80, the driver is processing a previous sound request.
-	bne.s	.doSFX	; So we'll wait until at least the next frame before putting anything in there.
-
-	; If there's something in the first music queue slot, then play it.
-	move.b	SoundQueue.Music0(a0),d0
-	beq.s	.checkMusic2
-	clr.b	SoundQueue.Music0(a0)
-	bra.s	.playMusic
-; ---------------------------------------------------------------------------
-; loc_10A4:
-.checkMusic2:
-	; If there's something in the second music queue slot, then play it.
-	move.b	SoundQueue.Music1(a0),d0
-	beq.s	.doSFX
-	clr.b	SoundQueue.Music1(a0)
-; loc_10AE:
-.playMusic:
-	; If this is 'MusID_Pause' or 'MusID_Unpause', then this isn't a real
-	; sound ID, and it shouldn't be passed to the driver. Instead, it
-	; should be used here to manually set the driver's pause flag.
-	move.b	d0,d1
-	subi.b	#MusID_Pause,d1
-	bcs.s	.isNotPauseCommand
-	addi.b	#$7F,d1
-	move.b	d1,zVar.StopMusic(a1)
-	bra.s	.doSFX
-; ---------------------------------------------------------------------------
-; loc_10C0:
-.isNotPauseCommand:
-	; Send the music's sound ID to the driver.
-	move.b	d0,zVar.QueueToPlay(a1)
-; loc_10C4:
-.doSFX:
-	; Process the SFX queue.
-    if fixBugs
-	moveq	#3-1,d1
-    else
-	; This is too high: there is only room for three bytes in the
-	; driver's queue. This causes the first byte of 'VoiceTblPtr' to be
-	; overwritten.
-	moveq	#4-1,d1
-    endif
-
-.loop:
-	; If there's no sound queued, skip this slot.
-	move.b	SoundQueue.SFX0(a0,d1.w),d0
-	beq.s	.skip
-	; If this slot in the driver's queue is occupied, skip this slot.
-	tst.b	zVar.Queue0(a1,d1.w)
-	bne.s	.skip
-	; Remove the sound from this queue, and put it in the driver's queue.
-	clr.b	SoundQueue.SFX0(a0,d1.w)
-	move.b	d0,zVar.Queue0(a1,d1.w)
-
-.skip:
-	dbf	d1,.loop
-
-	rts
-; End of function sndDriverInput
-
     if ~~removeJmpTos
 ; sub_10E0:
 JmpTo_LoadTilesAsYouMove ; JmpTo
@@ -1173,12 +1053,10 @@ JmpTo_SegaScr_VInt ; JmpTo
 
 ; sub_10EC:
 JoypadInit:
-	stopZ80
 	moveq	#$40,d0
 	move.b	d0,(HW_Port_1_Control).l	; init port 1 (joypad 1)
 	move.b	d0,(HW_Port_2_Control).l	; init port 2 (joypad 2)
 	move.b	d0,(HW_Expansion_Control).l	; init port 3 (expansion/extra)
-	startZ80
 	rts
 ; End of function JoypadInit
 
@@ -1285,8 +1163,6 @@ VDPSetupArray_End:
 
 ; sub_1208:
 ClearScreen:
-	stopZ80
-
 	dmaFillVRAM 0,$0000,$40		; Fill first $40 bytes of VRAM with 0
 	dmaFillVRAM 0,VRAM_Plane_A_Name_Table,VRAM_Plane_Table_Size	; Clear Plane A pattern name table
 	dmaFillVRAM 0,VRAM_Plane_B_Name_Table,VRAM_Plane_Table_Size	; Clear Plane B pattern name table
@@ -1301,8 +1177,6 @@ ClearScreen:
 	; These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM Sprite_Table,Sprite_Table_End+4
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
-
-	startZ80
 	rts
 ; End of function ClearScreen
 
@@ -1341,12 +1215,15 @@ JmpTo_SoundDriverLoad ; JmpTo
 ; The original source code called this 'bgmset'.
 ; sub_135E:
 PlayMusic:
-	tst.b	(Sound_Queue.Music0).w
+	stopZ80
+	cmpi.b	#$80,(Z80_RAM+zAbsVar.QueueToPlay).l
 	bne.s	+
-	move.b	d0,(Sound_Queue.Music0).w
+	move.b	d0,(Z80_RAM+zAbsVar.QueueToPlay).l
+	startZ80
 	rts
 +
-	move.b	d0,(Sound_Queue.Music1).w
+	move.b	d0,(Z80_RAM+zAbsVar.Queue2).l
+	startZ80
 	rts
 ; End of function PlayMusic
 
@@ -1356,8 +1233,9 @@ PlayMusic:
 ; The original source code called this 'sfxset'.
 ; sub_1370
 PlaySound:
-	; Curiously, none of these functions write to 'Sound_Queue.Queue2'...
-	move.b	d0,(Sound_Queue.SFX0).w
+	stopZ80
+	move.b	d0,(Z80_RAM+zAbsVar.Queue0).l
+	startZ80
 	rts
 ; End of function PlaySound
 
@@ -1367,7 +1245,9 @@ PlaySound:
 ; Unfortunately, the original name for this is not known.
 ; sub_1376: PlaySoundStereo:
 PlaySound2:
-	move.b	d0,(Sound_Queue.SFX1).w
+	stopZ80
+	move.b	d0,(Z80_RAM+zAbsVar.Queue1).l
+	startZ80
 	rts
 ; End of function PlaySound2
 
@@ -1410,10 +1290,12 @@ PauseGame:
 	move.b	(Ctrl_1_Press).w,d0 ; is Start button pressed?
 	or.b	(Ctrl_2_Press).w,d0 ; (either player)
 	andi.b	#button_start_mask,d0
-	beq.s	Pause_DoNothing	; if not, branch
+	beq.w	Pause_DoNothing	; if not, branch
 +
 	move.w	#1,(Game_paused).w	; freeze time
-	move.b	#MusID_Pause,(Sound_Queue.Music0).w	; pause music
+	stopZ80
+	move.b	#MusID_Pause,(Z80_RAM+zAbsVar.StopMusic).l	; pause music
+	startZ80
 ; loc_13B2:
 Pause_Loop:
 	move.w	#Vint_Pause,(Vint_routine).w
@@ -1440,7 +1322,9 @@ Pause_ChkStart:
 	beq.s	Pause_Loop	; if not, branch
 ; loc_13F2:
 Pause_Resume:
-	move.b	#MusID_Unpause,(Sound_Queue.Music0).w	; unpause the music
+	stopZ80
+	move.b	#MusID_Unpause,(Z80_RAM+zAbsVar.StopMusic).l	; unpause the music
+	startZ80
 ; loc_13F8:
 Unpause:
 	move.w	#0,(Game_paused).w	; unpause the game
@@ -1451,7 +1335,9 @@ Pause_DoNothing:
 ; loc_1400:
 Pause_SlowMo:
 	move.w	#1,(Game_paused).w
-	move.b	#MusID_Unpause,(Sound_Queue.Music0).w
+	stopZ80
+	move.b	#MusID_Unpause,(Z80_RAM+zAbsVar.StopMusic).l
+	startZ80
 	rts
 ; End of function PauseGame
 
@@ -3691,6 +3577,7 @@ Pal_Result:palette Special Stage Results Screen.bin ; Special Stage Results Scre
 ; sub_3384: DelayProgram:
 WaitForVint:
 	move	#$2300,sr
+	move.w	#$9100,(VDP_control_port).l	; !!
 
 -	tst.b	(Vint_routine).w
 	bne.s	-
@@ -6550,7 +6437,9 @@ loc_540C:
 
 ; loc_541A:
 SpecialStage_Unpause:
-	move.b	#MusID_Unpause,(Sound_Queue.Music0).w
+	stopZ80
+	move.b	#MusID_Unpause,(Z80_RAM+zAbsVar.StopMusic).l
+	startZ80
 	move.w	#Vint_Level,(Vint_routine).w
 	bra.w	WaitForVint
 
@@ -12723,10 +12612,8 @@ EndingSequence:
 	andi.b	#$BF,d0
 	move.w	d0,(VDP_control_port).l
 
-	stopZ80
 	dmaFillVRAM 0,VRAM_Plane_A_Name_Table,VRAM_Plane_Table_Size ; clear Plane A pattern name table
 	clr.l	(Vscroll_Factor).w
-	startZ80
 
 	lea	(VDP_control_port).l,a6
 	move.w	#$8B03,(a6)		; EXT-INT disabled, V scroll by screen, H scroll by line

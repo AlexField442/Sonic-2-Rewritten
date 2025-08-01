@@ -1530,8 +1530,6 @@ zPlaySoundByIndex:
 	jp	c,zPlaySound_CheckRing		; if yes, play it
 	cp	CmdID__First			; is it after the last regular sound but before the first special sound command (between 71 and 78)?
 	ret	c				; if yes, return (do nothing)
-	cp	MusID_Pause			; is it sound 7E or 7F (pause all or resume all)
-	ret	nc				; if yes, return (those get handled elsewhere)
 	; Otherwise, this is a special command to the music engine...
 	sub	CmdID__First			; convert index 78-7D to a lookup into the following jump table
 	add	a,a
