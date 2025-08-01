@@ -11,13 +11,20 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Ending sequence can now be skipped by pressing Start.
 * Restored the original PLC queue speed from _Sonic 1_ (slightly improves load times).
 
+## Players
+* `move_lock`, `invulnerable_time`, `invincibility_time`, and `speedshoes_time` are now handled as a byte each, rather than a word, which frees up **$32-$35** in the player SST to compensate for the loss of **$1F-$21**.
+* Changed `interact` to now directly point to the object Sonic and Tails are interacting with, which slightly improves performance.
+
 ## Objects
 * Changed `priority` to now directly point to the sprite queue, rather than being calculated. This considerably simplifies DisplaySprite, but also requires all objects to explicitly declare their priority value.
-* Changed `interact` to now directly point to the object Sonic and Tails are interacting with, which slightly improves performance.
 * Optimized the lost ring object to use a velocity table, rather than calculating it for every ring.
 * Optimized the (unused) big ring object a little bit.
 * Optimized most object move routines to take advantage of a quirk with the `movea.w` instruction.
 * Applied miscellaneous smaller optimizations to various objects that provide slight performance boosts.
+
+## Sound
+* Restored higher quality drum and SEGA samples from _Sonic 1_.
+* Improved the sound-queuing system to not be as intensive with stopping the Z80.
 
 # Bug Fixes
 ## Major Fixes
@@ -26,6 +33,7 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Fixed a rare crash that could occur with the ascending/descending metal platforms in Wing Fortress.
 
 ## Minor Fixes
+* Fixed the SEGA chant being at the wrong pitch.
 * Fixed the title screen not having its priorities set correctly, causing various layering issues.
 * Fixed Sonic's left hand disappearing for a single frame on the title screen.
 * Fixed the GAME/TIME OVER text flickering for a single frame.
