@@ -278,6 +278,18 @@ status_sec_hasSpeedShoes_mask:	EQU	1<<status_sec_hasSpeedShoes	; $04
 status_sec_isSliding_mask:	EQU	1<<status_sec_isSliding		; $80
 
 ; ---------------------------------------------------------------------------
+; priority variables
+
+priority_0:			EQU	Sprite_Table_Input&$FFFF
+priority_1:			EQU	priority_0+$80
+priority_2:			EQU	priority_0+($80*2)
+priority_3:			EQU	priority_0+($80*3)
+priority_4:			EQU	priority_0+($80*4)
+priority_5:			EQU	priority_0+($80*5)
+priority_6:			EQU	priority_0+($80*6)
+priority_7:			EQU	priority_0+($80*7)
+
+; ---------------------------------------------------------------------------
 ; Constants that can be used instead of hard-coded IDs for various things.
 ; The "id" function allows to remove elements from an array/table without having
 ; to change the IDs everywhere in the code.
