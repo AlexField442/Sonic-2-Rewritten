@@ -9244,7 +9244,7 @@ SSSingleObjLoad2:
 Obj5E:
 	move.b	routine(a0),d0
 	beq.s	+
-	move.w	#$80*0,d0
+	move.w	#priority_0,d0
 	jmp	(DisplaySprite3).l
 +
 	move.l	#Obj5E_MapUnc_7070,mappings(a0)
@@ -9656,7 +9656,7 @@ loc_74EA:
 
 loc_7536:
 	move.b	d3,mainspr_childsprites(a0)
-	move.w	#$80*0,d0
+	move.w	#priority_0,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 
@@ -9705,13 +9705,13 @@ loc_753E:
 	move.b	d1,sub3_mapframe-sub2_x_pos(a1)	; sub3_mapframe
 	move.w	#$88,sub4_x_pos-sub2_x_pos(a1)	; sub4_x_pos
 	move.b	d0,sub4_mapframe-sub2_x_pos(a1)	; sub4_mapframe
-	move.w	#$80*0,d0
+	move.w	#priority_0,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 +
 	move.w	#$80,(a1)			; sub2_x_pos
 	move.b	d0,sub2_mapframe-sub2_x_pos(a1)	; sub2_mapframe
-	move.w	#$80*0,d0
+	move.w	#priority_0,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 +
@@ -9719,7 +9719,7 @@ loc_753E:
 	move.b	d1,sub2_mapframe-sub2_x_pos(a1)	; sub2_mapframe
 	move.w	#$84,sub3_x_pos-sub2_x_pos(a1)	; sub3_x_pos
 	move.b	d0,sub3_mapframe-sub2_x_pos(a1)	; sub3_mapframe
-	move.w	#$80*0,d0
+	move.w	#priority_0,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 
@@ -9765,7 +9765,7 @@ loc_75DE:
 	move.w	#$D8,(a1)	; sub?_x_pos
 +
 	move.b	d2,mainspr_childsprites(a0)
-	move.w	#$80*0,d0
+	move.w	#priority_0,d0
 	jmp	(DisplaySprite3).l
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -21540,7 +21540,7 @@ Obj11:
 	jmp	Obj11_Index(pc,d1.w)
 ; ===========================================================================
 +	; child sprite objects only need to be drawn
-	move.w	#$180,d0
+	move.w	#priority_3,d0
 	bra.w	DisplaySprite3
 ; ===========================================================================
 ; off_F68C:
@@ -22063,7 +22063,7 @@ Obj15:
 	jmp	Obj15_Index(pc,d1.w)
 ; ---------------------------------------------------------------------------
 +
-	move.w	#$200,d0
+	move.w	#priority_4,d0
 	bra.w	DisplaySprite3
 ; ===========================================================================
 ; off_FCBC: Obj15_States:
@@ -28990,7 +28990,7 @@ RunObjectDisplayOnly:
 	pea	+(pc)	; This is an optimisation to avoid the need for extra branches: it makes it so '+' will be executed after 'DisplaySprite' or 'DisplaySprite3' return.
 	btst	#6,render_flags(a0)	; Is this a multi-sprite object?
 	beq.w	DisplaySprite		; If not, display using the object's 'priority' value.
-	move.w	#$80*4,d0		; If not, display using a hardcoded priority of 4.
+	move.w	#priority_4,d0		; If not, display using a hardcoded priority of 4.
 	bra.w	DisplaySprite3
 +
 	lea	next_object(a0),a0 ; load 0bj address
@@ -29478,8 +29478,7 @@ return_1652E:
 
 ; loc_16530:
 DisplaySprite3:
-	lea	(Sprite_Table_Input).w,a1
-	adda.w	d0,a1
+	movea.w	d0,a1
 	cmpi.w	#$7E,(a1)
 	bhs.s	return_16542
 	addq.w	#2,(a1)
@@ -41130,7 +41129,7 @@ loc_1DA44:
 
 loc_1DA74:
 	add.b	d0,objoff_34(a0)
-	move.w	#$80,d0
+	move.w	#priority_1,d0
 	bra.w	DisplaySprite3
 ; ===========================================================================
 
@@ -41203,7 +41202,7 @@ loc_1DAE4:
 
 loc_1DB20:
 	add.b	d0,objoff_34(a0)
-	move.w	#$80,d0
+	move.w	#priority_1,d0
 	bra.w	DisplaySprite3
 ; ===========================================================================
 
@@ -54392,7 +54391,7 @@ Obj75:
 	jmp	Obj75_Index(pc,d1.w)
 ; ===========================================================================
 +
-	move.w	#$280,d0
+	move.w	#priority_5,d0
 	jmpto	DisplaySprite3, JmpTo_DisplaySprite3
 ; ===========================================================================
 ; off_28BE8:
@@ -55875,7 +55874,7 @@ Obj81:
 	jmp	Obj81_Index(pc,d1.w)
 ; ===========================================================================
 +
-	move.w	#$280,d0
+	move.w	#priority_5,d0
 	jmpto	DisplaySprite3, JmpTo2_DisplaySprite3
 ; ===========================================================================
 ; off_2A020:
@@ -56363,7 +56362,7 @@ Obj83:
 	jmp	Obj83_Index(pc,d1.w)
 ; ===========================================================================
 .isMultispriteObject:
-	move.w	#$280,d0
+	move.w	#priority_5,d0
 	jmpto	DisplaySprite3, JmpTo3_DisplaySprite3
 ; ===========================================================================
 ; off_2A51C:
@@ -56866,7 +56865,7 @@ Obj85:
 	move.w	Obj85_Index(pc,d0.w),d1
 	jsr	Obj85_Index(pc,d1.w)
 	move.b	#$18,width_pixels(a0)
-	move.w	#$200,d0
+	move.w	#priority_4,d0
 	tst.w	(Two_player_mode).w
 	beq.s	+
 	jmpto	DisplaySprite3, JmpTo4_DisplaySprite3
@@ -64017,7 +64016,7 @@ Obj89_Main_Sub0:
 Obj89_Main_Sub0_Standard:
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
-	move.w	#$80*2,d0
+	move.w	#priority_2,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ; loc_3067A:
@@ -64045,7 +64044,7 @@ Obj89_Main_Sub2_AtTarget:
 Obj89_Main_Sub2_Standard:
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
-	move.w	#$80*2,d0
+	move.w	#priority_2,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ; loc_306B8:
@@ -64069,7 +64068,7 @@ Obj89_Main_Sub4:
 Obj89_Main_Sub4_Standard:
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
-	move.w	#$80*2,d0
+	move.w	#priority_2,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ; loc_30706:
@@ -64099,7 +64098,7 @@ Obj89_Main_Sub6_Standard:
 	bsr.w	Obj89_Main_AlignParts
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
-	move.w	#$80*2,d0
+	move.w	#priority_2,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ; loc_3075C:
@@ -64240,7 +64239,7 @@ Obj89_Main_Sub8_Standard:
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj89_Main_AlignParts
-	move.w	#$80*2,d0
+	move.w	#priority_2,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ; loc_308F4:
@@ -64286,7 +64285,7 @@ Obj89_Main_SubA_Standard:
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj89_Main_AlignParts
-	move.w	#$80*2,d0
+	move.w	#priority_2,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ; loc_3095C:
@@ -64312,7 +64311,7 @@ Obj89_Main_SubC_Standard:
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj89_Main_AlignParts
-	move.w	#$80*2,d0
+	move.w	#priority_2,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 
@@ -64893,7 +64892,7 @@ Obj57_Main_Sub0_Standard:
 	lea	(Ani_obj57).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj57_TransferPositions
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ;loc_3116E:
@@ -64912,7 +64911,7 @@ Obj57_Main_Sub2_Standard:
 	lea	(Ani_obj57).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj57_TransferPositions
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ;loc_311AA:
@@ -64951,7 +64950,7 @@ Obj57_Main_Sub4_Standard:
 	lea	(Ani_obj57).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj57_TransferPositions
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ;loc_3124A:
@@ -65006,7 +65005,7 @@ Obj57_Main_Sub6_Standard:
 	lea	(Ani_obj57).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj57_TransferPositions
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ;loc_3130A:
@@ -65183,7 +65182,7 @@ Obj57_Main_Sub8_Standard:
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	bsr.w	Obj57_TransferPositions
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ;loc_31526:
@@ -65236,7 +65235,7 @@ Obj57_Main_SubA_Standard:
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	bsr.w	Obj57_TransferPositions
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ;loc_315A6:
@@ -65260,7 +65259,7 @@ Obj57_Main_SubC_Standard:
 	lea	(Ani_obj57).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj57_TransferPositions
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 
@@ -65592,7 +65591,7 @@ loc_31C08:
 	bsr.w	loc_31C92
 	lea	(Ani_obj51).l,a1
 	bsr.w	AnimateBoss
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 
@@ -65730,7 +65729,7 @@ loc_31DB8:
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	bsr.w	loc_31E76
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 
@@ -65773,7 +65772,7 @@ loc_31E0E:
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	bsr.w	loc_31E76
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 
@@ -65798,7 +65797,7 @@ loc_31E4A:
 	bsr.w	loc_31E76
 	lea	(Ani_obj51).l,a1
 	bsr.w	AnimateBoss
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 
@@ -66168,7 +66167,7 @@ Obj54_MainSub0:
 	lea	(Ani_obj53).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj54_AlignSprites
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ;loc_3243C
@@ -66217,7 +66216,7 @@ Obj54_Display:
 	lea	(Ani_obj53).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj54_AlignSprites
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ;loc_324DC
@@ -66525,7 +66524,7 @@ Obj54_MainSub10:
 	lea	(Ani_obj53).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj54_AlignSprites
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ;loc_32864
@@ -66553,7 +66552,7 @@ Obj54_MainSub12:
 	lea	(Ani_obj53).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj54_AlignSprites
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 
@@ -67209,7 +67208,7 @@ Obj55_Main_End:
 	lea	(Ani_obj55).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj55_AlignSprites
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ; loc_33174:
@@ -67241,13 +67240,13 @@ Obj55_Main_Defeated:
 	cmpi.w	#$1E,(Boss_Countdown).w		; has boss waited for a certain ammount of time?
 	bhs.s	Obj55_Explode			; if not, branch
 	move.b	#$B,mainspr_mapframe(a0)	; use defeated animation
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ; loc_331C2:
 Obj55_Explode:
 	bsr.w	Boss_LoadExplosion
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ; loc_331CA:
@@ -67275,7 +67274,7 @@ Obj55_ChkDelete:
 Obj55_Defeated_Sink:
 	addq.w	#1,y_pos(a0)
 	bsr.s	Obj55_AlignSprites
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
     if removeJmpTos
@@ -67434,7 +67433,7 @@ Obj55_LaserShooter_Lower:
 Obj55_LaserShooter_End:
 	bsr.w	Obj55_LaserShooter_FacePlayer
 	bsr.w	Obj55_LaserShooter_Wind
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ; sets the laser shooter's y velocity so that it moves toward its target
@@ -67556,7 +67555,7 @@ Obj55_SpikeChain_Main:
 ; loc_334E6:
 Obj55_SpikeChain_End:
 	bsr.w	Obj55_SpikeChain_SetAnimFrame
-	move.w	#$80*3,d0
+	move.w	#priority_3,d0
 	jmp	(DisplaySprite3).l
 ; ===========================================================================
 ; loc_334EE:
@@ -70027,7 +70026,7 @@ Obj5A_FlashMessage:
 	andi.b	#7,d0
 	cmpi.b	#6,d0
 	bhs.s	+
-	move.w	#$80*1,d0
+	move.w	#priority_1,d0
 	jmp	(DisplaySprite3).l
 +
 	rts
@@ -73735,7 +73734,7 @@ loc_37EFC:
 	dbf	d6,-
 
 loc_37F6C:
-	move.w	#$280,d0
+	move.w	#priority_5,d0
 	jmpto	DisplaySprite3, JmpTo5_DisplaySprite3
 ; ===========================================================================
 
