@@ -484,6 +484,9 @@ zUpdateEverything:
 zUpdateDAC:
 	bankswitch SndDAC_Start		; Bankswitch to the DAC data
 
+	ld	a,2Ah		; DAC port
+	ld	(zYM2612_A0),a	; Set DAC port register
+
 	ld	a,(zCurDAC)		; Get currently playing DAC sound
 	or	a
 	jp	m,.dacqueued		; If one is queued (80h+), go to it!
@@ -673,8 +676,6 @@ zWriteToDAC:
 	djnz	$		; Busy wait for specific amount of time in 'b'
 
 	di			; disable interrupts (while updating DAC)
-	ld	a,2Ah		; DAC port
-	ld	(zYM2612_A0),a	; Set DAC port register
 	ld	a,(hl)		; Get next DAC byte
 	rlca
 	rlca
@@ -695,14 +696,11 @@ zWriteToDAC:
 	djnz	$		; Busy wait for specific amount of time in 'b'
 
 	di			; disable interrupts (while updating DAC)
-	push	af
-	pop	af
-	ld	a,2Ah		; DAC port
-	ld	(zYM2612_A0),a	; Set DAC port register
 	ld	b,c		; reload 'b' with wait value
 	ld	a,(hl)		; Get next DAC byte
 	inc	hl		; Next byte in DAC stream...
 	dec	de		; One less byte
+	nop
 	and	0Fh		; LOWER 4-bit offset into zDACDecodeTbl
 	ld	(.lownybble+2),a	; store into the instruction after .lownybble (self-modifying code)
 	ex	af,af'		; shadow register 'a' is the 'd' value for 'jman2050' encoding
@@ -1581,22 +1579,18 @@ zPlaySegaSound:
 	ld	a,(hl)			; Get next PCM byte
 	ld	(zYM2612_D0),a		; Send to DAC
 	inc	hl			; Advance pointer
-	nop
-	ld	b,0Ch			; Sega PCM pitch
+	ld	b,0Dh			; Sega PCM pitch
 	djnz	$			; Delay loop
 
-	nop
 	ld	a,(zAbsVar.QueueToPlay)	; Get next item to play
 	cp	c			; Is it 80h?
 	jr	nz,.stop		; If not, stop Sega PCM
 	ld	a,(hl)			; Get next PCM byte
 	ld	(zYM2612_D0),a		; Send to DAC
 	inc	hl			; Advance pointer
-	nop
-	ld	b,0Ch			; Sega PCM pitch
+	ld	b,0Dh			; Sega PCM pitch
 	djnz	$			; Delay loop
 
-	nop
 	dec	de			; 2 less bytes to play
 	ld	a,d			; a = d
 	or	e			; Is de zero?
@@ -3791,23 +3785,23 @@ offset :=	zDACPtrTbl
 ptrsize :=	2+2
 idstart :=	81h
 
-	db	id(zDACPtr_Sample1),17h		; 81h
-	db	id(zDACPtr_Sample2),1		; 82h
-	db	id(zDACPtr_Sample3),6		; 83h
-	db	id(zDACPtr_Sample4),8		; 84h
-	db	id(zDACPtr_Sample5),1Bh		; 85h
-	db	id(zDACPtr_Sample6),0Ah		; 86h
-	db	id(zDACPtr_Sample7),1Bh		; 87h
-	db	id(zDACPtr_Sample5),12h		; 88h
-	db	id(zDACPtr_Sample5),15h		; 89h
-	db	id(zDACPtr_Sample5),1Ch		; 8Ah
-	db	id(zDACPtr_Sample5),1Dh		; 8Bh
-	db	id(zDACPtr_Sample6),2		; 8Ch
-	db	id(zDACPtr_Sample6),5		; 8Dh
-	db	id(zDACPtr_Sample6),8		; 8Eh
-	db	id(zDACPtr_Sample7),8		; 8Fh
-	db	id(zDACPtr_Sample7),0Bh		; 90h
-	db	id(zDACPtr_Sample7),12h		; 91h
+	db	id(zDACPtr_Sample1),19h		; 81h
+	db	id(zDACPtr_Sample2),3		; 82h
+	db	id(zDACPtr_Sample3),8		; 83h
+	db	id(zDACPtr_Sample4),0Ah		; 84h
+	db	id(zDACPtr_Sample5),1Dh		; 85h
+	db	id(zDACPtr_Sample6),0Ch		; 86h
+	db	id(zDACPtr_Sample7),1Dh		; 87h
+	db	id(zDACPtr_Sample5),14h		; 88h
+	db	id(zDACPtr_Sample5),17h		; 89h
+	db	id(zDACPtr_Sample5),1Eh		; 8Ah
+	db	id(zDACPtr_Sample5),1Fh		; 8Bh
+	db	id(zDACPtr_Sample6),4		; 8Ch
+	db	id(zDACPtr_Sample6),7		; 8Dh
+	db	id(zDACPtr_Sample6),0Ah		; 8Eh
+	db	id(zDACPtr_Sample7),0Ah		; 8Fh
+	db	id(zDACPtr_Sample7),0Dh		; 90h
+	db	id(zDACPtr_Sample7),14h		; 91h
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
