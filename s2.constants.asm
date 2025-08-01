@@ -45,6 +45,7 @@ respawn_index =		$23
 subtype =		$28
 ; ---------------------------------------------------------------------------
 ; conventions specific to Sonic/Tails (Obj01, Obj02, and ObjDB):
+; $32-$35 are available for use
 jumping =		$1F
 inertia =		$20 ; and $21 ; directionless representation of speed... not updated in the air
 flip_angle =		$27 ; angle about the x axis (360 degrees = 256) (twist/tumble)
@@ -54,10 +55,10 @@ obj_control =		$2A ; 0 for normal, 1 for hanging or for resting on a flipper, $8
 status_secondary =	$2B
 flips_remaining =	$2C ; number of flip revolutions remaining
 flip_speed =		$2D ; number of flip revolutions per frame / 256
-move_lock =		$2E ; and $2F ; horizontal control lock, counts down to 0
-invulnerable_time =	$30 ; and $31 ; time remaining until you stop blinking
-invincibility_time =	$32 ; and $33 ; remaining
-speedshoes_time =	$34 ; and $35 ; remaining
+move_lock =		$2E ; horizontal control lock, counts down to 0
+invulnerable_time =	$2F ; time remaining until you stop blinking
+invincibility_time =	$30 ; remaining
+speedshoes_time =	$31 ; remaining
 next_tilt =		$36 ; angle on ground in front of sprite
 tilt =			$37 ; angle on ground
 stick_to_convex =	$38 ; 0 for normal, 1 to make Sonic stick to convex surfaces like the rotating discs in Sonic 1 and 3 (unused in Sonic 2 but fully functional)

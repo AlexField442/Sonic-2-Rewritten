@@ -5260,7 +5260,7 @@ OilSlides:
 	btst	#status_sec_isSliding,status_secondary(a1)
 	beq.s	+	; rts
     endif
-	move.w	#5,move_lock(a1)
+	move.b	#5,move_lock(a1)
 	andi.b	#(~status_sec_isSliding_mask)&$FF,status_secondary(a1)
 +	rts
 ; ===========================================================================
@@ -25263,7 +25263,7 @@ ChkPlayer_1up:
 super_shoes:
 	addq.w	#1,(a2)
 	bset	#status_sec_hasSpeedShoes,status_secondary(a1)	; give super sneakers status
-	move.w	#$4B0,speedshoes_time(a1)
+	move.b	#$96,speedshoes_time(a1)
 	cmpa.w	#MainCharacter,a1	; did the main character break the monitor?
 	bne.s	super_shoes_Tails	; if not, branch
 	cmpi.w	#2,(Player_mode).w	; is player using Tails?
@@ -25311,7 +25311,7 @@ invincible_monitor:
 	tst.b	(Super_Sonic_flag).w	; is Sonic super?
 	bne.s	+++	; rts		; if yes, branch
 	bset	#status_sec_isInvincible,status_secondary(a1)	; give invincibility status
-	move.w	#20*60,invincibility_time(a1) ; 20 seconds
+	move.b	#$96,invincibility_time(a1) ; 20 seconds
 	tst.b	(Current_Boss_ID).w	; don't change music during boss battles
 	bne.s	+
 	cmpi.b	#12,air_left(a1)	; or when drowning
@@ -28585,7 +28585,7 @@ Obj36_UpsidedownEnd:
 Touch_ChkHurt2:
 	btst	#status_sec_isInvincible,status_secondary(a1)	; is character invincible?
 	bne.s	+	; rts		; if yes, branch
-	tst.w	invulnerable_time(a1)	; is character invulnerable?
+	tst.b	invulnerable_time(a1)	; is character invulnerable?
 	bne.s	+	; rts		; if yes, branch
 	cmpi.b	#4,routine(a1)		; is the character hurt, dying, etc. ?
 	bhs.s	+	; rts		; if yes, branch
@@ -30930,7 +30930,7 @@ Touch_Rings:
 +
 	cmpa.l	a1,a2	; are there no rings in this area?
 	beq.w	Touch_Rings_Done	; if so, return
-	cmpi.w	#$5A,invulnerable_time(a0)
+	cmpi.b	#$5A,invulnerable_time(a0)
 	bhs.w	Touch_Rings_Done
 	move.w	x_pos(a0),d2
 	move.w	y_pos(a0),d3
@@ -33015,7 +33015,7 @@ loc_18AEE:
 	neg.w	x_vel(a1)
 
 loc_18B1C:
-	move.w	#$F,move_lock(a1)
+	move.b	#$F,move_lock(a1)
 	move.w	x_vel(a1),inertia(a1)
 	btst	#2,status(a1)
 	bne.s	loc_18B36
@@ -35108,9 +35108,9 @@ Obj01_Modes:	offsetTable
 
 ; loc_1A0C6:
 Sonic_Display:
-	move.w	invulnerable_time(a0),d0
+	move.b	invulnerable_time(a0),d0
 	beq.s	Obj01_Display
-	subq.w	#1,invulnerable_time(a0)
+	subq.b	#1,invulnerable_time(a0)
 	lsr.w	#3,d0
 	bcc.s	Obj01_ChkInvin
 ; loc_1A0D4:
@@ -35120,9 +35120,12 @@ Obj01_Display:
 Obj01_ChkInvin:		; Checks if invincibility has expired and disables it if it has.
 	btst	#status_sec_isInvincible,status_secondary(a0)
 	beq.s	Obj01_ChkShoes
-	tst.w	invincibility_time(a0)
+	tst.b	invincibility_time(a0)
 	beq.s	Obj01_ChkShoes	; If there wasn't any time left, that means we're in Super Sonic mode.
-	subq.w	#1,invincibility_time(a0)
+	move.b	(Timer_frames+1).w,d0
+	andi.b	#7,d0
+	bne.s	Obj01_ChkShoes
+	subq.b	#1,invincibility_time(a0)
 	bne.s	Obj01_ChkShoes
 	tst.b	(Current_Boss_ID).w	; Don't change music if in a boss fight
 	bne.s	Obj01_RmvInvin
@@ -35137,9 +35140,12 @@ Obj01_RmvInvin:
 Obj01_ChkShoes:		; Checks if Speed Shoes have expired and disables them if they have.
 	btst	#status_sec_hasSpeedShoes,status_secondary(a0)
 	beq.s	Obj01_ExitChk
-	tst.w	speedshoes_time(a0)
+	tst.b	speedshoes_time(a0)
 	beq.s	Obj01_ExitChk
-	subq.w	#1,speedshoes_time(a0)
+	move.b	(Timer_frames+1).w,d0
+	andi.b	#7,d0
+	bne.s	Obj01_ExitChk
+	subq.b	#1,speedshoes_time(a0)
 	bne.s	Obj01_ExitChk
 	move.w	#$600,(Sonic_top_speed).w
 	move.w	#$C,(Sonic_acceleration).w
@@ -35382,7 +35388,7 @@ Sonic_Move:
 	btst	#status_sec_isSliding,status_secondary(a0)
 	bne.w	Obj01_Traction
     endif
-	tst.w	move_lock(a0)
+	tst.b	move_lock(a0)
 	bne.w	Obj01_ResetScr
 	btst	#button_left,(Ctrl_1_Held_Logical).w	; is left being pressed?
 	beq.s	Obj01_NotLeft			; if not, branch
@@ -35830,7 +35836,7 @@ Sonic_RollSpeed:
 	btst	#status_sec_isSliding,status_secondary(a0)
 	bne.w	Obj01_Roll_ResetScr
     endif
-	tst.w	move_lock(a0)
+	tst.b	move_lock(a0)
 	bne.s	Sonic_ApplyRollSpeed
 	btst	#button_left,(Ctrl_1_Held_Logical).w	; is left being pressed?
 	beq.s	+				; if not, branch
@@ -36277,7 +36283,7 @@ Sonic_CheckGoSuper:
 	move.w	#$A00,(Sonic_top_speed).w
 	move.w	#$30,(Sonic_acceleration).w
 	move.w	#$100,(Sonic_deceleration).w
-	move.w	#0,invincibility_time(a0)
+	move.b	#0,invincibility_time(a0)
 	bset	#status_sec_isInvincible,status_secondary(a0)	; make Sonic invincible
 	move.w	#SndID_SuperTransform,d0
 	jsr	(PlaySound).l	; Play transformation sound effect.
@@ -36325,7 +36331,7 @@ Sonic_RevertToNormal:
 	move.w	#$28,(Palette_frame).w
 	move.b	#0,(Super_Sonic_flag).w
 	move.b	#AniIDSonAni_Run,prev_anim(a0)	; Force Sonic's animation to restart
-	move.w	#1,invincibility_time(a0)	; Remove invincibility
+	move.b	#1,invincibility_time(a0)	; Remove invincibility
 	move.w	#$600,(Sonic_top_speed).w
 	move.w	#$C,(Sonic_acceleration).w
 	move.w	#$80,(Sonic_deceleration).w
@@ -36558,7 +36564,7 @@ Sonic_SlopeRepel:
 	nop
 	tst.b	stick_to_convex(a0)
 	bne.s	return_1AE42
-	tst.w	move_lock(a0)
+	tst.b	move_lock(a0)
 	bne.s	loc_1AE44
 	move.b	angle(a0),d0
 	addi.b	#$20,d0
@@ -36569,14 +36575,14 @@ Sonic_SlopeRepel:
 	bhs.s	return_1AE42
 	clr.w	inertia(a0)
 	bset	#1,status(a0)
-	move.w	#$1E,move_lock(a0)
+	move.b	#$1E,move_lock(a0)
 
 return_1AE42:
 	rts
 ; ===========================================================================
 
 loc_1AE44:
-	subq.w	#1,move_lock(a0)
+	subq.b	#1,move_lock(a0)
 	rts
 ; End of function Sonic_SlopeRepel
 
@@ -36953,7 +36959,7 @@ Sonic_HurtStop:
 	move.b	d0,obj_control(a0)
 	move.b	#AniIDSonAni_Walk,anim(a0)
 	subq.b	#2,routine(a0)	; => Obj01_Control
-	move.w	#$78,invulnerable_time(a0)
+	move.b	#$78,invulnerable_time(a0)
 	move.b	#0,spindash_flag(a0)
 
 return_1B1C8:
@@ -37058,7 +37064,7 @@ Obj01_ResetLevel_Part2:
 	move.w	#0,y_vel(a0)
 	move.w	#0,inertia(a0)
 	move.b	#2,status(a0)
-	move.w	#0,move_lock(a0)
+	move.b	#0,move_lock(a0)
 	move.w	#0,restart_countdown(a0)
 
 return_1B31A:
@@ -37712,9 +37718,9 @@ Obj02_Modes:	offsetTable
 
 ; loc_1BA56:
 Tails_Display:
-	move.w	invulnerable_time(a0),d0
+	move.b	invulnerable_time(a0),d0
 	beq.s	Obj02_Display
-	subq.w	#1,invulnerable_time(a0)
+	subq.b	#1,invulnerable_time(a0)
 	lsr.w	#3,d0
 	bcc.s	Obj02_ChkInvinc
 ; loc_1BA64:
@@ -37724,9 +37730,12 @@ Obj02_Display:
 Obj02_ChkInvinc:	; Checks if invincibility has expired and disables it if it has.
 	btst	#status_sec_isInvincible,status_secondary(a0)
 	beq.s	Obj02_ChkShoes
-	tst.w	invincibility_time(a0)
+	tst.b	invincibility_time(a0)
 	beq.s	Obj02_ChkShoes
-	subq.w	#1,invincibility_time(a0)
+	move.b	(Timer_frames+1).w,d0
+	andi.b	#7,d0
+	bne.s	Obj02_ChkShoes
+	subq.b	#1,invincibility_time(a0)
 	bne.s	Obj02_ChkShoes
 	tst.b	(Current_Boss_ID).w	; Don't change music if in a boss fight
 	bne.s	Obj02_RmvInvin
@@ -37741,9 +37750,12 @@ Obj02_RmvInvin:
 Obj02_ChkShoes:		; Checks if Speed Shoes have expired and disables them if they have.
 	btst	#status_sec_hasSpeedShoes,status_secondary(a0)
 	beq.s	Obj02_ExitChk
-	tst.w	speedshoes_time(a0)
+	tst.b	speedshoes_time(a0)
 	beq.s	Obj02_ExitChk
-	subq.w	#1,speedshoes_time(a0)
+	move.b	(Timer_frames+1).w,d0
+	andi.b	#7,d0
+	bne.s	Obj02_ExitChk
+	subq.b	#1,speedshoes_time(a0)
 	bne.s	Obj02_ExitChk
 	move.w	#$600,(Tails_top_speed).w
 	move.w	#$C,(Tails_acceleration).w
@@ -37933,7 +37945,7 @@ loc_1BC68:
 	move.w	#0,y_vel(a0)
 	move.w	#0,inertia(a0)
 	move.b	#2,status(a0)
-	move.w	#0,move_lock(a0)
+	move.b	#0,move_lock(a0)
 	andi.w	#drawing_mask,art_tile(a0)
 	tst.b	art_tile(a1)
 	bpl.s	+
@@ -37974,7 +37986,7 @@ TailsCPU_Normal_SonicOK:
 	bne.w	TailsCPU_Normal_HumanControl		; (if not, branch)
 	tst.b	obj_control(a0)			; and Tails isn't fully object controlled (&$80)
 	bmi.w	TailsCPU_Normal_HumanControl		; (if not, branch)
-	tst.w	move_lock(a0)			; and Tails' movement is locked (usually because he just fell down a slope)
+	tst.b	move_lock(a0)			; and Tails' movement is locked (usually because he just fell down a slope)
 	beq.s	+					; (if not, branch)
 	tst.w	inertia(a0)			; and Tails is stopped, then...
 	bne.s	+					; (if not, branch)
@@ -38143,7 +38155,7 @@ TailsCPU_Panic:
 	bsr.w	TailsCPU_CheckDespawn
 	tst.w	(Tails_control_counter).w
 	bne.w	return_1BF36
-	tst.w	move_lock(a0)
+	tst.b	move_lock(a0)
 	bne.s	return_1BF36
 	tst.b	spindash_flag(a0)
 	bne.s	TailsCPU_Panic_ChargingDash
@@ -38365,7 +38377,7 @@ Tails_Move:
 	btst	#status_sec_isSliding,status_secondary(a0)
 	bne.w	Obj02_Traction
     endif
-	tst.w	move_lock(a0)
+	tst.b	move_lock(a0)
 	bne.w	Obj02_ResetScr
 	btst	#button_left,(Ctrl_2_Held_Logical).w	; is left being pressed?
 	beq.s	Obj02_NotLeft			; if not, branch
@@ -38718,7 +38730,7 @@ Tails_RollSpeed:
 	btst	#status_sec_isSliding,status_secondary(a0)
 	bne.w	Obj02_Roll_ResetScr
     endif
-	tst.w	move_lock(a0)
+	tst.b	move_lock(a0)
 	bne.s	Tails_ApplyRollSpeed
 	btst	#button_left,(Ctrl_2_Held_Logical).w	; is left being pressed?
 	beq.s	+				; if not, branch
@@ -39324,7 +39336,7 @@ Tails_SlopeRepel:
 	nop
 	tst.b	stick_to_convex(a0)
 	bne.s	return_1C8F2
-	tst.w	move_lock(a0)
+	tst.b	move_lock(a0)
 	bne.s	loc_1C8F4
 	move.b	angle(a0),d0
 	addi.b	#$20,d0
@@ -39335,14 +39347,14 @@ Tails_SlopeRepel:
 	bhs.s	return_1C8F2
 	clr.w	inertia(a0)
 	bset	#1,status(a0)
-	move.w	#$1E,move_lock(a0)
+	move.b	#$1E,move_lock(a0)
 
 return_1C8F2:
 	rts
 ; ===========================================================================
 
 loc_1C8F4:
-	subq.w	#1,move_lock(a0)
+	subq.b	#1,move_lock(a0)
 	rts
 ; End of function Tails_SlopeRepel
 
@@ -39703,7 +39715,7 @@ Tails_HurtStop:
 	move.b	d0,obj_control(a0)
 	move.b	#AniIDSonAni_Walk,anim(a0)
 	move.b	#2,routine(a0)	; => Obj02_Control
-	move.w	#$78,invulnerable_time(a0)
+	move.b	#$78,invulnerable_time(a0)
 	move.b	#0,spindash_flag(a0)
 
 return_1CC4E:
@@ -39805,7 +39817,7 @@ Obj02_ResetLevel_Part3:
 	move.w	#0,y_vel(a0)
 	move.w	#0,inertia(a0)
 	move.b	#2,status(a0)
-	move.w	#0,move_lock(a0)
+	move.b	#0,move_lock(a0)
 
 return_1CD8E:
 	rts
@@ -43930,7 +43942,7 @@ loc_1FB0C:
 	clr.w	y_vel(a1)
 	clr.w	inertia(a1)
 	move.b	#AniIDSonAni_Bubble,anim(a1)
-	move.w	#$23,move_lock(a1)
+	move.b	#$23,move_lock(a1)
 	move.b	#0,jumping(a1)
 	bclr	#5,status(a1)
 	bclr	#4,status(a1)
@@ -46811,7 +46823,7 @@ Obj1B_GiveBoost:
 	bset	#0,status(a1)	; turn him left
 	neg.w	x_vel(a1)	; make the boosting direction left
 +
-	move.w	#$F,move_lock(a1)	; don't let him turn around for a few frames
+	move.b	#$F,move_lock(a1)	; don't let him turn around for a few frames
 	move.w	x_vel(a1),inertia(a1)	; update his inertia value
 	bclr	#5,status(a0)
 	bclr	#6,status(a0)
@@ -49166,7 +49178,7 @@ loc_243FE:
 	neg.w	x_vel(a1)
 
 loc_2442C:
-	move.w	#$F,move_lock(a1)
+	move.b	#$F,move_lock(a1)
 	move.w	x_vel(a1),inertia(a1)
 	btst	#2,status(a1)
 	bne.s	loc_24446
@@ -52007,7 +52019,7 @@ loc_2704C:
 	bclr	#0,status(a1)
 	neg.w	x_vel(a1)
 +
-	move.w	#$F,move_lock(a1)
+	move.b	#$F,move_lock(a1)
 	move.w	x_vel(a1),inertia(a1)
 	btst	#2,status(a1)
 	bne.s	+
@@ -57406,7 +57418,7 @@ loc_2B35C:
 	move.w	#$400,anim(a0)
 
 loc_2B392:
-	move.w	#$F,move_lock(a1)
+	move.b	#$F,move_lock(a1)
 	move.w	x_vel(a1),inertia(a1)
 	move.b	#$E,y_radius(a1)
 	move.b	#7,x_radius(a1)
@@ -83548,10 +83560,10 @@ Touch_ChkValue:
 	andi.b	#$3F,d0
 	cmpi.b	#6,d0			; is touch response $46?
 	beq.s	Touch_Monitor		; if yes, branch
-	move.w	(MainCharacter+invulnerable_time).w,d0
+	move.b	(MainCharacter+invulnerable_time).w,d0
 	tst.w	(Two_player_mode).w
 	beq.s	+
-	move.w	invulnerable_time(a0),d0
+	move.b	invulnerable_time(a0),d0
 +
 	cmpi.w	#90,d0
 	bhs.w	+
@@ -83712,7 +83724,7 @@ Touch_NoHurt:
 ; loc_3F86E:
 Touch_Hurt:
 	nop
-	tst.w	invulnerable_time(a0)
+	tst.b	invulnerable_time(a0)
 	bne.s	Touch_NoHurt
 	movea.l	a1,a2
 
@@ -83773,7 +83785,7 @@ Hurt_Reverse:
 Hurt_ChkSpikes:
 	move.w	#0,inertia(a0)
 	move.b	#AniIDSonAni_Hurt2,anim(a0)
-	move.w	#$78,invulnerable_time(a0)
+	move.b	#$78,invulnerable_time(a0)
 	move.w	#SndID_Hurt,d0	; load normal damage sound
 	cmpi.b	#ObjID_Spikes,(a2)	; was damage caused by spikes?
 	bne.s	Hurt_Sound	; if not, branch
@@ -84044,7 +84056,7 @@ BossCollision_MCZ:
 	move.w	(sp)+,d7
     endif
 	move.b	collision_flags(a1),d0
-	cmpi.w	#$78,invulnerable_time(a0)
+	cmpi.b	#$78,invulnerable_time(a0)
 	bne.s	+	; rts
 	st.b	boss_hurt_sonic(a1)	; Sonic has just been hurt flag
 +
@@ -84069,7 +84081,7 @@ BossCollision_MCZ2:
 	beq.s	-			; jump back once for second check
 	move.w	(sp)+,d7
 	move.b	collision_flags(a1),d0
-	cmpi.w	#$78,invulnerable_time(a0)
+	cmpi.b	#$78,invulnerable_time(a0)
 	bne.s	+	; rts
 	st.b	boss_hurt_sonic(a1)	; Sonic has just been hurt flag
 +
