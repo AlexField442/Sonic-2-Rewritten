@@ -7,6 +7,7 @@ Note that as of writing that **there is no stable release**, therefore there is 
 ## General
 * Revision 02 is now the only version compiled, however any advantages that REV00/REV01 had (visible debug objects and less padding) have been backported over.
 * V-blank routines are now called directly using a word-based jump, rather than a table.
+* Added the ability to change characters on the level select, just like in _Sonic 3 & Knuckles_.
 * Ending sequence can now be skipped by pressing Start.
 * Restored the original PLC queue speed from _Sonic 1_ (slightly improves load times).
 
@@ -26,6 +27,7 @@ Note that as of writing that **there is no stable release**, therefore there is 
 ## Minor Fixes
 * Fixed the title screen not having its priorities set correctly, causing various layering issues.
 * Fixed Sonic's left hand disappearing for a single frame on the title screen.
+* Fixed the GAME/TIME OVER text flickering for a single frame.
 * Fixed Sonic being able to clip into the first cave in Emerald Hill 2 (imported from _Sonic Jam_).
 * Fixed Sonic being able to get stuck in the last cave in Emerald Hill 2 (imported from _Sonic Jam_).
 * Fixed the leaf generators in Aquatic Ruin appearing when the player dies.
