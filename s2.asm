@@ -60949,12 +60949,7 @@ Obj5D_Pipe_0:
 	move.w	x_pos(a1),x_pos(a0)
 	move.w	y_pos(a1),y_pos(a0)
 	addi.w	#$18,y_pos(a0)
-    if fixBugs
 	move.w	#$C-1,Obj5D_pipe_segments(a0)
-    else
-	; See the below bugfix.
-	move.w	#$C,Obj5D_pipe_segments(a0)
-    endif
 	addq.b	#2,routine_secondary(a0)	; => Obj5D_Pipe_2_Load
 	movea.l	a0,a1
 	bra.s	Obj5D_Pipe_2_Load_Part2		; skip initial loading setup
@@ -60964,12 +60959,8 @@ Obj5D_Pipe_0:
 ; pipe extends gradually
 
 Obj5D_Pipe_2_Load:
-	; This code allocates one more object than necessary, leaving a
-	; partially initialised object in memory.
-    if fixBugs
 	subq.w  #1,Obj5D_pipe_segments(a0)	; is pipe fully extended?
 	blt.s   Obj5D_Pipe_2_Load_End		; if yes, branch
-    endif
 	jsr	(SingleObjLoad2).l
 	beq.s	+
 	rts
@@ -60978,11 +60969,6 @@ Obj5D_Pipe_2_Load:
 	move.l	a0,Obj5D_parent(a1)
 
 Obj5D_Pipe_2_Load_Part2:
-    if ~~fixBugs
-	subq.w  #1,Obj5D_pipe_segments(a0)	; is pipe fully extended?
-	blt.s   Obj5D_Pipe_2_Load_End		; if yes, branch
-    endif
-
 	move.b #ObjID_CPZBoss,id(a1)	; load obj5D
 	move.l	#Obj5D_MapUnc_2EADC,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_CPZBoss,1,0),art_tile(a1)
@@ -61145,28 +61131,9 @@ loc_2DFD8:
 ; ===========================================================================
 
 Obj5D_Pipe_Retract_ChkID:
-    if fixBugs
 	cmpi.b	#ObjID_CPZBoss,id(a1)
-    else
-	; 'd7' should not be used here. This causes the 'RunObjects' routine
-	; to either run too few objects or too many objects, causing all
-	; sorts of errors.
-	moveq	#0,d7
-	move.b	#ObjID_CPZBoss,d7
-	cmp.b	id(a1),d7	; is object a subtype of the CPZ Boss?
-    endif
 	beq.s	loc_2DFF0	; if yes, branch
-    if fixBugs
-	; There is no code to advance to the next object here.
-	; This causes the loop to get stuck repeatedly checking the same
-	; object until 'd1' reaches 0. If the boss's hovering motion is
-	; disabled, then it's actually possible to get the boss's
-	; pipe stuck because of this bug by positioning Sonic or Tails at the
-	; same Y-coordinate as a pipe segment. Even if the boss's hovering
-	; motion isn't disabled, this bug can still cause the pipe's updating
-	; to be delayed by a frame.
 	lea	next_object(a1),a1
-    endif
 	dbf	d1,Obj5D_Pipe_Retract_Loop
 	bra.s	Obj5D_PipeSegment
 ; ===========================================================================
