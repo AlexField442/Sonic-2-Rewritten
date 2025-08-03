@@ -731,6 +731,7 @@ ObjID_ContinueText =		id(ObjPtr_ContinueText)		; DA
 ObjID_ContinueIcons =		id(ObjPtr_ContinueIcons)	; DA
 ObjID_ContinueChars =		id(ObjPtr_ContinueChars)	; DB
 ObjID_RingPrize =		id(ObjPtr_RingPrize)		; DC
+ObjID_CollisionReset =		id(ObjPtr_CollisionReset)	; DD
 
 ; Music IDs
 offset :=	zMasterPlaylist
@@ -1003,8 +1004,10 @@ TitleCard_Bottom:		; level title card: yellow part at the bottom
 TitleCard_Left:			; level title card: red part on the left
 				ds.b	object_size
 
-				; Reserved object RAM, free slots
+ResetCollisionList:		; object that resets the collision response list
 				ds.b	object_size
+
+				; Reserved object RAM, free slots
 				ds.b	object_size
 				ds.b	object_size
 				ds.b	object_size
@@ -1069,7 +1072,8 @@ VDP_Command_Buffer:		ds.w	7*$12	; stores 18 ($12) VDP commands to issue the next
 VDP_Command_Buffer_Slot:	ds.l	1	; stores the address of the next open slot for a queued VDP command
 
 Sprite_Table_2:			ds.b	$280	; Sprite attribute table buffer for the bottom split screen in 2-player mode
-				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
+
+Collision_response_list:	ds.b	$80	; only objects in this list are processed by the collision response routines
 
 Horiz_Scroll_Buf:		ds.l	224
 				ds.l	16 	; A bug/optimisation in 'Swscrl_CPZ' causes 'Horiz_Scroll_Buf' to overflow into this.

@@ -4782,6 +4782,8 @@ Level_SetPlayerMode:
 
 ; sub_446E:
 InitPlayers:
+	move.b	#ObjID_CollisionReset,(ResetCollisionList+id).w
+
 	move.w	(Player_mode).w,d0
 	bne.s	InitPlayers_Alone ; branch if this isn't a Sonic and Tails game
 
@@ -4821,9 +4823,13 @@ InitPlayers_TailsAlone:
 	rts
 ; End of function InitPlayers
 
+; ---------------------------------------------------------------------------
+; Object DD - Object that resets the collision response list
+; ---------------------------------------------------------------------------
 
-
-
+ObjDD:
+	move.w	#0,(Collision_response_list).w
+	rts
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to move the water or oil surface sprites to where the screen is at
@@ -13681,7 +13687,7 @@ ObjCB_Init:
 	beq.s	+
 	andi.w	#$FF,d1
 	move.w	d1,y_pos(a0)
-	move.w	#$150,x_pos(a0)
+	move.w	#$170,x_pos(a0)
 	rts
 ; ===========================================================================
 +
@@ -24286,6 +24292,7 @@ JmpTo_RandomNumber ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Obj_Ring:
 Obj25:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj25_Index(pc,d0.w),d1
@@ -24407,6 +24414,7 @@ JmpTo2_PlaySound2 ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_12078:
 Obj37:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj37_Index(pc,d0.w),d1
@@ -24775,6 +24783,7 @@ JmpTo4_CalcSine ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Obj_Monitor:
 Obj26:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj26_Index(pc,d0.w),d1
@@ -29096,6 +29105,8 @@ ObjPtr_ContinueText:
 ObjPtr_ContinueIcons:	dc.l ObjDA	; Continue text
 ObjPtr_ContinueChars:	dc.l ObjDB	; Sonic lying down or Tails nagging (continue screen)
 ObjPtr_RingPrize:	dc.l ObjDC	; Ring prize from Casino Night Zone
+ObjPtr_CollisionReset:	dc.l ObjDD	; Object that resets the collision response list
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 4C, 4D, 4E, 4F, 62, D0, and D1
@@ -42933,6 +42944,7 @@ ObjCheckLeftWallDist:
 ; ----------------------------------------------------------------------------
 ; Sprite_1F0B4:
 Obj79:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj79_Index(pc,d0.w),d1
@@ -43451,6 +43463,7 @@ JmpTo4_Adjust2PArtPointer ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_1F730:
 Obj44:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj44_Index(pc,d0.w),d1
@@ -44866,6 +44879,7 @@ Obj49_MapUnc_20C50:	BINCLUDE "mappings/sprite/obj49.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_20DEC:
 Obj31:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj31_Index(pc,d0.w),d1
@@ -45828,6 +45842,7 @@ JmpTo6_CalcSine ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_21928:
 Obj14:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj14_Index(pc,d0.w),d1
@@ -46744,6 +46759,7 @@ JmpTo16_Adjust2PArtPointer ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_22408:
 Obj1D:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj1D_Index(pc,d0.w),d1
@@ -47314,6 +47330,7 @@ JmpTo_MarkObjGone3 ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_22FF8:
 Obj20:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj20_Index(pc,d0.w),d1
@@ -47990,6 +48007,7 @@ JmpTo22_DeleteObject ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_238DC:
 Obj30:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj30_Index(pc,d0.w),d1
@@ -50025,6 +50043,7 @@ JmpTo23_Adjust2PArtPointer ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_25694:
 Obj22:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj22_Index(pc,d0.w),d1
@@ -50565,6 +50584,7 @@ JmpTo28_DeleteObject ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_26104:
 Obj2C:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj2C_Index(pc,d0.w),d1
@@ -58679,6 +58699,7 @@ JmpTo7_SolidObject_Always_SingleCharacter ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_2C448:
 ObjD7:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjD7_Index(pc,d0.w),d1
@@ -59742,6 +59763,7 @@ Obj4B_shot_timer	= objoff_34	; word
 
 ; Sprite_2D068: ; Obj_Buzzer:
 Obj4B:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj4B_Index(pc,d0.w),d1
@@ -60020,6 +60042,7 @@ Obj5C_initial_y_pos	= objoff_30	; word
 
 ; Sprite_2D394:
 Obj5C:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj5C_Index(pc,d0.w),d1
@@ -60399,6 +60422,7 @@ Obj5D_hover_counter	= objoff_3F
 
 ; Sprite_2D734:
 Obj5D:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj5D_Index(pc,d0.w),d1
@@ -62080,6 +62104,7 @@ JmpTo23_ObjectMove ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_2EF18:
 Obj56:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj56_Index(pc,d0.w),d1
@@ -63015,6 +63040,7 @@ JmpTo35_DisplaySprite ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_2FC50:
 Obj52:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	boss_subtype(a0),d0
 	move.w	Obj52_Index(pc,d0.w),d1
@@ -63656,6 +63682,7 @@ obj89_arrow_parent		= objoff_38	; address of main vehicle
 
 ; Sprite_30480:
 Obj89:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	boss_subtype(a0),d0
 	move.w	Obj89_Index(pc,d0.w),d1
@@ -71343,6 +71370,7 @@ obj8C_attacks_remaining = objoff_2B
 
 ; Sprite_36924:
 Obj8C:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj8C_Index(pc,d0.w),d1
@@ -71461,6 +71489,7 @@ Obj8C_MapUnc_36A4E:	BINCLUDE "mappings/sprite/obj8C.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_36A76:
 Obj8D:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj8D_Index(pc,d0.w),d1
@@ -71536,7 +71565,7 @@ Obj8D_Directions:
 ; ===========================================================================
 
 loc_36B34:
-	jsrto	ObjectMove, JmpTo26_ObjectMove
+	jsr	(ObjectMove).l
 	jsr	(ObjCheckFloorDist).l
 	cmpi.w	#-1,d1
 	blt.s	loc_36B5C
@@ -71814,6 +71843,7 @@ Obj91_move_timer	= objoff_2A	; time to wait before turning around
 Obj91_bubble_timer	= objoff_2C	; time to wait before producing a bubble
 ; Sprite_36DAC:
 Obj91:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj91_Index(pc,d0.w),d1
@@ -72153,6 +72183,7 @@ Obj92_Obj93_MapUnc_37092:	BINCLUDE "mappings/sprite/obj93.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_370FE:
 Obj95:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj95_Index(pc,d0.w),d1
@@ -72343,6 +72374,7 @@ Invalid_SubObjData:
 ; ----------------------------------------------------------------------------
 ; Sprite_37322:
 Obj94:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj94_Index(pc,d0.w),d1
@@ -72428,6 +72460,7 @@ Obj94_PostCreateHead:
 ; ----------------------------------------------------------------------------
 ; Sprite_373D0:
 Obj97:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj97_Index(pc,d0.w),d1
@@ -72762,6 +72795,7 @@ byte_376A8:
 ; ----------------------------------------------------------------------------
 ; Sprite_376E8:
 Obj98:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj98_Index(pc,d0.w),d1
@@ -73222,6 +73256,7 @@ Obj9D_climb_table_index	= objoff_2C	; word
 Obj9D_attack_timer	= objoff_2E	; byte	; time player needs to spend close to object before it attacks
 ; Sprite_37BFA:
 Obj9D:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj9D_Index(pc,d0.w),d1
@@ -74201,6 +74236,7 @@ ObjA1_MapUnc_385E2:	BINCLUDE "mappings/sprite/objA2.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_3873E:
 ObjA3:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjA3_Index(pc,d0.w),d1
@@ -74525,6 +74561,7 @@ ObjA4_Obj98_MapUnc_38A96:	BINCLUDE "mappings/sprite/objA4.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_38AEA:
 ObjA5:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjA5_Index(pc,d0.w),d1
@@ -74597,6 +74634,7 @@ loc_38B78:
 ; ----------------------------------------------------------------------------
 ; Sprite_38B86:
 ObjA6:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjA6_Index(pc,d0.w),d1
@@ -74735,6 +74773,7 @@ ObjA5_ObjA6_Obj98_MapUnc_38CCA:	BINCLUDE "mappings/sprite/objA6.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_38DBA:
 ObjA7:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjA7_Index(pc,d0.w),d1
@@ -74915,6 +74954,7 @@ BranchTo_ObjA7_CheckExplode ; BranchTo
 ; ----------------------------------------------------------------------------
 ; Sprite_38F66:
 ObjA8:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjA8_Index(pc,d0.w),d1
@@ -83196,7 +83236,6 @@ JmpTo20_SingleObjLoad ; JmpTo
 
 ; loc_3F554:
 TouchResponse:
-	nop
 	jsrto	Touch_Rings, JmpTo_Touch_Rings
 	; Bumpers in CNZ
 	cmpi.b	#casino_night_zone,(Current_Zone).w
@@ -83227,22 +83266,22 @@ TouchResponse:
 Touch_NoDuck:
 	move.w	#$10,d4
 	add.w	d5,d5
-	lea	(Dynamic_Object_RAM).w,a1
-	move.w	#(Dynamic_Object_RAM_End-Dynamic_Object_RAM)/object_size-1,d6
+	; begin processing collision
+	lea	(Collision_response_list).w,a4
+	move.w	(a4)+,d6			; get number of objects queued
+	beq.s	Touch_End			; if there are none, branch
 ; loc_3F5A0:
 Touch_Loop:
-	; Note that this uses a branch instead of a 'bsr'.
-	; This is because only one object can be collided with in a single frame.
-	; If 'Touch_CheckCollision' determines that the character isn't colliding with the
-	; object, then it manually branches back to 'Touch_NextObj' to try the next one.
-	move.b	collision_flags(a1),d0
-	bne.w	Touch_CheckCollision
+	movea.w	(a4)+,a1			; get address of first object's RAM
+	move.b	collision_flags(a1),d0		; get its' collision_flags
+	bne.s	Touch_CheckCollision		; if it actually has collision, branch
 ; loc_3F5A8:
 Touch_NextObj:
-	lea	next_object(a1),a1 ; load obj address ; goto next object
-	dbf	d6,Touch_Loop ; repeat 6F more times
-
+	subq.w	#2,d6				; count the object as done
+	bne.s	Touch_Loop			; if there are still objects left, loop
 	moveq	#0,d0
+
+Touch_End:
 	rts
 ; ===========================================================================
 ; loc_3F5B4: Touch_Height: Touch_Width:
@@ -83370,22 +83409,22 @@ Touch_Boss:
 +
 	move.w	#$10,d4
 	add.w	d5,d5
-	lea	(Dynamic_Object_RAM).w,a1
-	move.w	#(Dynamic_Object_RAM_End-Dynamic_Object_RAM)/object_size-1,d6
+	; begin processing collision
+	lea	(Collision_response_list).w,a4
+	move.w	(a4)+,d6			; get number of objects queued
+	beq.s	Touch_Boss_End			; if there are none, branch
 ; loc_3F69C:
 Touch_Boss_Loop:
-	; Note that this uses a branch instead of a 'bsr'.
-	; This is because only one object can be collided with in a single frame.
-	; If 'Touch_Boss_CheckCollision' determines that the character isn't colliding with the
-	; object, then it manually branches back to 'Touch_Boss_NextObj' to try the next one.
-	move.b	collision_flags(a1),d0
-	bne.s	Touch_Boss_CheckCollision
+	movea.w	(a4)+,a1			; get address of first object's RAM
+	move.b	collision_flags(a1),d0		; get its' collision_flags
+	bne.s	Touch_Boss_CheckCollision	; if it actually has collision, branch
 ; loc_3F6A2:
 Touch_Boss_NextObj:
-	lea	next_object(a1),a1 ; a1=object
-	dbf	d6,Touch_Boss_Loop
-
+	subq.w	#2,d6				; count the object as done
+	bne.s	Touch_Boss_Loop			; if there are still objects left, loop
 	moveq	#0,d0
+
+Touch_Boss_End:
 	rts
 ; ===========================================================================
 ;loc_3F6AE:
@@ -84128,6 +84167,21 @@ loc_3FCA4:
 	neg.w	y_vel(a0)
 	rts
 ; ===========================================================================
+; ---------------------------------------------------------------------------
+; Subroutine to add an object to the collision response list
+; ---------------------------------------------------------------------------
+
+Add_SpriteToCollisionResponseList:
+	lea	(Collision_response_list).w,a1
+	cmpi.w	#$7E,(a1)	; is the list full?
+	bhs.s	.return		; if so, return
+	addq.w	#2,(a1)		; count this new entry
+	adda.w	(a1),a1		; offset into right area of list
+	move.w	a0,(a1)		; store RAM address in list
+
+.return:
+	rts
+; End of function Add_SpriteToCollisionResponseList
 
     if ~~removeJmpTos
 JmpTo_Sonic_ResetOnFloor_Part2 ; JmpTo
