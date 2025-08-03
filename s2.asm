@@ -48778,17 +48778,6 @@ Obj45_Init:
 	move.w	#priority_4,priority(a0)
 	move.b	subtype(a0),d0
 	lsr.w	#3,d0
-    if fixBugs
-	; This bugfix is a bit of a hack: ideally, the Oil Ocean Zone Act 2
-	; object layout should be corrected to not contain instances of this
-	; object with an invalid subtype, but this will have to do.
-	andi.w	#2,d0
-    else
-	; Some instances of this object use a subtype of $30, which results
-	; in d0 being 6 here. Due to sheer luck, this ends up branching to
-	; 'Obj45_InitHorizontal' instead of crashing the game.
-	andi.w	#$E,d0
-    endif
 	move.w	Obj45_InitRoutines(pc,d0.w),d0
 	jmp	Obj45_InitRoutines(pc,d0.w)
 ; ===========================================================================
@@ -63156,10 +63145,10 @@ Obj52_Mobile_Flamethrower:
 	move.b	#$2F,objoff_3E(a0)
 
 loc_2FDAA:
-	bsr.w	loc_300A4
 	bsr.w	loc_2FEDE
 	lea	(Ani_obj52).l,a1
 	bsr.w	AnimateBoss
+	bsr.w	loc_300A4
 	jmpto	DisplaySprite, JmpTo36_DisplaySprite
 ; ===========================================================================
 
