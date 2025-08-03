@@ -58900,6 +58900,7 @@ JmpTo55_Adjust2PArtPointer ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_2C6AC:
 ObjD8:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjD8_Index(pc,d0.w),d1
@@ -63060,14 +63061,6 @@ Obj52_Init:
 	move.w	#make_art_tile(ArtTile_ArtNem_Eggpod_2,0,0),art_tile(a0)
 	ori.b	#4,render_flags(a0)
 	move.b	#$90,mainspr_width(a0)
-    if ~~fixBugs
-	; This instruction is pointless, as bit 4 of 'render_flags' is never
-	; set anyway. Also, it clashes with 'boss_invulnerable_time', as they
-	; use the same SST slot. Unlike the Casino Night Zone boss, this does
-	; not result in any bugs, because 'boss_invulnerable_time' is cleared
-	; right after this.
-	move.b	#$90,mainspr_height(a0)
-    endif
 	move.w	#priority_4,priority(a0)
 	move.w	#$3040,x_pos(a0)
 	move.w	#$580,y_pos(a0)
@@ -65181,6 +65174,7 @@ JmpTo5_ObjectMoveAndFall ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_318F0:
 Obj51:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	boss_subtype(a0),d0
 	move.w	Obj51_Index(pc,d0.w),d1
@@ -65201,15 +65195,6 @@ Obj51_Init:
 	move.w	#$654,y_pos(a0)
 	move.b	#0,mainspr_mapframe(a0)
 	move.b	#$20,mainspr_width(a0)
-    if ~~fixBugs
-	; This instruction is pointless, as bit 4 of 'render_flags' is never
-	; set anyway. Also, it clashes with 'boss_invulnerable_time', as they
-	; use the same SST slot. This causes this boss to behave in numerous
-	; strange ways when it is first hit: no hit sound plays, the boss is
-	; invulnerable for much longer than it should be, and Eggman takes a
-	; while to react and show his hurt face.
-	move.b	#$80,mainspr_height(a0)
-    endif
 	addq.b	#2,boss_subtype(a0)
 	move.b	#0,boss_routine(a0)
 	bset	#6,render_flags(a0)
@@ -80455,6 +80440,7 @@ ObjC6_MapUnc_3D1DE:	BINCLUDE "mappings/sprite/objC6_b.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_3D23E:
 ObjC8:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjC8_Index(pc,d0.w),d1
