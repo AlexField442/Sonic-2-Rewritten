@@ -42,6 +42,7 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Fixed Sonic being able to get stuck in the last cave in Emerald Hill 2 (imported from _Sonic Jam_).
 * Fixed the leaf generators in Aquatic Ruin appearing when the player dies.
 * Fixed Sonic being unable to use a loop in Aquatic Ruin 2 after getting to the area from below (imported from _Sonic Jam_).
+* Fixed the Casino Night boss behaving strangely after hitting them for the first time.
 * Fixed Sonic overlapping the hangable vines in Mystic Cave.
 * Fixed the clouds in the ending popping into existence on the right side of the screen.
 * Fixed the birds in the ending appearing in front of the Tornado, yet behind Sonic.
