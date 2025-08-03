@@ -63,3 +63,4 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Mercury - bridge debug mode fix
 * RedhotSonic - ring loss optimization, Sonic 3K priority manager
 * [RetroKoH](https://github.com/RetroKoH/S1Fixed) - optimizations and fixes ported from _S1Fixed_
+* Everyone who has contributed to the thread "some changes and fixes for _Sonic 2_", this game is extremely buggy
