@@ -29921,13 +29921,6 @@ BuildSprites_P1_LevelLoop:
 ; loc_1698C:
 BuildSprites_P1_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
-
-	; These is a sanity check, to detect invalid objects which should not
-	; have been queued for display. S3K gets rids of this, since it
-	; should not be needed and it just slows this code down.
-	tst.b	id(a0)
-	beq.w	BuildSprites_P1_NextObj
-
 	andi.b	#$7F,render_flags(a0)
 	move.b	render_flags(a0),d0
 	move.b	d0,d4
@@ -30046,13 +30039,6 @@ BuildSprites_P2_LevelLoop:
 ; loc_16AA6:
 BuildSprites_P2_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
-
-	; These is a sanity check, to detect invalid objects which should not
-	; have been queued for display. S3K gets rids of this, since it
-	; should not be needed and it just slows this code down.
-	tst.b	id(a0)
-	beq.w	BuildSprites_P2_NextObj
-
 	move.b	render_flags(a0),d0
 	move.b	d0,d4
 	btst	#6,d0
