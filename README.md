@@ -30,6 +30,11 @@ Note that as of writing that **there is no stable release**, therefore there is 
 ## Major Fixes
 * Fixed the game crashing when placing an object in debug mode after dying.
 * Fixed multisprite objects using the wrong draw function. This also means they have the correct priority now.
+* Fixed some rare crashes that could occur with the Chemical Plant boss.
+* Fixed a rare crash that could occur with the Hill Top boss.
+* Fixed some pressure switches in Oil Ocean 2 using invalid subtypes, which could cause problems if the code is significantly rewritten.
+* Fixed a rare crash that could occur with the Oil Ocean boss.
+* Fixed a rare crash that could occur with the Metropolis boss.
 * Fixed a rare crash that could occur with the ascending/descending metal platforms in Wing Fortress.
 
 ## Minor Fixes
@@ -40,10 +45,13 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Fixed Sonic getting stuck on bridges if he enters debug mode while standing on them.
 * Fixed Sonic being able to clip into the first cave in Emerald Hill 2 (imported from _Sonic Jam_).
 * Fixed Sonic being able to get stuck in the last cave in Emerald Hill 2 (imported from _Sonic Jam_).
+* Fixed the Chemical Plant boss not spewing out smoke when it is defeated.
 * Fixed the leaf generators in Aquatic Ruin appearing when the player dies.
 * Fixed Sonic being unable to use a loop in Aquatic Ruin 2 after getting to the area from below (imported from _Sonic Jam_).
 * Fixed the Casino Night boss behaving strangely after hitting them for the first time.
 * Fixed Sonic overlapping the hangable vines in Mystic Cave.
+* Fixed the balloons in the Metropolis boss not bursting after hitting the player until they touch the floor once.
+* Made the balloons pop in the Metropolis boss when defeated (technically not a bugfix, but it prevents the sprite limit from being overloaded in the results, also _Sonic 3 & Knuckles_ does this as well for its throwback boss).
 * Fixed the clouds in the ending popping into existence on the right side of the screen.
 * Fixed the birds in the ending appearing in front of the Tornado, yet behind Sonic.
 * Fixed the Special Stage animations not working correctly, meaning they now appear much smoother.
