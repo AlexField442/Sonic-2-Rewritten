@@ -65814,6 +65814,7 @@ JmpTo6_LoadPLC_AnimalExplosion ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_32288:
 Obj54:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	boss_subtype(a0),d0
 	move.w	Obj54_Index(pc,d0.w),d1
@@ -66368,6 +66369,7 @@ Obj54_Defeated:
 ; ----------------------------------------------------------------------------
 ; Sprite_32940:
 Obj53:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj53_Index(pc,d0.w),d1
@@ -66655,6 +66657,8 @@ Obj53_FaceLeader:
 ; ===========================================================================
 ;loc_32C66
 Obj53_CheckPlayerHit:
+	tst.b	(Boss_defeated_flag).w	; is the boss defeated?
+	bne.s	+++			; if yes, branch
 	cmpi.b	#4,(MainCharacter+routine).w
 	beq.s	+
 	cmpi.b	#4,(Sidekick+routine).w
@@ -66664,7 +66668,8 @@ Obj53_CheckPlayerHit:
 	move.b	#6,anim(a0)
 +
 	cmpi.b	#-2,collision_property(a0)
-	bgt.s	+
+	bgt.s	++
++
 	move.b	#$14,mapping_frame(a0)
 	move.b	#6,anim(a0)
 +
