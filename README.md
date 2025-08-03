@@ -43,6 +43,7 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Fixed the leaf generators in Aquatic Ruin appearing when the player dies.
 * Fixed Sonic being unable to use a loop in Aquatic Ruin 2 after getting to the area from below (imported from _Sonic Jam_).
 * Fixed Sonic overlapping the hangable vines in Mystic Cave.
+* Fixed the clouds in the ending popping into existence on the right side of the screen.
 * Fixed the birds in the ending appearing in front of the Tornado, yet behind Sonic.
 * Fixed the Special Stage animations not working correctly, meaning they now appear much smoother.
 
