@@ -66590,12 +66590,14 @@ Obj53_BreakAway:
 ;loc_32BB0
 Obj53_Animate:
 	bsr.w	+
+
+Obj53_Animate_Part2:
 	lea	(Ani_obj53).l,a1
 	jsrto	AnimateSprite, JmpTo21_AnimateSprite
 	jmpto	DisplaySprite, JmpTo40_DisplaySprite
 ; ===========================================================================
 +
-	cmpi.b	#-2,collision_property(a0)
+	cmpi.b	#-1,collision_property(a0)
 	bgt.s	+		; rts
 	move.b	#$14,mapping_frame(a0)
 	move.b	#6,anim(a0)
@@ -66613,7 +66615,7 @@ Obj53_BounceAround:
 +
 	bsr.w	Obj53_CheckPlayerHit
 	cmpi.b	#$B,mapping_frame(a0)
-	bne.s	Obj53_Animate
+	bne.s	Obj53_Animate_Part2
 	move.b	objoff_2C(a0),d0
 	jsr	(CalcSine).l
 	neg.w	d0
@@ -66972,11 +66974,16 @@ Obj55_Main_End:
 Obj55_HandleHits:
 	bsr.w	Boss_HandleHits
 	cmpi.b	#$1F,boss_invulnerable_time(a0)
-	bne.s	return_33192
+	bne.s	.chkKilled
 	lea	(Boss_AnimationArray).w,a1
 	andi.b	#$F0,(a1)
 	ori.b	#3,(a1)
 	ori.b	#$80,Obj55_status(a0)	; set boss hit bit
+
+.chkKilled:
+	cmpi.b	#8,boss_routine(a0)	; is boss eexploding or retreating?
+	blo.s	return_33192		; if yes, branch
+	move.b	#2,boss_subtype(a0)	; => Obj55_Main
 
 return_33192:
 	rts
