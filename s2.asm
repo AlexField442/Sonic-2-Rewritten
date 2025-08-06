@@ -75550,6 +75550,7 @@ ObjAD_Obj98_MapUnc_395B4:	BINCLUDE "mappings/sprite/objAE.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_3972C:
 ObjAF:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjAF_Index(pc,d0.w),d1
@@ -80586,6 +80587,7 @@ ObjC8_MapUnc_3D450:	BINCLUDE "mappings/sprite/objC8.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_3D4C8:
 ObjC7:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjC7_Index(pc,d0.w),d1
