@@ -10,6 +10,7 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Added the ability to change characters on the level select, just like in _Sonic 3 & Knuckles_.
 * Ending sequence can now be skipped by pressing Start.
 * Restored the original PLC queue speed from _Sonic 1_ (slightly improves load times).
+* Applied layout changes introduced in _Knuckles in Sonic 2_.
 
 ## Players
 * `move_lock`, `invulnerable_time`, `invincibility_time`, and `speedshoes_time` are now handled as a byte each, rather than a word, which frees up **$32-$35** in the player SST to compensate for the loss of **$1F-$21**.
@@ -42,6 +43,7 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Fixed the title screen not having its priorities set correctly, causing various layering issues.
 * Fixed Sonic's left hand disappearing for a single frame on the title screen.
 * Fixed the GAME/TIME OVER text flickering for a single frame.
+* Fixed many misplaced objects and rings, it is now possible to get a perfect bonus in every stage.
 * Fixed Sonic getting stuck on bridges if he enters debug mode while standing on them.
 * Fixed Sonic being able to clip into the first cave in Emerald Hill 2 (imported from _Sonic Jam_).
 * Fixed Sonic being able to get stuck in the last cave in Emerald Hill 2 (imported from _Sonic Jam_).
