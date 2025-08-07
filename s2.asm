@@ -36561,15 +36561,21 @@ Sonic_DoLevelCollision:
 	move.b	lrb_solid_bit(a0),d5
 	move.w	x_vel(a0),d1
 	move.w	y_vel(a0),d2
-	jsr	(CalcAngle).l
-	subi.b	#$20,d0
-	andi.b	#$C0,d0
-	cmpi.b	#$40,d0
-	beq.w	Sonic_HitLeftWall
-	cmpi.b	#$80,d0
-	beq.w	Sonic_HitCeilingAndWalls
-	cmpi.b	#$C0,d0
-	beq.w	Sonic_HitRightWall
+	bpl.s	.movingDown			; branch of moving down
+	cmp.w	d1,d2
+	bgt.w	Sonic_HitLeftWall		; branch if moving left
+	neg.w	d1
+	cmp.w	d1,d2
+	bge.w	Sonic_HitRightWall		; branch if moving right
+	bra.w	Sonic_HitCeilingAndWalls	; branch if moving upwards
+
+.movingDown:
+	cmp.w	d1,d2
+	blt.w	Sonic_HitRightWall		; branch if moving right
+	neg.w	d1
+	cmp.w	d1,d2
+	ble.w	Sonic_HitLeftWall		; branch if moving left
+	; Sonic is moving down +-45 degrees
 	bsr.w	CheckLeftWallDist
 	tst.w	d1
 	bpl.s	+
