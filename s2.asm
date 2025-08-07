@@ -35195,7 +35195,7 @@ Obj01_MdNormal:
 	bsr.w	Sonic_LevelBound
 	jsr	(ObjectMove).l
 	bsr.w	AnglePos
-	bsr.w	Sonic_SlopeRepel
+	bra.w	Sonic_SlopeRepel
 
 return_1A2DE:
 	rts
@@ -35214,8 +35214,7 @@ Obj01_MdAir:
 	subi.w	#$28,y_vel(a0)	; reduce gravity by $28 ($38-$28=$10)
 +
 	bsr.w	Sonic_JumpAngle
-	bsr.w	Sonic_DoLevelCollision
-	rts
+	bra.w	Sonic_DoLevelCollision
 ; End of subroutine Obj01_MdAir
 ; ===========================================================================
 ; Start of subroutine Obj01_MdRoll
@@ -35231,8 +35230,7 @@ Obj01_MdRoll:
 	bsr.w	Sonic_LevelBound
 	jsr	(ObjectMove).l
 	bsr.w	AnglePos
-	bsr.w	Sonic_SlopeRepel
-	rts
+	bra.w	Sonic_SlopeRepel
 ; End of subroutine Obj01_MdRoll
 ; ===========================================================================
 ; Start of subroutine Obj01_MdJump
@@ -35245,13 +35243,10 @@ Obj01_MdJump:
 	bsr.w	Sonic_ChgJumpDir
 	bsr.w	Sonic_LevelBound
 	jsr	(ObjectMoveAndFall).l
-	btst	#6,status(a0)	; is Sonic underwater?
-	beq.s	+		; if not, branch
-	subi.w	#$28,y_vel(a0)	; reduce gravity by $28 ($38-$28=$10)
-+
-	bsr.w	Sonic_JumpAngle
-	bsr.w	Sonic_DoLevelCollision
-	rts
+	btst	#6,status(a0)			; is Sonic underwater?
+	beq.w	Sonic_DoLevelCollision		; if not, branch
+	subi.w	#$28,y_vel(a0)			; reduce gravity by $28 ($38-$28=$10)
+	bra.w	Sonic_DoLevelCollision
 ; End of subroutine Obj01_MdJump
 
 ; ---------------------------------------------------------------------------
@@ -36478,26 +36473,15 @@ loc_1AE44:
 
 ; loc_1AE4A:
 Sonic_JumpAngle:
-	move.b	angle(a0),d0	; get Sonic's angle
+	tst.b	angle(a0)	; get Sonic's angle
 	beq.s	Sonic_JumpFlip	; if already 0, branch
 	bpl.s	loc_1AE5A	; if higher than 0, branch
-
-	addq.b	#2,d0		; increase angle
-	bcc.s	BranchTo_Sonic_JumpAngleSet
-	moveq	#0,d0
-
-BranchTo_Sonic_JumpAngleSet ; BranchTo
-	bra.s	Sonic_JumpAngleSet
+	addq.b	#2,angle(a0)	; increase angle
+	bra.s	Sonic_JumpFlip
 ; ===========================================================================
 
 loc_1AE5A:
-	subq.b	#2,d0		; decrease angle
-	bcc.s	Sonic_JumpAngleSet
-	moveq	#0,d0
-
-; loc_1AE60:
-Sonic_JumpAngleSet:
-	move.b	d0,angle(a0)
+	subq.b	#2,angle(a0)	; decrease angle
 ; End of function Sonic_JumpAngle
 	; continue straight to Sonic_JumpFlip
 
@@ -38192,8 +38176,7 @@ Obj02_MdNormal:
 	bsr.w	Tails_LevelBound
 	jsr	(ObjectMove).l
 	bsr.w	AnglePos
-	bsr.w	Tails_SlopeRepel
-	rts
+	bra.w	Tails_SlopeRepel
 ; End of subroutine Obj02_MdNormal
 ; ===========================================================================
 ; Start of subroutine Obj02_MdAir
@@ -38209,8 +38192,7 @@ Obj02_MdAir:
 	subi.w	#$28,y_vel(a0)	; reduce gravity by $28 ($38-$28=$10)
 +
 	bsr.w	Tails_JumpAngle
-	bsr.w	Tails_DoLevelCollision
-	rts
+	bra.w	Tails_DoLevelCollision
 ; End of subroutine Obj02_MdAir
 ; ===========================================================================
 ; Start of subroutine Obj02_MdRoll
@@ -38226,8 +38208,7 @@ Obj02_MdRoll:
 	bsr.w	Tails_LevelBound
 	jsr	(ObjectMove).l
 	bsr.w	AnglePos
-	bsr.w	Tails_SlopeRepel
-	rts
+	bra.w	Tails_SlopeRepel
 ; End of subroutine Obj02_MdRoll
 ; ===========================================================================
 ; Start of subroutine Obj02_MdJump
@@ -38240,13 +38221,10 @@ Obj02_MdJump:
 	bsr.w	Tails_ChgJumpDir
 	bsr.w	Tails_LevelBound
 	jsr	(ObjectMoveAndFall).l
-	btst	#6,status(a0)	; is Tails underwater?
-	beq.s	+		; if not, branch
-	subi.w	#$28,y_vel(a0)	; reduce gravity by $28 ($38-$28=$10)
-+
-	bsr.w	Tails_JumpAngle
-	bsr.w	Tails_DoLevelCollision
-	rts
+	btst	#6,status(a0)			; is Tails underwater?
+	beq.w	Tails_DoLevelCollision		; if not, branch
+	subi.w	#$28,y_vel(a0)			; reduce gravity by $28 ($38-$28=$10)
+	bra.w	Tails_DoLevelCollision
 ; End of subroutine Obj02_MdJump
 
 ; ---------------------------------------------------------------------------
@@ -39256,26 +39234,15 @@ loc_1C8F4:
 
 ; loc_1C8FA:
 Tails_JumpAngle:
-	move.b	angle(a0),d0	; get Tails' angle
+	tst.b	angle(a0)	; get Tails' angle
 	beq.s	Tails_JumpFlip	; if already 0, branch
 	bpl.s	loc_1C90A	; if higher than 0, branch
-
-	addq.b	#2,d0		; increase angle
-	bcc.s	BranchTo_Tails_JumpAngleSet
-	moveq	#0,d0
-
-BranchTo_Tails_JumpAngleSet ; BranchTo
-	bra.s	Tails_JumpAngleSet
+	addq.b	#2,angle(a0)	; increase angle
+	bra.s	Tails_JumpFlip
 ; ===========================================================================
 
 loc_1C90A:
-	subq.b	#2,d0		; decrease angle
-	bcc.s	Tails_JumpAngleSet
-	moveq	#0,d0
-
-; loc_1C910:
-Tails_JumpAngleSet:
-	move.b	d0,angle(a0)
+	subq.b	#2,angle(a0)	; decrease angle
 ; End of function Tails_JumpAngle
 	; continue straight to Tails_JumpFlip
 
@@ -39339,15 +39306,21 @@ Tails_DoLevelCollision:
 	move.b	lrb_solid_bit(a0),d5
 	move.w	x_vel(a0),d1
 	move.w	y_vel(a0),d2
-	jsr	(CalcAngle).l
-	subi.b	#$20,d0
-	andi.b	#$C0,d0
-	cmpi.b	#$40,d0
-	beq.w	Tails_HitLeftWall
-	cmpi.b	#$80,d0
-	beq.w	Tails_HitCeilingAndWalls
-	cmpi.b	#$C0,d0
-	beq.w	Tails_HitRightWall
+	bpl.s	.movingDown			; branch of moving down
+	cmp.w	d1,d2
+	bgt.w	Tails_HitLeftWall		; branch if moving left
+	neg.w	d1
+	cmp.w	d1,d2
+	bge.w	Tails_HitRightWall		; branch if moving right
+	bra.w	Tails_HitCeilingAndWalls	; branch if moving upwards
+
+.movingDown:
+	cmp.w	d1,d2
+	blt.w	Tails_HitRightWall		; branch if moving right
+	neg.w	d1
+	cmp.w	d1,d2
+	ble.w	Tails_HitLeftWall		; branch if moving left
+	; Tails is moving down +-45 degrees
 	bsr.w	CheckLeftWallDist
 	tst.w	d1
 	bpl.s	+
