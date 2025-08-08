@@ -36499,9 +36499,9 @@ Player_JumpFlip:
 Sonic_JumpRightFlip:
 	move.b	flip_speed(a0),d1
 	add.b	d1,d0
-	bcc.s	Sonic_JumpLeftFlip
+	bcc.s	Player_JumpFlipSet
 	subq.b	#1,flips_remaining(a0)
-	bcc.s	Sonic_JumpLeftFlip
+	bcc.s	Player_JumpFlipSet
 	move.b	#0,flips_remaining(a0)
 	moveq	#0,d0
 	bra.s	Player_JumpFlipSet
