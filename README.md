@@ -15,6 +15,9 @@ Note that as of writing that **there is no stable release**, therefore there is 
 ## Players
 * `move_lock`, `invulnerable_time`, `invincibility_time`, and `speedshoes_time` are now handled as a byte each, rather than a word, which frees up **$32-$35** in the player SST to compensate for the loss of **$1F-$21**.
 * Changed `interact` to now directly point to the object Sonic and Tails are interacting with, which slightly improves performance.
+* `SlopeResist`, `SlopeRepel`, `JumpAngle`, `DoLevelCollision`, `RollRepel`, and `JumpFlip`, which previously had duplicates for both characters, now only have a single copy as they are identical.
+* `Sonic_ResetOnFloor` will now always jump to `Tails_ResetOnFloor`, rather than just having a check for `_Part2` (related to the above change due to calls to `Tails_ResetOnFloor`).
+* Optimized a few collision and floor-reset routines.
 
 ## Objects
 * Changed `priority` to now directly point to the sprite queue, rather than being calculated. This considerably simplifies DisplaySprite, but also requires all objects to explicitly declare their priority value.
@@ -26,6 +29,7 @@ Note that as of writing that **there is no stable release**, therefore there is 
 ## Sound
 * Restored higher quality drum and SEGA samples from _Sonic 1_.
 * Improved the sound-queuing system to not be as intensive with stopping the Z80.
+* Make the fourth sound queue actually work properly.
 
 # Bug Fixes
 ## Major Fixes
@@ -44,6 +48,7 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Fixed Sonic's left hand disappearing for a single frame on the title screen.
 * Fixed the GAME/TIME OVER text flickering for a single frame.
 * Fixed many misplaced objects and rings, it is now possible to get a perfect bonus in every stage.
+* Sonic will now revert from his Super form if he gets hurt or dies, meaning his variables will reset correctly if debug mode is used (still need to revert music).
 * Fixed Sonic getting stuck on bridges if he enters debug mode while standing on them.
 * Fixed Sonic being able to clip into the first cave in Emerald Hill 2 (imported from _Sonic Jam_).
 * Fixed Sonic being able to get stuck in the last cave in Emerald Hill 2 (imported from _Sonic Jam_).
