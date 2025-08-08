@@ -2512,11 +2512,8 @@ zInitMusicPlayback:
 	ld	b,(ix+zVar.Queue0)
 	ld	c,(ix+zVar.Queue1)
 	push	bc
-    if FixDriverBugs
-	; Queue2 isn't backed up! This was a bug in Sonic 1's driver as well.
 	ld	b,(ix+zVar.Queue2)
 	push	bc
-    endif
 	; The following clears all playback memory and non-SFX tracks
 	ld	hl,zAbsVar
 	ld	de,zAbsVar+1
@@ -2527,11 +2524,8 @@ zInitMusicPlayback:
 	pop	bc
 	ld	(ix+zVar.Queue0),b
 	ld	(ix+zVar.Queue1),c
-    if FixDriverBugs
-	; Ditto.
 	pop	bc
 	ld	(ix+zVar.Queue2),b
-    endif
 	pop	bc
 	ld	(ix+zVar.SpeedUpFlag),b		; Speed shoe flag
 	ld	(ix+zVar.FadeInCounter),c	; Fade in frames

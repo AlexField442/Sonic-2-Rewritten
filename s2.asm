@@ -36187,6 +36187,8 @@ Sonic_Super:
 	beq.w	return_1AC3C
 	tst.b	(Update_HUD_timer).w
 	beq.s	Sonic_RevertToNormal ; ?
+	cmpi.b	#6,routine(a0)		; is Sonic hurt or dead?
+	bcc.s	Sonic_RevertToNormal	; if yes, branch
 	subq.w	#1,(Super_Sonic_frame_count).w
 	bpl.w	return_1AC3C
 	move.w	#60,(Super_Sonic_frame_count).w	; Reset frame counter to 60
@@ -36768,7 +36770,9 @@ Sonic_ResetOnFloor_Part3:
 	cmpi.b	#ObjID_Sonic,id(a0)	; is this object ID Sonic (obj01)?
 	bne.w	Tails_ResetOnFloor_Part3	; if not, branch to the Tails version of this code
 
-	andi.b	#$FF-1-5-4,status(a0)
+	bclr	#1,status(a0)
+	bclr	#5,status(a0)
+	bclr	#4,status(a0)
 	move.b	#0,jumping(a0)
 	move.w	#0,(Chain_Bonus_counter).w
 	move.b	#0,flip_angle(a0)
@@ -36812,6 +36816,7 @@ Obj01_Hurt_Normal:
 +
 	bsr.w	Sonic_HurtStop
 	bsr.w	Sonic_LevelBound
+	bsr.w	Sonic_Super
 	bsr.w	Sonic_RecordPos
 	bsr.w	Sonic_Animate
 	bsr.w	LoadSonicDynPLC
@@ -36868,6 +36873,7 @@ Obj01_Dead:
 +
 	bsr.w	CheckGameOver
 	jsr	(ObjectMoveAndFall).l
+	bsr.w	Sonic_Super
 	bsr.w	Sonic_RecordPos
 	bsr.w	Sonic_Animate
 	bsr.w	LoadSonicDynPLC
@@ -39142,7 +39148,9 @@ Tails_ResetOnFloor_Part2:
 	subq.w	#1,y_pos(a0)	; move Tails up 1 pixel so the increased height doesn't push him slightly into the ground
 ; loc_1CB80:
 Tails_ResetOnFloor_Part3:
-	andi.b	#$FF-1-5-4,status(a0)
+	bclr	#1,status(a0)
+	bclr	#5,status(a0)
+	bclr	#4,status(a0)
 	move.b	#0,jumping(a0)
 	move.w	#0,(Chain_Bonus_counter).w
 	move.b	#0,flip_angle(a0)
@@ -40322,41 +40330,6 @@ Obj0A_DoneCreatingBubble:
 
 return_1D81C:
 	rts
-; ===========================================================================
-
-; ---------------------------------------------------------------------------
-; Subroutine to play music after a countdown (when Sonic leaves the water)
-; ---------------------------------------------------------------------------
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; loc_1D81E:
-ResumeMusic:
-	cmpi.b	#12,air_left(a1)
-	bhi.s	ResumeMusic_Done	; branch if countdown hasn't started yet
-
-	cmpa.w	#MainCharacter,a1
-	bne.s	ResumeMusic_Done	; branch if it isn't player 1
-
-	move.w	(Level_Music).w,d0	; prepare to play current level's music
-
-	btst	#status_sec_isInvincible,status_secondary(a1)
-	beq.s	+		; branch if Sonic is not invincible
-	move.w	#MusID_Invincible,d0	; prepare to play invincibility music
-+
-	tst.b	(Super_Sonic_flag).w
-	beq.w	+		; branch if it isn't Super Sonic
-	move.w	#MusID_SuperSonic,d0	; prepare to play Super Sonic music
-+
-	tst.b	(Current_Boss_ID).w
-	beq.s	+		; branch if not in a boss fight
-	move.w	#MusID_Boss,d0	; prepare to play boss music
-+
-	jsr	(PlayMusic).l
-; return_1D858:
-ResumeMusic_Done:
-	move.b	#30,air_left(a1)	; reset air to full
-	rts
 
 ; ===========================================================================
 ; animation script for the bubbles
@@ -40396,6 +40369,41 @@ byte_1D8EB:	dc.b  $E,  1,  2,  3,  4,$FC
 
 
 
+; ===========================================================================
+; ---------------------------------------------------------------------------
+; Subroutine to play music after a countdown (when Sonic leaves the water)
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; loc_1D81E:
+ResumeMusic:
+	cmpi.b	#12,air_left(a1)
+	bhi.s	ResumeMusic_Done	; branch if countdown hasn't started yet
+
+	cmpa.w	#MainCharacter,a1
+	bne.s	ResumeMusic_Done	; branch if it isn't player 1
+
+	move.w	(Level_Music).w,d0	; prepare to play current level's music
+
+	btst	#status_sec_isInvincible,status_secondary(a1)
+	beq.s	+		; branch if Sonic is not invincible
+	move.w	#MusID_Invincible,d0	; prepare to play invincibility music
++
+	tst.b	(Super_Sonic_flag).w
+	beq.w	+		; branch if it isn't Super Sonic
+	move.w	#MusID_SuperSonic,d0	; prepare to play Super Sonic music
++
+	tst.b	(Current_Boss_ID).w
+	beq.s	+		; branch if not in a boss fight
+	move.w	#MusID_Boss,d0	; prepare to play boss music
++
+	jsr	(PlayMusic).l
+; return_1D858:
+ResumeMusic_Done:
+	move.b	#30,air_left(a1)	; reset air to full
+	rts
+; End of function ResumeMusic
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
