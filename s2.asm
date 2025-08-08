@@ -35189,13 +35189,13 @@ Obj01_MdNormal_Checks:
 Obj01_MdNormal:
 	bsr.w	Sonic_CheckSpindash
 	bsr.w	Sonic_Jump
-	bsr.w	Sonic_SlopeResist
+	bsr.w	Player_SlopeResist
 	bsr.w	Sonic_Move
 	bsr.w	Sonic_Roll
 	bsr.w	Sonic_LevelBound
 	jsr	(ObjectMove).l
 	bsr.w	AnglePos
-	bra.w	Sonic_SlopeRepel
+	bra.w	Player_SlopeRepel
 
 return_1A2DE:
 	rts
@@ -35213,8 +35213,8 @@ Obj01_MdAir:
 	beq.s	+		; if not, branch
 	subi.w	#$28,y_vel(a0)	; reduce gravity by $28 ($38-$28=$10)
 +
-	bsr.w	Sonic_JumpAngle
-	bra.w	Sonic_DoLevelCollision
+	bsr.w	Player_JumpAngle
+	bra.w	Player_DoLevelCollision
 ; End of subroutine Obj01_MdAir
 ; ===========================================================================
 ; Start of subroutine Obj01_MdRoll
@@ -35225,12 +35225,12 @@ Obj01_MdRoll:
 	bne.s	+
 	bsr.w	Sonic_Jump
 +
-	bsr.w	Sonic_RollRepel
+	bsr.w	Player_RollRepel
 	bsr.w	Sonic_RollSpeed
 	bsr.w	Sonic_LevelBound
 	jsr	(ObjectMove).l
 	bsr.w	AnglePos
-	bra.w	Sonic_SlopeRepel
+	bra.w	Player_SlopeRepel
 ; End of subroutine Obj01_MdRoll
 ; ===========================================================================
 ; Start of subroutine Obj01_MdJump
@@ -35244,9 +35244,9 @@ Obj01_MdJump:
 	bsr.w	Sonic_LevelBound
 	jsr	(ObjectMoveAndFall).l
 	btst	#6,status(a0)			; is Sonic underwater?
-	beq.w	Sonic_DoLevelCollision		; if not, branch
+	beq.w	Player_DoLevelCollision		; if not, branch
 	subi.w	#$28,y_vel(a0)			; reduce gravity by $28 ($38-$28=$10)
-	bra.w	Sonic_DoLevelCollision
+	bra.w	Player_DoLevelCollision
 ; End of subroutine Obj01_MdJump
 
 ; ---------------------------------------------------------------------------
@@ -36361,18 +36361,18 @@ loc_1AD8C:
 
 
 ; ---------------------------------------------------------------------------
-; Subroutine to slow Sonic walking up a slope
+; Subroutine to slow players walking up a slope
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; loc_1AD96:
-Sonic_SlopeResist:
+; loc_1AD96: Sonic_SlopeResist:
+Player_SlopeResist:
 	move.b	angle(a0),d0
-	addi.b	#$60,d0
-	cmpi.b	#$C0,d0
+	move.b	d0,d1
+	addi.b	#$60,d1
+	cmpi.b	#$C0,d1
 	bhs.s	return_1ADCA
-	move.b	angle(a0),d0
 	jsr	(CalcSine).l
 	muls.w	#$20,d0
 	asr.l	#8,d0
@@ -36380,18 +36380,14 @@ Sonic_SlopeResist:
 	beq.s	return_1ADCA
 	bmi.s	loc_1ADC6
 	tst.w	d0
-	beq.s	+
-	add.w	d0,inertia(a0)	; change Sonic's $14
-+
-	rts
-; ---------------------------------------------------------------------------
+	beq.s	return_1ADCA
 
 loc_1ADC6:
 	add.w	d0,inertia(a0)
 
 return_1ADCA:
 	rts
-; End of subroutine Sonic_SlopeResist
+; End of subroutine Player_SlopeResist
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to push Sonic down a slope while he's rolling
@@ -36399,13 +36395,13 @@ return_1ADCA:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; loc_1ADCC:
-Sonic_RollRepel:
+; loc_1ADCC: Sonic_RollRepel:
+Player_RollRepel:
 	move.b	angle(a0),d0
-	addi.b	#$60,d0
-	cmpi.b	#$C0,d0
+	move.b	d0,d1
+	addi.b	#$60,d1
+	cmpi.b	#$C0,d1
 	bhs.s	return_1AE06
-	move.b	angle(a0),d0
 	jsr	(CalcSine).l
 	muls.w	#$50,d0
 	asr.l	#8,d0
@@ -36430,16 +36426,16 @@ loc_1AE02:
 
 return_1AE06:
 	rts
-; End of function Sonic_RollRepel
+; End of function Player_RollRepel
 
 ; ---------------------------------------------------------------------------
-; Subroutine to push Sonic down a slope
+; Subroutine to push players down a slope
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; loc_1AE08:
-Sonic_SlopeRepel:
+; loc_1AE08: Sonic_SlopeRepel:
+Player_SlopeRepel:
 	nop
 	tst.b	stick_to_convex(a0)
 	bne.s	return_1AE42
@@ -36463,36 +36459,36 @@ return_1AE42:
 loc_1AE44:
 	subq.b	#1,move_lock(a0)
 	rts
-; End of function Sonic_SlopeRepel
+; End of function Player_SlopeRepel
 
 ; ---------------------------------------------------------------------------
-; Subroutine to return Sonic's angle to 0 as he jumps
+; Subroutine to return a player's angle to 0 as he jumps
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; loc_1AE4A:
-Sonic_JumpAngle:
+; loc_1AE4A: Sonic_JumpAngle:
+Player_JumpAngle:
 	tst.b	angle(a0)	; get Sonic's angle
-	beq.s	Sonic_JumpFlip	; if already 0, branch
+	beq.s	Player_JumpFlip	; if already 0, branch
 	bpl.s	loc_1AE5A	; if higher than 0, branch
 	addq.b	#2,angle(a0)	; increase angle
-	bra.s	Sonic_JumpFlip
+	bra.s	Player_JumpFlip
 ; ===========================================================================
 
 loc_1AE5A:
 	subq.b	#2,angle(a0)	; decrease angle
-; End of function Sonic_JumpAngle
-	; continue straight to Sonic_JumpFlip
+; End of function Player_JumpAngle
+	; continue straight to Player_JumpFlip
 
 ; ---------------------------------------------------------------------------
-; Updates Sonic's secondary angle if he's tumbling
+; Updates player's secondary angle if they're tumbling
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; loc_1AE64:
-Sonic_JumpFlip:
+; loc_1AE64: Sonic_JumpFlip:
+Player_JumpFlip:
 	move.b	flip_angle(a0),d0
 	beq.s	return_1AEA8
 	tst.w	inertia(a0)
@@ -36501,14 +36497,12 @@ Sonic_JumpFlip:
 Sonic_JumpRightFlip:
 	move.b	flip_speed(a0),d1
 	add.b	d1,d0
-	bcc.s	BranchTo_Sonic_JumpFlipSet
+	bcc.s	Sonic_JumpLeftFlip
 	subq.b	#1,flips_remaining(a0)
-	bcc.s	BranchTo_Sonic_JumpFlipSet
+	bcc.s	Sonic_JumpLeftFlip
 	move.b	#0,flips_remaining(a0)
 	moveq	#0,d0
-
-BranchTo_Sonic_JumpFlipSet ; BranchTo
-	bra.s	Sonic_JumpFlipSet
+	bra.s	Player_JumpFlipSet
 ; ===========================================================================
 ; loc_1AE88:
 Sonic_JumpLeftFlip:
@@ -36516,27 +36510,27 @@ Sonic_JumpLeftFlip:
 	bne.s	Sonic_JumpRightFlip
 	move.b	flip_speed(a0),d1
 	sub.b	d1,d0
-	bcc.s	Sonic_JumpFlipSet
+	bcc.s	Player_JumpFlipSet
 	subq.b	#1,flips_remaining(a0)
-	bcc.s	Sonic_JumpFlipSet
+	bcc.s	Player_JumpFlipSet
 	move.b	#0,flips_remaining(a0)
 	moveq	#0,d0
 ; loc_1AEA4:
-Sonic_JumpFlipSet:
+Player_JumpFlipSet:
 	move.b	d0,flip_angle(a0)
 
 return_1AEA8:
 	rts
-; End of function Sonic_JumpFlip
+; End of function Player_JumpFlip
 
 ; ---------------------------------------------------------------------------
-; Subroutine for Sonic to interact with the floor and walls when he's in the air
+; Subroutine for players to interact with the floor and walls when they're in the air
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; loc_1AEAA: Sonic_Floor:
-Sonic_DoLevelCollision:
+; loc_1AEAA: Sonic_Floor: Sonic_DoLevelCollision:
+Player_DoLevelCollision:
 	move.l	#Primary_Collision,(Collision_addr).w
 	cmpi.b	#$C,top_solid_bit(a0)
 	beq.s	+
@@ -36735,9 +36729,7 @@ Sonic_HitFloor2:
 
 return_1B09E:
 	rts
-; End of function Sonic_DoLevelCollision
-
-
+; End of function Player_DoLevelCollision
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to reset Sonic's mode when he lands on the floor
@@ -36747,6 +36739,11 @@ return_1B09E:
 
 ; loc_1B0A0:
 Sonic_ResetOnFloor:
+	; some routines outside of Tails' code can call Sonic_ResetOnFloor
+	; when they mean to call Tails_ResetOnFloor, so fix that here
+	cmpi.b	#ObjID_Sonic,id(a0)	; is this object ID Sonic (obj01)?
+	bne.w	Tails_ResetOnFloor	; if not, branch to the Tails version of this code
+
 	tst.b	pinball_mode(a0)
 	bne.s	Sonic_ResetOnFloor_Part3
 	move.b	#AniIDSonAni_Walk,anim(a0)
@@ -36766,6 +36763,11 @@ Sonic_ResetOnFloor_Part2:
 	subq.w	#5,y_pos(a0)	; move Sonic up 5 pixels so the increased height doesn't push him into the ground
 ; loc_1B0DA:
 Sonic_ResetOnFloor_Part3:
+	; some routines outside of Tails' code can call Sonic_ResetOnFloor_Part3
+	; when they mean to call Tails_ResetOnFloor_Part3, so fix that here
+	cmpi.b	#ObjID_Sonic,id(a0)	; is this object ID Sonic (obj01)?
+	bne.w	Tails_ResetOnFloor_Part3	; if not, branch to the Tails version of this code
+
 	bclr	#1,status(a0)
 	bclr	#5,status(a0)
 	bclr	#4,status(a0)
@@ -36823,7 +36825,7 @@ Sonic_HurtStop:
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0
 	blt.w	JmpTo_KillCharacter
-	bsr.w	Sonic_DoLevelCollision
+	bsr.w	Player_DoLevelCollision
 	btst	#1,status(a0)
 	bne.s	return_1B1C8
 	moveq	#0,d0
@@ -38170,13 +38172,13 @@ Obj02_OutWater:
 Obj02_MdNormal:
 	bsr.w	Tails_CheckSpindash
 	bsr.w	Tails_Jump
-	bsr.w	Tails_SlopeResist
+	bsr.w	Player_SlopeResist
 	bsr.w	Tails_Move
 	bsr.w	Tails_Roll
 	bsr.w	Tails_LevelBound
 	jsr	(ObjectMove).l
 	bsr.w	AnglePos
-	bra.w	Tails_SlopeRepel
+	bra.w	Player_SlopeRepel
 ; End of subroutine Obj02_MdNormal
 ; ===========================================================================
 ; Start of subroutine Obj02_MdAir
@@ -38191,8 +38193,8 @@ Obj02_MdAir:
 	beq.s	+		; if not, branch
 	subi.w	#$28,y_vel(a0)	; reduce gravity by $28 ($38-$28=$10)
 +
-	bsr.w	Tails_JumpAngle
-	bra.w	Tails_DoLevelCollision
+	bsr.w	Player_JumpAngle
+	bra.w	Player_DoLevelCollision
 ; End of subroutine Obj02_MdAir
 ; ===========================================================================
 ; Start of subroutine Obj02_MdRoll
@@ -38203,12 +38205,12 @@ Obj02_MdRoll:
 	bne.s	+
 	bsr.w	Tails_Jump
 +
-	bsr.w	Tails_RollRepel
+	bsr.w	Player_RollRepel
 	bsr.w	Tails_RollSpeed
 	bsr.w	Tails_LevelBound
 	jsr	(ObjectMove).l
 	bsr.w	AnglePos
-	bra.w	Tails_SlopeRepel
+	bra.w	Player_SlopeRepel
 ; End of subroutine Obj02_MdRoll
 ; ===========================================================================
 ; Start of subroutine Obj02_MdJump
@@ -38222,9 +38224,9 @@ Obj02_MdJump:
 	bsr.w	Tails_LevelBound
 	jsr	(ObjectMoveAndFall).l
 	btst	#6,status(a0)			; is Tails underwater?
-	beq.w	Tails_DoLevelCollision		; if not, branch
+	beq.w	Player_DoLevelCollision		; if not, branch
 	subi.w	#$28,y_vel(a0)			; reduce gravity by $28 ($38-$28=$10)
-	bra.w	Tails_DoLevelCollision
+	bra.w	Player_DoLevelCollision
 ; End of subroutine Obj02_MdJump
 
 ; ---------------------------------------------------------------------------
@@ -39120,386 +39122,6 @@ loc_1C83C:
 	rts
 ; End of subroutine Tails_UpdateSpindash
 
-
-; ---------------------------------------------------------------------------
-; Subroutine to slow Tails walking up a slope
-; ---------------------------------------------------------------------------
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; loc_1C846:
-Tails_SlopeResist:
-	move.b	angle(a0),d0
-	addi.b	#$60,d0
-	cmpi.b	#$C0,d0
-	bhs.s	return_1C87A
-	move.b	angle(a0),d0
-	jsr	(CalcSine).l
-	muls.w	#$20,d0
-	asr.l	#8,d0
-	tst.w	inertia(a0)
-	beq.s	return_1C87A
-	bmi.s	loc_1C876
-	tst.w	d0
-	beq.s	+
-	add.w	d0,inertia(a0)	; change Tails' $14
-+
-	rts
-; ---------------------------------------------------------------------------
-
-loc_1C876:
-	add.w	d0,inertia(a0)
-
-return_1C87A:
-	rts
-; End of subroutine Tails_SlopeResist
-
-; ---------------------------------------------------------------------------
-; Subroutine to push Tails down a slope while he's rolling
-; ---------------------------------------------------------------------------
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; loc_1C87C:
-Tails_RollRepel:
-	move.b	angle(a0),d0
-	addi.b	#$60,d0
-	cmpi.b	#-$40,d0
-	bhs.s	return_1C8B6
-	move.b	angle(a0),d0
-	jsr	(CalcSine).l
-	muls.w	#$50,d0
-	asr.l	#8,d0
-	tst.w	inertia(a0)
-	bmi.s	loc_1C8AC
-	tst.w	d0
-	bpl.s	loc_1C8A6
-	asr.l	#2,d0
-
-loc_1C8A6:
-	add.w	d0,inertia(a0)
-	rts
-; ===========================================================================
-
-loc_1C8AC:
-	tst.w	d0
-	bmi.s	loc_1C8B2
-	asr.l	#2,d0
-
-loc_1C8B2:
-	add.w	d0,inertia(a0)
-
-return_1C8B6:
-	rts
-; End of function Tails_RollRepel
-
-; ---------------------------------------------------------------------------
-; Subroutine to push Tails down a slope
-; ---------------------------------------------------------------------------
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; loc_1C8B8:
-Tails_SlopeRepel:
-	nop
-	tst.b	stick_to_convex(a0)
-	bne.s	return_1C8F2
-	tst.b	move_lock(a0)
-	bne.s	loc_1C8F4
-	move.b	angle(a0),d0
-	addi.b	#$20,d0
-	andi.b	#$C0,d0
-	beq.s	return_1C8F2
-	mvabs.w	inertia(a0),d0
-	cmpi.w	#$280,d0
-	bhs.s	return_1C8F2
-	clr.w	inertia(a0)
-	bset	#1,status(a0)
-	move.b	#$1E,move_lock(a0)
-
-return_1C8F2:
-	rts
-; ===========================================================================
-
-loc_1C8F4:
-	subq.b	#1,move_lock(a0)
-	rts
-; End of function Tails_SlopeRepel
-
-; ---------------------------------------------------------------------------
-; Subroutine to return Tails' angle to 0 as he jumps
-; ---------------------------------------------------------------------------
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; loc_1C8FA:
-Tails_JumpAngle:
-	tst.b	angle(a0)	; get Tails' angle
-	beq.s	Tails_JumpFlip	; if already 0, branch
-	bpl.s	loc_1C90A	; if higher than 0, branch
-	addq.b	#2,angle(a0)	; increase angle
-	bra.s	Tails_JumpFlip
-; ===========================================================================
-
-loc_1C90A:
-	subq.b	#2,angle(a0)	; decrease angle
-; End of function Tails_JumpAngle
-	; continue straight to Tails_JumpFlip
-
-; ---------------------------------------------------------------------------
-; Updates Tails' secondary angle if he's tumbling
-; ---------------------------------------------------------------------------
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; loc_1C914:
-Tails_JumpFlip:
-	move.b	flip_angle(a0),d0
-	beq.s	return_1C958
-	tst.w	inertia(a0)
-	bmi.s	Tails_JumpLeftFlip
-; loc_1C920:
-Tails_JumpRightFlip:
-	move.b	flip_speed(a0),d1
-	add.b	d1,d0
-	bcc.s	BranchTo_Tails_JumpFlipSet
-	subq.b	#1,flips_remaining(a0)
-	bcc.s	BranchTo_Tails_JumpFlipSet
-	move.b	#0,flips_remaining(a0)
-	moveq	#0,d0
-
-BranchTo_Tails_JumpFlipSet ; BranchTo
-	bra.s	Tails_JumpFlipSet
-; ===========================================================================
-; loc_1C938:
-Tails_JumpLeftFlip:
-	tst.b	flip_turned(a0)
-	bne.s	Tails_JumpRightFlip
-	move.b	flip_speed(a0),d1
-	sub.b	d1,d0
-	bcc.s	Tails_JumpFlipSet
-	subq.b	#1,flips_remaining(a0)
-	bcc.s	Tails_JumpFlipSet
-	move.b	#0,flips_remaining(a0)
-	moveq	#0,d0
-; loc_1C954:
-Tails_JumpFlipSet:
-	move.b	d0,flip_angle(a0)
-
-return_1C958:
-	rts
-; End of function Tails_JumpFlip
-
-; ---------------------------------------------------------------------------
-; Subroutine for Tails to interact with the floor and walls when he's in the air
-; ---------------------------------------------------------------------------
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; loc_1C95A: Tails_Floor:
-Tails_DoLevelCollision:
-	move.l	#Primary_Collision,(Collision_addr).w
-	cmpi.b	#$C,top_solid_bit(a0)
-	beq.s	+
-	move.l	#Secondary_Collision,(Collision_addr).w
-+
-	move.b	lrb_solid_bit(a0),d5
-	move.w	x_vel(a0),d1
-	move.w	y_vel(a0),d2
-	bpl.s	.movingDown			; branch of moving down
-	cmp.w	d1,d2
-	bgt.w	Tails_HitLeftWall		; branch if moving left
-	neg.w	d1
-	cmp.w	d1,d2
-	bge.w	Tails_HitRightWall		; branch if moving right
-	bra.w	Tails_HitCeilingAndWalls	; branch if moving upwards
-
-.movingDown:
-	cmp.w	d1,d2
-	blt.w	Tails_HitRightWall		; branch if moving right
-	neg.w	d1
-	cmp.w	d1,d2
-	ble.w	Tails_HitLeftWall		; branch if moving left
-	; Tails is moving down +-45 degrees
-	bsr.w	CheckLeftWallDist
-	tst.w	d1
-	bpl.s	+
-	sub.w	d1,x_pos(a0)
-	move.w	#0,x_vel(a0)	; stop Tails since he hit a wall
-+
-	bsr.w	CheckRightWallDist
-	tst.w	d1
-	bpl.s	+
-	add.w	d1,x_pos(a0)
-	move.w	#0,x_vel(a0)	; stop Tails since he hit a wall
-+
-	bsr.w	Sonic_CheckFloor
-	tst.w	d1
-	bpl.s	return_1CA3A
-	move.b	y_vel(a0),d2
-	addq.b	#8,d2
-	neg.b	d2
-	cmp.b	d2,d1
-	bge.s	+
-	cmp.b	d2,d0
-	blt.s	return_1CA3A
-+
-	add.w	d1,y_pos(a0)
-	move.b	d3,angle(a0)
-	bsr.w	Tails_ResetOnFloor
-	move.b	d3,d0
-	addi.b	#$20,d0
-	andi.b	#$40,d0
-	bne.s	loc_1CA18
-	move.b	d3,d0
-	addi.b	#$10,d0
-	andi.b	#$20,d0
-	beq.s	loc_1CA0A
-	asr	y_vel(a0)
-	bra.s	loc_1CA2C
-; ===========================================================================
-
-loc_1CA0A:
-	move.w	#0,y_vel(a0)
-	move.w	x_vel(a0),inertia(a0)
-	rts
-; ===========================================================================
-
-loc_1CA18:
-	move.w	#0,x_vel(a0)	; stop Tails since he hit a wall
-	cmpi.w	#$FC0,y_vel(a0)
-	ble.s	loc_1CA2C
-	move.w	#$FC0,y_vel(a0)
-
-loc_1CA2C:
-	move.w	y_vel(a0),inertia(a0)
-	tst.b	d3
-	bpl.s	return_1CA3A
-	neg.w	inertia(a0)
-
-return_1CA3A:
-	rts
-; ===========================================================================
-; loc_1CA3C:
-Tails_HitLeftWall:
-	bsr.w	CheckLeftWallDist
-	tst.w	d1
-	bpl.s	Tails_HitCeiling ; branch if distance is positive (not inside wall)
-	sub.w	d1,x_pos(a0)
-	move.w	#0,x_vel(a0)	; stop Tails since he hit a wall
-	move.w	y_vel(a0),inertia(a0)
-	rts
-; ===========================================================================
-; loc_1CA56:
-Tails_HitCeiling:
-	bsr.w	Sonic_CheckCeiling
-	tst.w	d1
-	bpl.s	Tails_HitFloor	; branch if distance is positive (not inside ceiling)
-	sub.w	d1,y_pos(a0)
-	tst.w	y_vel(a0)
-	bpl.s	return_1CA6E
-	move.w	#0,y_vel(a0)	; stop Tails in y since he hit a ceiling
-
-return_1CA6E:
-	rts
-; ===========================================================================
-; loc_1CA70:
-Tails_HitFloor:
-	tst.w	y_vel(a0)
-	bmi.s	return_1CA96
-	bsr.w	Sonic_CheckFloor
-	tst.w	d1
-	bpl.s	return_1CA96
-	add.w	d1,y_pos(a0)
-	move.b	d3,angle(a0)
-	bsr.w	Tails_ResetOnFloor
-	move.w	#0,y_vel(a0)
-	move.w	x_vel(a0),inertia(a0)
-
-return_1CA96:
-	rts
-; ===========================================================================
-; loc_1CA98:
-Tails_HitCeilingAndWalls:
-	bsr.w	CheckLeftWallDist
-	tst.w	d1
-	bpl.s	+
-	sub.w	d1,x_pos(a0)
-	move.w	#0,x_vel(a0)	; stop Tails since he hit a wall
-+
-	bsr.w	CheckRightWallDist
-	tst.w	d1
-	bpl.s	+
-	add.w	d1,x_pos(a0)
-	move.w	#0,x_vel(a0)	; stop Tails since he hit a wall
-+
-	bsr.w	Sonic_CheckCeiling
-	tst.w	d1
-	bpl.s	return_1CAF2
-	sub.w	d1,y_pos(a0)
-	move.b	d3,d0
-	addi.b	#$20,d0
-	andi.b	#$40,d0
-	bne.s	loc_1CADC
-	move.w	#0,y_vel(a0)	; stop Tails in y since he hit a ceiling
-	rts
-; ===========================================================================
-
-loc_1CADC:
-	move.b	d3,angle(a0)
-	bsr.w	Tails_ResetOnFloor
-	move.w	y_vel(a0),inertia(a0)
-	tst.b	d3
-	bpl.s	return_1CAF2
-	neg.w	inertia(a0)
-
-return_1CAF2:
-	rts
-; ===========================================================================
-; loc_1CAF4:
-Tails_HitRightWall:
-	bsr.w	CheckRightWallDist
-	tst.w	d1
-	bpl.s	Tails_HitCeiling2
-	add.w	d1,x_pos(a0)
-	move.w	#0,x_vel(a0)	; stop Tails since he hit a wall
-	move.w	y_vel(a0),inertia(a0)
-	rts
-; ===========================================================================
-; identical to Tails_HitCeiling...
-; loc_1CB0E:
-Tails_HitCeiling2:
-	bsr.w	Sonic_CheckCeiling
-	tst.w	d1
-	bpl.s	Tails_HitFloor2
-	sub.w	d1,y_pos(a0)
-	tst.w	y_vel(a0)
-	bpl.s	return_1CB26
-	move.w	#0,y_vel(a0)	; stop Tails in y since he hit a ceiling
-
-return_1CB26:
-	rts
-; ===========================================================================
-; identical to Tails_HitFloor...
-; loc_1CB28:
-Tails_HitFloor2:
-	tst.w	y_vel(a0)
-	bmi.s	return_1CB4E
-	bsr.w	Sonic_CheckFloor
-	tst.w	d1
-	bpl.s	return_1CB4E
-	add.w	d1,y_pos(a0)
-	move.b	d3,angle(a0)
-	bsr.w	Tails_ResetOnFloor
-	move.w	#0,y_vel(a0)
-	move.w	x_vel(a0),inertia(a0)
-
-return_1CB4E:
-	rts
-; End of function Tails_DoLevelCollision
-
-
-
 ; ---------------------------------------------------------------------------
 ; Subroutine to reset Tails' mode when he lands on the floor
 ; ---------------------------------------------------------------------------
@@ -39568,7 +39190,7 @@ Tails_HurtStop:
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0
 	blt.w	JmpTo2_KillCharacter
-	bsr.w	Tails_DoLevelCollision
+	bsr.w	Player_DoLevelCollision
 	btst	#1,status(a0)
 	bne.s	return_1CC4E
 	moveq	#0,d0
