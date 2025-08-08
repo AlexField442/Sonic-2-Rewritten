@@ -1258,7 +1258,9 @@ PlaySound2:
 PlaySoundLocal:
 	tst.b	render_flags(a0)
 	bpl.s	.return
-	move.b	d0,(Sound_Queue.SFX0).w
+	stopZ80
+	move.b	d0,(Z80_RAM+zAbsVar.Queue0).l
+	startZ80
 
 .return:
 	rts
@@ -13271,7 +13273,7 @@ loc_A53A:
 	move.w	d0,y_pos(a1)
 	move.w	x_pos(a0),x_pos(a1)
 	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
-	move.w	#$100,anim_frame_duration(a1)
+	move.b	#1,anim_frame_duration(a1)
 	rts
 ; ===========================================================================
 
