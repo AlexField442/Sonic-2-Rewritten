@@ -17,7 +17,7 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Changed `interact` to now directly point to the object Sonic and Tails are interacting with, which slightly improves performance.
 * `SlopeResist`, `SlopeRepel`, `JumpAngle`, `DoLevelCollision`, `RollRepel`, and `JumpFlip`, which previously had duplicates for both characters, now only have a single copy as they are identical.
 * `Sonic_ResetOnFloor` will now always jump to `Tails_ResetOnFloor`, rather than just having a check for `_Part2` (related to the above change due to calls to `Tails_ResetOnFloor`).
-* Optimized a few collision and floor-reset routines.
+* Optimized a few collision routines.
 
 ## Objects
 * Changed `priority` to now directly point to the sprite queue, rather than being calculated. This considerably simplifies DisplaySprite, but also requires all objects to explicitly declare their priority value.
