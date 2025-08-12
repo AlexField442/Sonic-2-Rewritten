@@ -35246,8 +35246,10 @@ Obj01_MdJump:
 	bsr.w	Sonic_LevelBound
 	jsr	(ObjectMoveAndFall).l
 	btst	#6,status(a0)			; is Sonic underwater?
-	beq.w	Player_DoLevelCollision		; if not, branch
+	beq.s	+				; if not, branch
 	subi.w	#$28,y_vel(a0)			; reduce gravity by $28 ($38-$28=$10)
++
+	bsr.w	Player_JumpAngle
 	bra.w	Player_DoLevelCollision
 ; End of subroutine Obj01_MdJump
 
@@ -38229,9 +38231,11 @@ Obj02_MdJump:
 	bsr.w	Tails_ChgJumpDir
 	bsr.w	Tails_LevelBound
 	jsr	(ObjectMoveAndFall).l
-	btst	#6,status(a0)			; is Tails underwater?
-	beq.w	Player_DoLevelCollision		; if not, branch
+	btst	#6,status(a0)			; is Sonic underwater?
+	beq.s	+				; if not, branch
 	subi.w	#$28,y_vel(a0)			; reduce gravity by $28 ($38-$28=$10)
++
+	bsr.w	Player_JumpAngle
 	bra.w	Player_DoLevelCollision
 ; End of subroutine Obj02_MdJump
 
@@ -53786,6 +53790,7 @@ JmpTo17_SolidObject ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_28BC8:
 Obj75:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	btst	#6,render_flags(a0)
 	bne.w	+
 	moveq	#0,d0
@@ -58815,6 +58820,7 @@ JmpTo7_MarkObjGone3 ; JmpTo
 octus_start_position = objoff_2A
 ; Sprite_2CA14:
 Obj4A:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj4A_Index(pc,d0.w),d1
@@ -59047,6 +59053,7 @@ Obj50_timer		= objoff_3C	; byte	; time spent following the player before shootin
 
 ; Sprite_2CCC8:
 Obj50:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj50_Index(pc,d0.w),d1
@@ -64124,6 +64131,7 @@ obj57_sub5_y_pos2	= objoff_3A	; longword - y_pos of second digger when falling d
 ; ----------------------------------------------------------------------------
 ; Sprite_30FA4:
 Obj57:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	boss_subtype(a0),d0
 	move.w	Obj57_Index(pc,d0.w),d1
@@ -66421,6 +66429,7 @@ Obj55_Wave_count	= objoff_36	; number of waves to make
 
 ; Sprite_32F90:
 Obj55:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	boss_subtype(a0),d0
 	move.w	Obj55_Index(pc,d0.w),d1
@@ -71066,19 +71075,19 @@ loc_36ADC:
 	abs.w	d2
 	cmpi.w	#$60,d2
 	bls.s	+
-	jmpto	MarkObjGone, JmpTo39_MarkObjGone
+	jmp	(MarkObjGone).l
 ; ===========================================================================
 +
 	addq.b	#2,routine(a0)
 	st.b	objoff_2B(a0)
 	bsr.w	loc_36C2C
-	jmpto	MarkObjGone, JmpTo39_MarkObjGone
+	jmp	(MarkObjGone).l
 ; ===========================================================================
 ; loc_36B00:
 Obj8D_Animate:
 	lea	(Ani_obj8D_b).l,a1
-	jsrto	AnimateSprite, JmpTo25_AnimateSprite
-	jmpto	MarkObjGone, JmpTo39_MarkObjGone
+	jsr	(AnimateSprite).l
+	jmp	(MarkObjGone).l
 ; ===========================================================================
 
 loc_36B0E:
@@ -71090,7 +71099,7 @@ loc_36B0E:
 	beq.s	+
 	bset	#0,status(a0)
 +
-	jmpto	MarkObjGone, JmpTo39_MarkObjGone
+	jmp	(MarkObjGone).l
 ; ===========================================================================
 ; word_36B30:
 Obj8D_Directions:
@@ -71107,27 +71116,28 @@ loc_36B34:
 	bge.s	loc_36B5C
 	add.w	d1,y_pos(a0)
 	lea	(Ani_obj8D_a).l,a1
-	jsrto	AnimateSprite, JmpTo25_AnimateSprite
-	jmpto	MarkObjGone, JmpTo39_MarkObjGone
+	jsr	(AnimateSprite).l
+	jmp	(MarkObjGone).l
 ; ===========================================================================
 
 loc_36B5C:
 	addq.b	#2,routine(a0)
 	move.b	#$3B,objoff_2A(a0)
-	jmpto	MarkObjGone, JmpTo39_MarkObjGone
+	jmp	(MarkObjGone).l
 ; ===========================================================================
 
 loc_36B6A:
 	subq.b	#1,objoff_2A(a0)
 	bmi.s	loc_36B74
-	jmpto	MarkObjGone, JmpTo39_MarkObjGone
+	jmp	(MarkObjGone).l
 ; ===========================================================================
 
 loc_36B74:
 	move.b	#8,routine(a0)
 	neg.w	x_vel(a0)
 	bchg	#0,status(a0)
-	jmpto	MarkObjGone, JmpTo39_MarkObjGone
+	jmp	(MarkObjGone).l
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 8F - Wall behind which Grounder hides, from ARZ
@@ -71547,6 +71557,7 @@ Obj91_MapUnc_36EF6:	BINCLUDE "mappings/sprite/obj91.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_36F0E:
 Obj92:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj92_Index(pc,d0.w),d1
@@ -71635,6 +71646,7 @@ loc_36FDC:
 ; ----------------------------------------------------------------------------
 ; Sprite_36FE6:
 Obj93:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj93_Index(pc,d0.w),d1
@@ -72441,6 +72453,7 @@ ObjB8_SubObjData2:
 ; ----------------------------------------------------------------------------
 ; Sprite_377C8:
 Obj99:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj99_Index(pc,d0.w),d1
@@ -72623,6 +72636,7 @@ return_37A04:
 ; ----------------------------------------------------------------------------
 ; Sprite_37A06:
 Obj9B:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj9B_Index(pc,d0.w),d1
@@ -72973,6 +72987,7 @@ Obj9D_Obj98_MapUnc_37D96:	BINCLUDE "mappings/sprite/obj9D.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_37E16:
 Obj9E:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	objoff_3B(a0),d0
 	move.w	Obj9E_Index(pc,d0.w),d1
@@ -73155,6 +73170,7 @@ Obj9E_MapUnc_37FF2:	BINCLUDE "mappings/sprite/obj9E.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_3800C:
 Obj9F:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj9F_Index(pc,d0.w),d1
@@ -73306,6 +73322,7 @@ loc_38146:
 ; ----------------------------------------------------------------------------
 ; Sprite_3815C:
 ObjA0:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjA0_Index(pc,d0.w),d1
@@ -73522,6 +73539,7 @@ Obj9F_MapUnc_38314:	BINCLUDE "mappings/sprite/objA0.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_383B4:
 ObjA1:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjA1_Index(pc,d0.w),d1
@@ -73628,6 +73646,7 @@ BranchTo5_JmpTo39_MarkObjGone
 ; ----------------------------------------------------------------------------
 ; Sprite_384A2:
 ObjA2:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjA2_Index(pc,d0.w),d1
@@ -73966,6 +73985,7 @@ ObjA3_MapUnc_388F0:	BINCLUDE "mappings/sprite/objA3.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_3899C:
 ObjA4:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjA4_Index(pc,d0.w),d1
@@ -74921,6 +74941,7 @@ word_3932E:
 ; ----------------------------------------------------------------------------
 ; Sprite_3937A:
 ObjAC:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjAC_Index(pc,d0.w),d1
@@ -74997,6 +75018,7 @@ ObjAD_Main:
 ; ----------------------------------------------------------------------------
 ; Sprite_39452:
 ObjAE:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjAE_Index(pc,d0.w),d1
@@ -76414,6 +76436,7 @@ Streak_Horizontal_offsets:
 ; ----------------------------------------------------------------------------
 ; Sprite_3A790:
 ObjB2:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjB2_Index(pc,d0.w),d1
@@ -77339,6 +77362,7 @@ ObjB3_MapUnc_3B32C:	BINCLUDE "mappings/sprite/objB3.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_3B36A:
 ObjB4:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjB4_Index(pc,d0.w),d1
@@ -77796,12 +77820,14 @@ byte_3B850:	dc.b   3,  0,  1,  2,$FA,  0
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 ObjB6_MapUnc_3B856:	BINCLUDE "mappings/sprite/objB6.bin"
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object B7 - Unused huge vertical laser from WFZ
 ; ----------------------------------------------------------------------------
 ; Sprite_3B8A6:
 ObjB7:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjB7_Index(pc,d0.w),d1
@@ -77943,6 +77969,7 @@ Ani_WallTurretShot: offsetTable
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 ObjB8_Obj98_MapUnc_3BA46:	BINCLUDE "mappings/sprite/objB8.bin"
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object B9 - Laser from WFZ that shoots down the Tornado
@@ -77996,6 +78023,7 @@ ObjB9_SubObjData:
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 ObjB9_MapUnc_3BB18:	BINCLUDE "mappings/sprite/objB9.bin"
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object BA - Wheel from WFZ
@@ -78027,6 +78055,7 @@ ObjBA_SubObjData:
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 ObjBA_MapUnc_3BB70:	BINCLUDE "mappings/sprite/objBA.bin"
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object BB - Removed object (unknown, unused)
@@ -78058,6 +78087,7 @@ ObjBB_SubObjData:
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 ObjBB_MapUnc_3BBA0:	BINCLUDE "mappings/sprite/objBB.bin"
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object BC - Fire coming out of Robotnik's ship in WFZ
@@ -78099,6 +78129,7 @@ ObjBC_SubObjData2:
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 ObjBC_MapUnc_3BC08:	BINCLUDE "mappings/sprite/objBC.bin"
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object BD - Ascending/descending metal platforms from WFZ
@@ -78239,6 +78270,7 @@ byte_3BD38:	dc.b   1,  0,  1,  2,$FA
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 ObjBD_MapUnc_3BD3E:	BINCLUDE "mappings/sprite/objBD.bin"
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object BE - Lateral cannon (temporary platform that pops in/out) from WFZ
@@ -78335,12 +78367,14 @@ byte_3BE40:	dc.b   5,  3,  2,  1,  0,$FC
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 ObjBE_MapUnc_3BE46:	BINCLUDE "mappings/sprite/objBE.bin"
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object BF - Rotaty-stick badnik from WFZ
 ; ----------------------------------------------------------------------------
 ; Sprite_3BEAA:
 ObjBF:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjBF_Index(pc,d0.w),d1
@@ -78374,6 +78408,7 @@ Ani_objBF:	offsetTable
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 ObjBF_MapUnc_3BEE0:	BINCLUDE "mappings/sprite/objBF.bin"
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object C0 - Speed launcher from WFZ
@@ -78553,6 +78588,7 @@ ObjC0_MapUnc_3C098:	BINCLUDE "mappings/sprite/objC0.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_3C0AC:
 ObjC1:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjC1_Index(pc,d0.w),d1
@@ -78843,6 +78879,7 @@ ObjC3_SubObjData:
 ; ----------------------------------------------------------------------------
 ; Sprite_3C442:
 ObjC5:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjC5_Index(pc,d0.w),d1
