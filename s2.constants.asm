@@ -2131,7 +2131,7 @@ ArtTile_ArtNem_LevelSelectPics        = $0090
 ; 2p results screen.
 ArtTile_ArtNem_1P2PWins               = $0070
 ArtTile_ArtNem_SpecialPlayerVSPlayer  = $03DF
-ArtTile_ArtUnc_2p_Signpost            = $05E8
+ArtTile_ArtUnc_2p_Signpost            = $0486
 ArtTile_TwoPlayerResults              = $0600
 
 ; Special stage stuff.
