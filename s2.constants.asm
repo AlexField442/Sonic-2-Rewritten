@@ -474,7 +474,6 @@ PLCID_Arz2 =		id(PLCptr_Arz2) ; 23
 PLCID_Scz1 =		id(PLCptr_Scz1) ; 24
 PLCID_Scz2 =		id(PLCptr_Scz2) ; 25
 PLCID_Results =		id(PLCptr_Results) ; 26
-PLCID_Signpost =	id(PLCptr_Signpost) ; 27
 PLCID_CpzBoss =		id(PLCptr_CpzBoss) ; 28
 PLCID_EhzBoss =		id(PLCptr_EhzBoss) ; 29
 PLCID_HtzBoss =		id(PLCptr_HtzBoss) ; 2A
@@ -2132,7 +2131,7 @@ ArtTile_ArtNem_LevelSelectPics        = $0090
 ; 2p results screen.
 ArtTile_ArtNem_1P2PWins               = $0070
 ArtTile_ArtNem_SpecialPlayerVSPlayer  = $03DF
-ArtTile_ArtNem_2p_Signpost            = $05E8
+ArtTile_ArtUnc_2p_Signpost            = $05E8
 ArtTile_TwoPlayerResults              = $0600
 
 ; Special stage stuff.
@@ -2452,11 +2451,10 @@ ArtTile_ArtNem_TitleCard              = $0580
 ArtTile_LevelName                     = $05DE
 
 ; End of level.
-ArtTile_ArtNem_Signpost               = $0434
+ArtTile_ArtUnc_Signpost               = $0434
 ArtTile_HUD_Bonus_Score               = $0520
 ArtTile_ArtNem_Perfect                = $0540
 ArtTile_ArtNem_ResultsText            = $05B0
-ArtTile_ArtUnc_Signpost               = $05E8
 ArtTile_ArtNem_MiniCharacter          = $05F4
 ArtTile_ArtNem_Capsule                = $0680
 

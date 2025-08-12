@@ -4716,7 +4716,6 @@ Level_MainLoop:
 	bsr.w	RunPLC_RAM
 	bsr.w	OscillateNumDo
 	bsr.w	ChangeRingFrame
-	bsr.w	CheckLoadSignpostArt
 	jsr	(BuildSprites).l
 	jsr	(ObjectsManager).l
 	cmpi.b	#GameModeID_Demo,(Game_Mode).w	; check if in demo mode
@@ -5721,50 +5720,6 @@ LevelEnd_SetSignpost:
 	move.w	#1,(Level_Has_Signpost).w	; set level type to signpost
 +	rts
 ; End of function SetLevelEndType
-
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; sub_4C48:
-CheckLoadSignpostArt:
-	tst.w	(Level_Has_Signpost).w
-	beq.s	+	; rts
-	tst.w	(Debug_placement_mode).w
-	bne.s	+	; rts
-	move.w	(Camera_X_pos).w,d0
-	move.w	(Camera_Max_X_pos).w,d1
-	subi.w	#$100,d1
-	cmp.w	d1,d0
-	blt.s	SignpostUpdateTailsBounds
-	tst.b	(Update_HUD_timer).w
-	beq.s	SignpostUpdateTailsBounds
-	cmp.w	(Camera_Min_X_pos).w,d1
-	beq.s	SignpostUpdateTailsBounds
-	move.w	d1,(Camera_Min_X_pos).w ; prevent camera from scrolling back to the left
-	tst.w	(Two_player_mode).w
-	bne.s	+	; rts
-	moveq	#PLCID_Signpost,d0 ; <== PLC_1F
-	bra.w	LoadPLC2		; load signpost art
-; ---------------------------------------------------------------------------
-; loc_4C80:
-SignpostUpdateTailsBounds:
-	tst.w	(Two_player_mode).w
-	beq.s	+	; rts
-	move.w	(Camera_X_pos_P2).w,d0
-	move.w	(Tails_Max_X_pos).w,d1
-	subi.w	#$100,d1
-	cmp.w	d1,d0
-	blt.s	+	; rts
-	tst.b	(Update_HUD_timer_2P).w
-	beq.s	+	; rts
-	cmp.w	(Tails_Min_X_pos).w,d1
-	beq.s	+	; rts
-	move.w	d1,(Tails_Min_X_pos).w ; prevent Tails from going past new left boundary
-+	rts
-; End of function CheckLoadSignpostArt
-
-
-
 
 ; ===========================================================================
 ; macro to simplify editing the demo scripts
@@ -33509,7 +33464,7 @@ Obj0D_Init:
 	tst.w	(Two_player_mode).w
 	beq.s	loc_19208
 	move.l	#Obj0D_MapUnc_19656,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_2p_Signpost,0,0),art_tile(a0)
+	move.w	#make_art_tile(ArtTile_ArtUnc_2p_Signpost,0,0),art_tile(a0)
 	move.b	#-1,(Signpost_prev_frame).w
 	moveq	#0,d1
 	move.w	#$1020,d1
@@ -33527,9 +33482,10 @@ loc_19208:
 	move.w	#0,x_pos(a0)
 	rts
 ; ---------------------------------------------------------------------------
+
 loc_1921E:
-	move.l	#Obj0D_MapUnc_195BE,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_Signpost,0,0),art_tile(a0)
+	move.l	#Obj0D_MapUnc_19656,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtUnc_Signpost,0,0),art_tile(a0)
 
 loc_1922C:
 	addq.b	#2,routine(a0) ; => Obj0D_Main
@@ -33789,8 +33745,6 @@ return_19532:
 ; ===========================================================================
 
 PLCLoad_Signpost:
-	tst.w	(Two_player_mode).w
-	beq.s	return_1958C
 	moveq	#0,d0
 	move.b	mapping_frame(a0),d0
 	cmp.b	(Signpost_prev_frame).w,d0
@@ -33803,6 +33757,9 @@ PLCLoad_Signpost:
 	subq.w	#1,d5
 	bmi.s	return_1958C
 	move.w	#tiles_to_bytes(ArtTile_ArtUnc_Signpost),d4
+	tst.w	(Two_player_mode).w
+	beq.s	loc_19560
+	move.w	#tiles_to_bytes(ArtTile_ArtUnc_2p_Signpost),d4
 
 loc_19560:
 	moveq	#0,d1
@@ -33840,15 +33797,10 @@ byte_195B7:	dc.b	$0F, $00, $FF
 byte_195BA:	dc.b	$0F, $01, $FF
 	even
 ; -------------------------------------------------------------------------------
-; sprite mappings - Primary sprite table for object 0D (signpost)
-; -------------------------------------------------------------------------------
-; SprTbl_0D_Primary:
-Obj0D_MapUnc_195BE:	BINCLUDE "mappings/sprite/obj0D_a.bin"
-; -------------------------------------------------------------------------------
-; sprite mappings - Secondary sprite table for object 0D (signpost)
+; sprite mappings - signpost
 ; -------------------------------------------------------------------------------
 ; SprTbl_0D_Scndary:
-Obj0D_MapUnc_19656:	BINCLUDE "mappings/sprite/obj0D_b.bin"
+Obj0D_MapUnc_19656:	BINCLUDE "mappings/sprite/obj0D.bin"
 ; -------------------------------------------------------------------------------
 ; dynamic pattern loading cues
 ; -------------------------------------------------------------------------------
@@ -86979,7 +86931,6 @@ PLCptr_Arz2:		offsetTableEntry.w PlrList_Arz2			; 35
 PLCptr_Scz1:		offsetTableEntry.w PlrList_Scz1			; 36
 PLCptr_Scz2:		offsetTableEntry.w PlrList_Scz2			; 37
 PLCptr_Results:		offsetTableEntry.w PlrList_Results		; 38
-PLCptr_Signpost:	offsetTableEntry.w PlrList_Signpost		; 39
 PLCptr_CpzBoss:		offsetTableEntry.w PlrList_CpzBoss		; 40
 PLCptr_EhzBoss:		offsetTableEntry.w PlrList_EhzBoss		; 41
 PLCptr_HtzBoss:		offsetTableEntry.w PlrList_HtzBoss		; 42
@@ -87399,13 +87350,6 @@ PlrList_Results: plrlistheader
 	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniSonic
 	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_Results_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue
-; End of level signpost
-;---------------------------------------------------------------------------------------
-PlrList_Signpost: plrlistheader
-	plreq ArtTile_ArtNem_Signpost, ArtNem_Signpost
-PlrList_Signpost_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; CPZ Boss
@@ -88082,14 +88026,8 @@ ArtNem_Numbers:	BINCLUDE	"art/nemesis/Numbers.bin"
 	even
 ArtNem_Checkpoint:	BINCLUDE	"art/nemesis/Star pole.bin"
 ;---------------------------------------------------------------------------------------
-; Nemesis compressed art (78 blocks)
-; Signpost		; ArtNem_79BDE:
-	even
-ArtNem_Signpost:	BINCLUDE	"art/nemesis/Signpost.bin"
-;---------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Signpost		; ArtUnc_7A18A:
-; Yep, it's in the ROM twice: once compressed and once uncompressed
 	even
 ArtUnc_Signpost:	BINCLUDE	"art/uncompressed/Signpost.bin"
 ;---------------------------------------------------------------------------------------
