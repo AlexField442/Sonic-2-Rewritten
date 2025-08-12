@@ -462,7 +462,6 @@ V_Int:
 	jsr	(a1)
 
 VintRet:
-	move.w	#$9193,(VDP_control_port).l	; !!
 	addq.l	#1,(Vint_runcount).w
 	movem.l	(sp)+,d0-a6
 	rte
@@ -3579,7 +3578,6 @@ Pal_Result:palette Special Stage Results Screen.bin ; Special Stage Results Scre
 ; sub_3384: DelayProgram:
 WaitForVint:
 	move	#$2300,sr
-	move.w	#$9100,(VDP_control_port).l	; !!
 
 -	tst.b	(Vint_routine).w
 	bne.s	-
@@ -4716,6 +4714,7 @@ Level_MainLoop:
 	bsr.w	RunPLC_RAM
 	bsr.w	OscillateNumDo
 	bsr.w	ChangeRingFrame
+	bsr.w	CheckLoadSignpostArt
 	jsr	(BuildSprites).l
 	jsr	(ObjectsManager).l
 	cmpi.b	#GameModeID_Demo,(Game_Mode).w	; check if in demo mode
@@ -5720,6 +5719,43 @@ LevelEnd_SetSignpost:
 	move.w	#1,(Level_Has_Signpost).w	; set level type to signpost
 +	rts
 ; End of function SetLevelEndType
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_4C48:
+CheckLoadSignpostArt:
+	tst.w	(Level_Has_Signpost).w
+	beq.s	+	; rts
+	tst.w	(Debug_placement_mode).w
+	bne.s	+	; rts
+	move.w	(Camera_X_pos).w,d0
+	move.w	(Camera_Max_X_pos).w,d1
+	subi.w	#$100,d1
+	cmp.w	d1,d0
+	blt.s	SignpostUpdateTailsBounds
+	tst.b	(Update_HUD_timer).w
+	beq.s	SignpostUpdateTailsBounds
+	cmp.w	(Camera_Min_X_pos).w,d1
+	beq.s	SignpostUpdateTailsBounds
+	move.w	d1,(Camera_Min_X_pos).w ; prevent camera from scrolling back to the left
+	rts
+; ---------------------------------------------------------------------------
+; loc_4C80:
+SignpostUpdateTailsBounds:
+	tst.w	(Two_player_mode).w
+	beq.s	+	; rts
+	move.w	(Camera_X_pos_P2).w,d0
+	move.w	(Tails_Max_X_pos).w,d1
+	subi.w	#$100,d1
+	cmp.w	d1,d0
+	blt.s	+	; rts
+	tst.b	(Update_HUD_timer_2P).w
+	beq.s	+	; rts
+	cmp.w	(Tails_Min_X_pos).w,d1
+	beq.s	+	; rts
+	move.w	d1,(Tails_Min_X_pos).w ; prevent Tails from going past new left boundary
++	rts
+; End of function CheckLoadSignpostArt
 
 ; ===========================================================================
 ; macro to simplify editing the demo scripts
