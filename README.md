@@ -25,6 +25,7 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Optimized the (unused) big ring object a little bit.
 * Optimized most object move routines to take advantage of a quirk with the `movea.w` instruction.
 * Applied miscellaneous smaller optimizations to various objects that provide slight performance boosts.
+* Signposts now dynamically load their artwork in all instances, not just multiplayer.
 
 ## Debugging
 * Replaced all teleport monitors with question mark monitors in debug mode that, when broken, will instantly transform the player Super.
@@ -52,19 +53,23 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Fixed the GAME/TIME OVER text flickering for a single frame.
 * Fixed many misplaced objects and rings, it is now possible to get a perfect bonus in every stage.
 * Sonic will now revert from his Super form if he gets hurt or dies, meaning his variables will reset correctly if debug mode is used (still need to revert music).
+* Fixed players ignoring wall collision if running on the ceiling.
 * Fixed Sonic getting stuck on bridges if he enters debug mode while standing on them.
 * Fixed Sonic being able to clip into the first cave in Emerald Hill 2 (imported from _Sonic Jam_).
 * Fixed Sonic being able to get stuck in the last cave in Emerald Hill 2 (imported from _Sonic Jam_).
 * Fixed the Chemical Plant boss not spewing out smoke when it is defeated.
 * Fixed the leaf generators in Aquatic Ruin appearing when the player dies.
+* Fixed broken waterfall tiles in Aquatic Ruin.
 * Fixed Sonic being unable to use a loop in Aquatic Ruin 2 after getting to the area from below (imported from _Sonic Jam_).
 * Fixed the Casino Night boss behaving strangely after hitting them for the first time.
 * Fixed Sonic overlapping the hangable vines in Mystic Cave.
+* Fixed the Metropolis palette appearing slightly broken.
 * Fixed the balloons in the Metropolis boss not bursting after hitting the player until they touch the floor once.
 * Made the balloons pop in the Metropolis boss when defeated (technically not a bugfix, but it prevents the sprite limit from being overloaded in the results, also _Sonic 3 & Knuckles_ does this as well for its throwback boss).
 * Stopped the timer after the Wing Fortress boss to prevent a time over and other issues.
 * Fixed the clouds in the ending popping into existence on the right side of the screen.
 * Fixed the birds in the ending appearing in front of the Tornado, yet behind Sonic.
+* Fixed the credits song and its buggy notes in the Casino Night riff.
 * Fixed the Special Stage animations not working correctly, meaning they now appear much smoother.
 
 # Special Thanks
