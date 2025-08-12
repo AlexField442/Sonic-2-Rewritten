@@ -34880,11 +34880,11 @@ Obj01_Init:
 	move.w	#$80,(Sonic_deceleration).w	; set Sonic's deceleration
 	tst.b	(Last_star_pole_hit).w
 	bne.s	Obj01_Init_Continued
+
 	; only happens when not starting at a checkpoint:
 	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
-	move.b	#$C,top_solid_bit(a0)
-	move.b	#$D,lrb_solid_bit(a0)
+	move.w	#$C0D,top_solid_bit(a0)
 	move.w	x_pos(a0),(Saved_x_pos).w
 	move.w	y_pos(a0),(Saved_y_pos).w
 	move.w	art_tile(a0),(Saved_art_tile).w
@@ -35273,6 +35273,8 @@ Obj01_NotRight:
 	move.w	interact(a0),a1 ; a1=object
 	tst.b	status(a1)
 	bmi.w	Sonic_Lookup
+
+	; calculations to determine where on the object Sonic is, and make him balance accordingly
 	moveq	#0,d1
 	move.b	width_pixels(a1),d1
 	move.w	d1,d2
@@ -36252,12 +36254,11 @@ Sonic_UpdateSpindash:
 	bne.w	Sonic_ChargingSpindash
 
 	; unleash the charged spindash and start rolling quickly:
-	move.b	#$E,y_radius(a0)
-	move.b	#7,x_radius(a0)
+	move.w	#$E07,y_radius(a0)
 	move.b	#AniIDSonAni_Roll,anim(a0)
 	addq.w	#5,y_pos(a0)	; add the difference between Sonic's rolling and standing heights
-	move.b	#0,spindash_flag(a0)
 	moveq	#0,d0
+	move.b	d0,spindash_flag(a0)
 	move.b	spindash_counter(a0),d0
 	add.w	d0,d0
 	move.w	SpindashSpeeds(pc,d0.w),inertia(a0)
@@ -36603,8 +36604,7 @@ Sonic_HitLeftWall:
 	sub.w	d1,x_pos(a0)
 	move.w	#0,x_vel(a0) ; stop Sonic since he hit a wall
 	move.w	y_vel(a0),inertia(a0)
-	rts
-; ===========================================================================
+
 ; loc_1AFA6:
 Sonic_HitCeiling:
 	bsr.w	Sonic_CheckCeiling
@@ -36679,8 +36679,7 @@ Sonic_HitRightWall:
 	add.w	d1,x_pos(a0)
 	move.w	#0,x_vel(a0) ; stop Sonic since he hit a wall
 	move.w	y_vel(a0),inertia(a0)
-	rts
-; ===========================================================================
+
 ; identical to Sonic_HitCeiling...
 ; loc_1B05E:
 Sonic_HitCeiling2:
