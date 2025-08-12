@@ -26,6 +26,9 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Optimized most object move routines to take advantage of a quirk with the `movea.w` instruction.
 * Applied miscellaneous smaller optimizations to various objects that provide slight performance boosts.
 
+## Debugging
+* Replaced all teleport monitors with question mark monitors in debug mode that, when broken, will instantly transform the player Super.
+
 ## Sound
 * Restored higher quality drum and SEGA samples from _Sonic 1_.
 * Improved the sound-queuing system to not be as intensive with stopping the Z80.
@@ -59,6 +62,7 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Fixed Sonic overlapping the hangable vines in Mystic Cave.
 * Fixed the balloons in the Metropolis boss not bursting after hitting the player until they touch the floor once.
 * Made the balloons pop in the Metropolis boss when defeated (technically not a bugfix, but it prevents the sprite limit from being overloaded in the results, also _Sonic 3 & Knuckles_ does this as well for its throwback boss).
+* Stopped the timer after the Wing Fortress boss to prevent a time over and other issues.
 * Fixed the clouds in the ending popping into existence on the right side of the screen.
 * Fixed the birds in the ending appearing in front of the Tornado, yet behind Sonic.
 * Fixed the Special Stage animations not working correctly, meaning they now appear much smoother.
