@@ -79204,6 +79204,7 @@ ObjC5_CaseDefeated:
 ; ===========================================================================
 
 ObjC5_End:	; play music and change camera speed
+	clr.b	(Update_HUD_timer).w
 	moveq	#signextendB(MusID_WFZ),d0
 	jsrto	PlayMusic, JmpTo5_PlayMusic
 	move.w	#$720,d0
