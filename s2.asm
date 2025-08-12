@@ -33522,6 +33522,7 @@ loc_19208:
 loc_1921E:
 	move.l	#Obj0D_MapUnc_19656,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtUnc_Signpost,0,0),art_tile(a0)
+	move.b	#-1,(Signpost_prev_frame).w
 
 loc_1922C:
 	addq.b	#2,routine(a0) ; => Obj0D_Main
