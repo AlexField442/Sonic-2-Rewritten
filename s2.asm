@@ -1,3 +1,5 @@
+; TODO: Obj06 affecting debug mode
+
 ; Sonic the Hedgehog 2 disassembled binary
 
 ; Nemesis,   2004: Created original disassembly for SNASM68K
@@ -47778,6 +47780,7 @@ JmpTo2_MarkObjGone3 ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_23AF4:
 Obj33:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj33_Index(pc,d0.w),d1
@@ -48039,6 +48042,7 @@ JmpTo4_SolidObject ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_23E40:
 Obj43:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj43_Index(pc,d0.w),d1
@@ -50609,6 +50613,7 @@ JmpTo_SlopedSolid_SingleCharacter ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Sprite_26634:
 Obj42:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj42_Index(pc,d0.w),d1
@@ -51875,6 +51880,7 @@ spikearoundblock_position =		objoff_36 ; 0 = retracted or expanding, 1 = expande
 spikearoundblock_waiting =		objoff_38 ; 0 = moving, 1 = waiting
 ; Sprite_27594:
 Obj68:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj68_Index(pc,d0.w),d1
@@ -52049,6 +52055,7 @@ floorspike_waiting =		objoff_38 ; 0 = moving, 1 = waiting
 floorspike_delay =		objoff_3A ; short delay before the spike retracts
 ; Sprite_27794:
 Obj6D:
+	jsr	(Add_SpriteToCollisionResponseList).l
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj6D_Index(pc,d0.w),d1
