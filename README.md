@@ -23,7 +23,6 @@ Note that as of writing that **there is no stable release**, therefore there is 
 * Changed `priority` to now directly point to the sprite queue, rather than being calculated. This considerably simplifies DisplaySprite, but also requires all objects to explicitly declare their priority value.
 * Ported over the _Sonic 3 & Knuckles_ collision manager, freeing up a modest amount of the CPU. Note, however, that `Add_SpriteToCollisionResponseList` must now be called by the object (hazardous ones and a few others), otherwise the game will not process its collision at all.
 * Optimized the lost ring object to use a velocity table, rather than calculating it for every ring.
-* Optimized the (unused) big ring object a little bit.
 * Optimized most object move routines to take advantage of a quirk with the `movea.w` instruction.
 * Applied miscellaneous smaller optimizations to various objects that provide slight performance boosts.
 * Signposts now dynamically load their artwork in all instances, not just multiplayer.
